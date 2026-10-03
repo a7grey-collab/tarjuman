@@ -37,19 +37,11 @@
         {
           "name": "audio",
           "accept": [
+            "*/*",
             "audio/*",
-            "audio/ogg",
-            "audio/opus",
-            "audio/mpeg",
-            "audio/mp4",
-            "audio/aac",
-            "audio/amr",
-            "audio/wav",
-            "audio/x-wav",
-            "audio/webm",
-            "audio/3gpp",
             "application/ogg",
-            "video/ogg",
+            "application/octet-stream",
+            "video/*",
             ".opus",
             ".ogg",
             ".oga",
@@ -59,7 +51,8 @@
             ".amr",
             ".wav",
             ".webm",
-            ".3gp"
+            ".3gp",
+            ".mp4"
           ]
         }
       ]
