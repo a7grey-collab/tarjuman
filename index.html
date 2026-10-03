@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="google" content="notranslate">
 <meta name="theme-color" content="#16201D">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Tarjuman</title>
@@ -152,7 +153,7 @@ details.set[open] summary::after{content:"▴"}
 footer{display:flex; justify-content:center; align-items:center; gap:6px; font-size:13px; color:var(--muted); padding-top:8px; flex-wrap:wrap}
 footer a{color:var(--ru); text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-weight:500}
 footer svg{width:15px; height:15px}
-.toast{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:9px 16px; border-radius:99px; font-size:14px; max-width:calc(100% - 32px); text-align:center; z-index:10}
+.toast{position:fixed; left:50%; top:calc(12px + env(safe-area-inset-top,0px)); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:9px 16px; border-radius:99px; font-size:14px; max-width:calc(100% - 32px); text-align:center; z-index:10}
 
 .hright{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
 .uisw{display:inline-flex; background:var(--surface); border:1px solid var(--line); border-radius:99px; padding:3px; gap:2px}
@@ -165,8 +166,8 @@ footer svg{width:15px; height:15px}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Amiri:wght@700&display=swap">
 </head>
-<body>
-<div class="wrap">
+<body translate="no">
+<div class="wrap notranslate" translate="no">
   <header>
     <div class="mark"><b>Tarjuman</b><span>RU · AR · EN</span></div>
     <div class="hright">
@@ -312,10 +313,10 @@ footer svg{width:15px; height:15px}
 
   <footer dir="ltr">Developer Alex Grey
     <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a>
-    · v6
+    · v7
   </footer>
 </div>
-<div class="toast" id="toast" hidden></div>
+<div class="toast notranslate" translate="no" id="toast" hidden></div>
 
 <script>
 /* ================= interface languages ================= */
@@ -461,7 +462,7 @@ const UI_LANGS=['ru','en','ar'];
 let UI='ru';
 function t(k,vars){ let s=(I18N[UI]&&I18N[UI][k]!=null)?I18N[UI][k]:(I18N.en[k]!=null?I18N.en[k]:k); if(vars) s=s.replace(/\{(\w+)\}/g,(m,n)=>vars[n]!=null?vars[n]:''); return s; }
 var applyI18n=function(){
-  document.documentElement.lang=UI; document.documentElement.dir=UI==='ar'?'rtl':'ltr';
+  document.documentElement.lang=UI; document.documentElement.dir=UI==='ar'?'rtl':'ltr'; document.documentElement.setAttribute('translate','no'); document.documentElement.classList.add('notranslate');
   document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder=t(el.dataset.i18nPh); });
   document.querySelectorAll('[data-i18n-aria]').forEach(el=>{ el.setAttribute('aria-label',t(el.dataset.i18nAria)); });
@@ -698,7 +699,7 @@ function srError(c){
 /* a listening session that survives Android's auto-stop on pauses: it restarts until the user stops it */
 function createListener(lang,h){
   if(!SR){ toast(t('noSR')); return null; }
-  let finalText='', stopped=false, r=null, restarts=0, fatal=null;
+  let finalText='', stopped=false, r=null, restarts=0, fatal=null, netErrs=0, lastNet=false;
   const join=(a,b)=>a&&b?a+' '+b:(a||b||'');
   function start(){
     r=new SR(); r.lang=L[lang].sr; r.interimResults=true; r.continuous=!IS_ANDROID; r.maxAlternatives=1;
@@ -708,10 +709,14 @@ function createListener(lang,h){
       for(let i=0;i<e.results.length;i++){ const x=e.results[i][0].transcript; if(e.results[i].isFinal) segFinal+=(segFinal?' ':'')+x.trim(); else interim+=x; }
       h.interim && h.interim(join(finalText, join(segFinal, interim.trim())));
     };
-    r.onerror=e=>{ if(['not-allowed','service-not-allowed','audio-capture','language-not-supported','network'].includes(e.error)){ fatal=e.error; toast(srError(e.error)); } };
+    r.onerror=e=>{
+      // Android Chrome reports short drops of Google's speech service as "network": retry quietly a few times
+      if(e.error==='network' && netErrs<3){ netErrs++; lastNet=true; return; }
+      if(['not-allowed','service-not-allowed','audio-capture','language-not-supported','network'].includes(e.error)){ fatal=e.error; toast(srError(e.error)); }
+    };
     r.onend=()=>{
       finalText=join(finalText,segFinal);
-      if(!stopped && !fatal && restarts<30){ restarts++; try{ start(); return; }catch(e){} }
+      if(!stopped && !fatal && restarts<30){ restarts++; const wait=lastNet?400:0; lastNet=false; setTimeout(()=>{ if(stopped){ h.end(finalText.trim(),fatal); return; } try{ start(); }catch(e){ h.end(finalText.trim(),fatal); } },wait); return; }
       h.end(finalText.trim(), fatal);
     };
     r.start();
