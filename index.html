@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#16201D">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Tarjuman</title>
 <style>
 /* Layout: one narrow column; WhatsApp-like voice feed is the main screen. Language colors: RU ink-blue, AR palm-green, EN clay */
@@ -87,6 +88,13 @@ details.set[open] summary::after{content:"▴"}
 .btn{border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:7px 11px; font-size:13px; display:inline-flex; align-items:center; gap:6px}
 .btn svg{width:16px; height:16px}
 .btn.main{background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:600}
+.orig{display:flex; flex-direction:column; gap:4px}
+.orig:empty{display:none}
+.orig .lab{font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--muted)}
+.attach{display:flex; gap:8px; flex-wrap:wrap}
+.attach .btn{flex:1; justify-content:center; padding:11px 12px; font-size:14px; font-weight:600; border-style:dashed}
+.install{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:var(--surface); font-size:13.5px}
+.install .txt{flex:1; min-width:200px}
 .empty{color:var(--muted); font-size:14px; text-align:center; padding:4px 8px}
 .is-ar{font-family:var(--f-ar)!important; direction:rtl; text-align:right}
 .dst.is-ar{font-size:22px; line-height:1.75}
@@ -198,6 +206,18 @@ footer svg{width:15px; height:15px}
           <option value="mp3">MP3 (для любых программ)</option>
         </select>
       </label>
+      <label>Распознавание голосовых собеседника
+        <select id="asr">
+          <option value="accurate">Точное, для диалектов (≈250 МБ)</option>
+          <option value="fast">Быстрое (≈80 МБ)</option>
+        </select>
+      </label>
+      <label>Язык голосовых собеседника
+        <select id="asrlang">
+          <option value="pair">Как выбран у собеседника</option>
+          <option value="auto">Определять автоматически</option>
+        </select>
+      </label>
       <label class="row"><input type="checkbox" id="autoplay" checked> Сразу проигрывать голосовое</label>
       <label class="row"><input type="checkbox" id="autotext" checked> Во вкладке «Текст» тоже создавать голосовое</label>
     </div>
@@ -227,7 +247,16 @@ footer svg{width:15px; height:15px}
         <div class="dst is-ar">مرحبًا! سأصل بعد عشرين دقيقة.</div>
         <div class="acts"><button class="btn main" id="ex1-go">Создать голосовое</button></div>
       </div>
-      <div class="empty" id="feed-empty">Как в WhatsApp: зажмите кнопку своего языка, говорите и отпустите. Голосовое на языке собеседника создастся само, его можно сразу отправить.</div>
+      <div class="empty" id="feed-empty">Как в WhatsApp: зажмите кнопку своего языка, говорите и отпустите. Голосовое на языке собеседника создастся само. Голосовое собеседника перешлите сюда из WhatsApp через «Поделиться» — получите перевод и голосовое на своём языке.</div>
+    </div>
+
+    <div class="attach">
+      <button class="btn" id="attach-btn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5z"/></svg><span>Перевести голосовое собеседника</span></button>
+      <input type="file" id="attach-in" accept="audio/*,.opus,.ogg,.oga,.m4a,.mp3,.aac,.amr,.wav,.webm,.3gp" multiple hidden>
+    </div>
+    <div class="install" id="install" hidden>
+      <div class="txt" id="install-txt">Установите переводчик как приложение: тогда голосовые из WhatsApp можно пересылать сюда через «Поделиться».</div>
+      <button class="btn main" id="install-btn" hidden>Установить</button>
     </div>
 
     <form class="typerow" id="typeform">
@@ -282,7 +311,7 @@ footer svg{width:15px; height:15px}
 
   <footer>Developer Alex Grey
     <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a>
-    · v3
+    · v4
   </footer>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -295,16 +324,16 @@ const L = {
   en:{name:'English', short:'EN', full:'English', sr:'en-US', speak:'I speak English',  gen:'на английском'}
 };
 const LANGS = ['ru','ar','en'];
-const IN_CLAUDE = !!(window.claude && window.claude.use);
+const IN_CLAUDE = !!(window.claude && window.claude.use) || /(^|\.)claude\.(ai|site)$|claudeusercontent/.test(location.hostname);
 
 /* ================= settings ================= */
-const state = { dialect:'msa', autoplay:true, autotext:true, ruvoice:'dmitri', envoice:'ryan', speed:'1', fmt:'opus', me:'ru', them:'ar', from:'ru', to:'ar' };
+const state = { dialect:'msa', autoplay:true, autotext:true, ruvoice:'dmitri', envoice:'ryan', speed:'1', fmt:'opus', asr:'accurate', asrlang:'pair', me:'ru', them:'ar', from:'ru', to:'ar' };
 try{ const p = JSON.parse(localStorage.getItem('tarjuman.prefs.v3')||'{}'); for(const k in p) if(k in state) state[k]=p[k]; }catch(e){}
 if(!LANGS.includes(state.me)) state.me='ru';
 if(!LANGS.includes(state.them) || state.them===state.me) state.them = state.me==='ar'?'ru':'ar';
 if(!LANGS.includes(state.from)) state.from='ru';
 if(!LANGS.includes(state.to) || state.to===state.from) state.to = state.from==='ar'?'ru':'ar';
-const SAVE_KEYS=['dialect','autoplay','autotext','ruvoice','envoice','speed','fmt','me','them','from','to'];
+const SAVE_KEYS=['dialect','autoplay','autotext','ruvoice','envoice','speed','fmt','asr','asrlang','me','them','from','to'];
 function savePrefs(){ try{ const o={}; SAVE_KEYS.forEach(k=>o[k]=state[k]); localStorage.setItem('tarjuman.prefs.v3', JSON.stringify(o)); }catch(e){} }
 const bindSel=(id,key,after)=>{ const el=$('#'+id); el.value=state[key]; el.onchange=()=>{ state[key]=el.value; savePrefs(); after&&after(); }; };
 const bindChk=(id,key)=>{ const el=$('#'+id); el.checked=!!state[key]; el.onchange=()=>{ state[key]=el.checked; savePrefs(); }; };
@@ -313,6 +342,8 @@ bindSel('ruvoice','ruvoice',()=>refreshPack(true));
 bindSel('envoice','envoice',()=>refreshPack(true));
 bindSel('speed','speed');
 bindSel('fmt','fmt');
+bindSel('asr','asr');
+bindSel('asrlang','asrlang');
 bindChk('autoplay','autoplay'); bindChk('autotext','autotext');
 
 /* ================= helpers ================= */
@@ -728,7 +759,7 @@ function clearExamples(){ feed.querySelectorAll('.example').forEach(n=>n.remove(
 function newCard(from,to,mine){
   clearExamples();
   const c=document.createElement('div'); c.className='card l-'+from+(mine?' mine':' theirs');
-  c.innerHTML='<div class="head"><span></span><span class="tm"></span></div><div class="src"></div><div class="dst"></div><div class="st"></div><div class="player"></div><div class="acts"></div>';
+  c.innerHTML='<div class="head"><span></span><span class="tm"></span></div><div class="orig"></div><div class="src"></div><div class="dst"></div><div class="st"></div><div class="player"></div><div class="acts"></div>';
   c.querySelector('.head span').textContent=L[from].short+' → '+L[to].short;
   c.querySelector('.tm').textContent=hhmm();
   if(from==='ar') c.querySelector('.src').classList.add('is-ar');
@@ -880,6 +911,145 @@ $('#mic').onclick=()=>{
   });
   if(recText){ $('#mic').classList.add('on'); $('#status').textContent='Слушаю… нажмите ещё раз, когда закончите'; }
 };
+
+/* ================= incoming voice messages (Whisper speech-to-text, runs in the browser) ================= */
+const TF_URL='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6/dist/transformers.min.js';
+const ASR_MODELS={ accurate:{id:'onnx-community/whisper-small', mb:250}, fast:{id:'onnx-community/whisper-base', mb:80} };
+const ASR = (()=>{
+  const SRC = `
+let asr=null, cur=null;
+self.onmessage = async (e) => {
+  const m = e.data;
+  try {
+    if (!asr || cur !== m.model) {
+      const T = await import('${TF_URL}');
+      T.env.allowLocalModels = false;
+      const files = {};
+      asr = await T.pipeline('automatic-speech-recognition', m.model, {
+        dtype: { encoder_model: 'q8', decoder_model_merged: 'q8' }, device: 'wasm',
+        progress_callback: (x) => {
+          if (x.status === 'progress' && x.total) {
+            files[x.file] = [x.loaded || 0, x.total];
+            let a = 0, b = 0; for (const k in files) { a += files[k][0]; b += files[k][1]; }
+            self.postMessage({ type: 'progress', id: m.id, frac: b ? a / b : 0 });
+          }
+        }
+      });
+      cur = m.model;
+    }
+    if (m.type === 'load') { self.postMessage({ type: 'done', id: m.id }); return; }
+    self.postMessage({ type: 'working', id: m.id });
+    const out = await asr(m.pcm, { language: m.lang || null, task: 'transcribe', chunk_length_s: 30, stride_length_s: 5 });
+    self.postMessage({ type: 'done', id: m.id, text: (out && out.text ? out.text : '').trim() });
+  } catch (err) {
+    self.postMessage({ type: 'error', id: m.id, message: String((err && err.message) || err) });
+  }
+};`;
+  let worker=null, seq=0; const jobs=new Map();
+  function getWorker(){
+    if(worker) return worker;
+    const url=URL.createObjectURL(new Blob([SRC],{type:'text/javascript'}));
+    worker=new Worker(url,{type:'module'});
+    worker.onmessage=e=>{ const m=e.data, j=jobs.get(m.id); if(!j) return;
+      if(m.type==='progress') j.onProg&&j.onProg('load',m.frac);
+      else if(m.type==='working') j.onProg&&j.onProg('work');
+      else if(m.type==='done'){ jobs.delete(m.id); j.res(m.text||''); }
+      else if(m.type==='error'){ jobs.delete(m.id); j.rej(new Error(m.message)); }
+    };
+    worker.onerror=e=>{ const err=new Error('модуль распознавания не запустился'+(e&&e.message?': '+e.message:'')); jobs.forEach(j=>j.rej(err)); jobs.clear(); try{worker.terminate();}catch(_){} worker=null; };
+    return worker;
+  }
+  function call(msg,onProg,transfer){ return new Promise((res,rej)=>{ const id=++seq; jobs.set(id,{res,rej,onProg}); getWorker().postMessage(Object.assign({id},msg),transfer||[]); }); }
+  // jobs run one after another
+  let chain=Promise.resolve();
+  function queue(fn){ const p=chain.then(fn,fn); chain=p.catch(()=>{}); return p; }
+  return {
+    model:()=>ASR_MODELS[state.asr]||ASR_MODELS.accurate,
+    load(onProg){ return queue(()=>call({type:'load',model:this.model().id},onProg)); },
+    transcribe(pcm,lang,onProg){ return queue(()=>call({type:'run',model:this.model().id,pcm,lang},onProg,[pcm.buffer])); },
+    async isReady(){ try{ if(!window.caches) return false; const c=await caches.open('transformers-cache'); const base='https://huggingface.co/'+this.model().id+'/resolve/main/onnx/'; return !!(await c.match(base+'encoder_model_quantized.onnx')) && !!(await c.match(base+'decoder_model_merged_quantized.onnx')); }catch(e){ return false; } }
+  };
+})();
+
+async function decodeAudio(blob){
+  const buf=await blob.arrayBuffer();
+  const AC=window.AudioContext||window.webkitAudioContext; if(!AC) throw new Error('браузер не умеет открывать аудио');
+  const ac=new AC(); let ab;
+  try{ ab=await new Promise((res,rej)=>{ const p=ac.decodeAudioData(buf.slice(0),res,rej); if(p&&p.then) p.then(res,rej); }); }
+  catch(e){ throw new Error('не удалось открыть этот аудиофайл'+(/iPhone|iPad|Mac/.test(navigator.userAgent)?' (Safari может не поддерживать формат .opus — попробуйте Chrome)':'')); }
+  finally{ try{ ac.close(); }catch(e){} }
+  const n=Math.max(1,Math.ceil(ab.duration*16000)); const off=new OfflineAudioContext(1,n,16000);
+  const s=off.createBufferSource(); s.buffer=ab; s.connect(off.destination); s.start();
+  const r=await off.startRendering(); return {pcm:r.getChannelData(0), seconds:ab.duration};
+}
+function wavePeaks(f,n=40){ const out=[], step=Math.max(1,Math.floor(f.length/n)); let mx=0; for(let i=0;i<n;i++){ let s=0; for(let j=i*step;j<Math.min(f.length,(i+1)*step);j++) s+=f[j]*f[j]; const v=Math.sqrt(s/step); out.push(v); if(v>mx) mx=v; } return out.map(v=>mx?Math.max(.12,v/mx):.12); }
+
+let incomingChain=Promise.resolve();
+function handleIncoming(blob,name){ incomingChain=incomingChain.then(()=>processIncoming(blob,name)).catch(()=>{}); }
+async function processIncoming(blob,name){
+  if(IN_CLAUDE){ toast('Внутри Claude голосовые не расшифровываются. Откройте ссылку на переводчик в Chrome.'); return; }
+  $('#t-voice').click();
+  const hint = state.asrlang==='auto' ? null : state.them;
+  let from = hint || state.them, to = from===state.me ? state.them : state.me;
+  const c=newCard(from,to,false); c.classList.add('incoming');
+  const head=c.querySelector('.head span'), orig=c.querySelector('.orig'), st=c.querySelector('.st'), srcEl=c.querySelector('.src');
+  head.textContent='Голосовое собеседника';
+  st.className='st'; st.textContent='Открываю голосовое…';
+  let audio;
+  try{ audio=await decodeAudio(blob); }
+  catch(e){ st.className='st err'; st.textContent=e.message; return; }
+  const url=URL.createObjectURL(blob);
+  orig.innerHTML='<span class="lab">Оригинал · '+mmss(audio.seconds)+'</span>';
+  const pcmCopy=audio.pcm.slice(0);
+  orig.appendChild(voiceNote({url,seconds:audio.seconds,peaks:wavePeaks(audio.pcm),lang:from}));
+  if(audio.seconds<0.3){ st.className='st err'; st.textContent='Запись пустая или слишком короткая.'; return; }
+  const ready=await ASR.isReady(); const t0=Date.now(); let tick=null;
+  const m=ASR.model();
+  st.textContent = ready ? 'Расшифровываю…' : 'Загружаю модуль распознавания (≈'+m.mb+' МБ, один раз)…';
+  let text='';
+  try{
+    text=await ASR.transcribe(pcmCopy, hint, (phase,frac)=>{
+      if(phase==='load') st.textContent='Загружаю модуль распознавания: '+Math.round((frac||0)*100)+'% (≈'+m.mb+' МБ, один раз)';
+      else if(phase==='work'){ clearInterval(tick); const est=Math.max(5,Math.round(audio.seconds*(state.asr==='fast'?0.4:1.1))); tick=setInterval(()=>{ st.textContent='Расшифровываю… '+mmss((Date.now()-t0)/1000)+' (обычно до '+mmss(est+5)+')'; },500); }
+    });
+  }catch(e){ clearInterval(tick); st.className='st err'; const net=/locate file|fetch|network|Failed to load|404|403/i.test(e.message||''); st.textContent = net ? 'Не удалось скачать модуль распознавания. Проверьте интернет и попробуйте снова.' : 'Не удалось расшифровать ('+(e.message||'ошибка')+'). Если телефон слабый, выберите в настройках «Быстрое» распознавание.'; return; }
+  clearInterval(tick);
+  text=text.replace(/\[(?:music|музыка|silence|BLANK_AUDIO)[^\]]*\]/gi,'').trim();
+  if(!text){ st.className='st err'; st.textContent='Речь не распознана. Попробуйте другую запись или выберите язык собеседника.'; return; }
+  const d=detect(text);
+  if(d && d!==from){ from=d; to = from===state.me ? state.them : state.me; c.className='card theirs incoming l-'+from; }
+  srcEl.classList.toggle('is-ar',from==='ar'); c.querySelector('.dst').classList.toggle('is-ar',to==='ar');
+  c.querySelector('.head span').textContent='Голосовое собеседника · '+L[from].short+' → '+L[to].short;
+  processCard(c,from,to,text);
+}
+$('#attach-btn').onclick=()=>$('#attach-in').click();
+$('#attach-in').onchange=e=>{ [...e.target.files].forEach(f=>handleIncoming(f,f.name)); e.target.value=''; };
+// drag & drop on desktop
+['dragover','drop'].forEach(t=>document.addEventListener(t,e=>{
+  const f=e.dataTransfer&&[...e.dataTransfer.items||[]].some(i=>i.kind==='file'); if(!f) return; e.preventDefault();
+  if(t==='drop') [...e.dataTransfer.files].filter(x=>/^audio\/|\.(opus|ogg|oga|m4a|mp3|aac|amr|wav|webm)$/i.test(x.type+' '+x.name)).forEach(x=>handleIncoming(x,x.name));
+}));
+
+/* ================= app install + share target (WhatsApp → Поделиться → Tarjuman) ================= */
+const STANDALONE = matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+let installEvt=null;
+async function pickUpShared(){
+  if(!window.caches) return;
+  try{
+    const c=await caches.open('tarjuman-share'); const keys=await c.keys();
+    for(const k of keys){ if(!/\/shared\//.test(k.url)) continue; const r=await c.match(k); await c.delete(k); if(!r) continue; const b=await r.blob(); handleIncoming(b, decodeURIComponent(r.headers.get('x-name')||'voice')); }
+  }catch(e){}
+  if(location.search.includes('shared=')) history.replaceState(null,'',location.pathname);
+}
+if(!IN_CLAUDE && (location.protocol==='https:'||location.hostname==='localhost') && 'serviceWorker' in navigator){
+  if(!document.querySelector('link[rel=manifest]')){ const l=document.createElement('link'); l.rel='manifest'; l.href='manifest.webmanifest'; document.head.appendChild(l); }
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+  pickUpShared();
+  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); installEvt=e; if(!STANDALONE){ $('#install').hidden=false; $('#install-btn').hidden=false; } });
+  if(!STANDALONE && IS_ANDROID){ $('#install').hidden=false; $('#install-txt').textContent='Чтобы пересылать голосовые из WhatsApp сюда через «Поделиться», установите переводчик как приложение: в Chrome нажмите ⋮ → «Установить приложение» (или «Добавить на главный экран»).'; }
+  $('#install-btn').onclick=async()=>{ if(!installEvt) return; installEvt.prompt(); const r=await installEvt.userChoice.catch(()=>null); installEvt=null; $('#install-btn').hidden=true; if(r&&r.outcome==='accepted'){ $('#install-txt').textContent='Готово. Теперь в WhatsApp: зажмите голосовое → «Поделиться» → Tarjuman.'; } };
+  window.addEventListener('appinstalled',()=>{ $('#install-txt').textContent='Приложение установлено. В WhatsApp: зажмите голосовое → «Поделиться» → Tarjuman.'; $('#install-btn').hidden=true; });
+}
 
 refreshPack(true);
 </script>
