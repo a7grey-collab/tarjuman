@@ -88,6 +88,7 @@ details.set[open] summary::after{content:"▴"}
 .btn{border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:7px 11px; font-size:13px; display:inline-flex; align-items:center; gap:6px}
 .btn svg{width:16px; height:16px}
 .btn.main{background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:600}
+.spoken{font-size:15px; color:var(--muted); line-height:1.9; padding:2px 4px}
 .orig{display:flex; flex-direction:column; gap:4px}
 .orig:empty{display:none}
 .orig .lab{font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--muted)}
@@ -218,6 +219,9 @@ footer svg{width:15px; height:15px}
           <option value="auto">Определять автоматически</option>
         </select>
       </label>
+      <label style="grid-column:1/-1">Арабское произношение: ваши исправления (по одному в строке: <span dir="rtl">слово = слово с харакатами</span>)
+        <textarea id="ardict" rows="3" dir="rtl" placeholder="شكرا = شُكْرًا" style="font:16px/1.6 var(--f-ar); padding:8px; border-radius:9px; border:1px solid var(--line); background:var(--surface); color:var(--ink)"></textarea>
+      </label>
       <label class="row"><input type="checkbox" id="autoplay" checked> Сразу проигрывать голосовое</label>
       <label class="row"><input type="checkbox" id="autotext" checked> Во вкладке «Текст» тоже создавать голосовое</label>
     </div>
@@ -311,7 +315,7 @@ footer svg{width:15px; height:15px}
 
   <footer>Developer Alex Grey
     <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a>
-    · v4
+    · v5
   </footer>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -327,13 +331,13 @@ const LANGS = ['ru','ar','en'];
 const IN_CLAUDE = !!(window.claude && window.claude.use) || /(^|\.)claude\.(ai|site)$|claudeusercontent/.test(location.hostname);
 
 /* ================= settings ================= */
-const state = { dialect:'msa', autoplay:true, autotext:true, ruvoice:'dmitri', envoice:'ryan', speed:'1', fmt:'opus', asr:'accurate', asrlang:'pair', me:'ru', them:'ar', from:'ru', to:'ar' };
+const state = { dialect:'msa', autoplay:true, autotext:true, ruvoice:'dmitri', envoice:'ryan', speed:'1', fmt:'opus', ardict:'', asr:'accurate', asrlang:'pair', me:'ru', them:'ar', from:'ru', to:'ar' };
 try{ const p = JSON.parse(localStorage.getItem('tarjuman.prefs.v3')||'{}'); for(const k in p) if(k in state) state[k]=p[k]; }catch(e){}
 if(!LANGS.includes(state.me)) state.me='ru';
 if(!LANGS.includes(state.them) || state.them===state.me) state.them = state.me==='ar'?'ru':'ar';
 if(!LANGS.includes(state.from)) state.from='ru';
 if(!LANGS.includes(state.to) || state.to===state.from) state.to = state.from==='ar'?'ru':'ar';
-const SAVE_KEYS=['dialect','autoplay','autotext','ruvoice','envoice','speed','fmt','asr','asrlang','me','them','from','to'];
+const SAVE_KEYS=['ardict','dialect','autoplay','autotext','ruvoice','envoice','speed','fmt','asr','asrlang','me','them','from','to'];
 function savePrefs(){ try{ const o={}; SAVE_KEYS.forEach(k=>o[k]=state[k]); localStorage.setItem('tarjuman.prefs.v3', JSON.stringify(o)); }catch(e){} }
 const bindSel=(id,key,after)=>{ const el=$('#'+id); el.value=state[key]; el.onchange=()=>{ state[key]=el.value; savePrefs(); after&&after(); }; };
 const bindChk=(id,key)=>{ const el=$('#'+id); el.checked=!!state[key]; el.onchange=()=>{ state[key]=el.checked; savePrefs(); }; };
@@ -344,6 +348,7 @@ bindSel('speed','speed');
 bindSel('fmt','fmt');
 bindSel('asr','asr');
 bindSel('asrlang','asrlang');
+{ const ta=$('#ardict'); ta.value=state.ardict||''; ta.addEventListener('change',()=>{ state.ardict=ta.value; savePrefs(); toast('Произношение сохранено'); }); }
 bindChk('autoplay','autoplay'); bindChk('autotext','autotext');
 
 /* ================= helpers ================= */
@@ -515,6 +520,137 @@ function fetchBuf(url,onProg){
 }
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>{ s.remove(); rej(new Error('не загрузилась библиотека '+src.split('/').pop())); }; document.head.appendChild(s); }); }
 
+
+/*AR-BEGIN*/
+/* Arabic pronunciation layer: verified phrases + common-word fixes + pausal form (waqf), applied before speech */
+const AR_PHRASES = [
+ ['السلام عليكم ورحمة الله وبركاته','السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ'],
+ ['وعليكم السلام ورحمة الله وبركاته','وَعَلَيْكُمُ السَّلَامُ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ'],
+ ['ورحمة الله وبركاته','وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ'],
+ ['السلام عليكم ورحمة الله','السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ'],
+ ['وعليكم السلام','وَعَلَيْكُمُ السَّلَامُ'],
+ ['السلام عليكم','السَّلَامُ عَلَيْكُمْ'],
+ ['بسم الله الرحمن الرحيم','بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ'],
+ ['بسم الله','بِسْمِ اللَّهِ'],
+ ['والحمد لله','وَالْحَمْدُ لِلَّهِ'],
+ ['الحمد لله','الْحَمْدُ لِلَّهِ'],
+ ['إن شاء الله','إِنْ شَاءَ اللَّهُ'],
+ ['ما شاء الله','مَا شَاءَ اللَّهُ'],
+ ['جزاك الله خيرا','جَزَاكَ اللَّهُ خَيْرًا'],
+ ['جزاكم الله خيرا','جَزَاكُمُ اللَّهُ خَيْرًا'],
+ ['بارك الله فيك','بَارَكَ اللَّهُ فِيكَ'],
+ ['بارك الله فيكم','بَارَكَ اللَّهُ فِيكُمْ'],
+ ['سبحان الله','سُبْحَانَ اللَّهِ'],
+ ['الله أكبر','اللَّهُ أَكْبَرُ'],
+ ['أستغفر الله','أَسْتَغْفِرُ اللَّهَ'],
+ ['لا إله إلا الله','لَا إِلَهَ إِلَّا اللَّهُ'],
+ ['لا حول ولا قوة إلا بالله','لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ'],
+ ['صلى الله عليه وسلم','صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ'],
+ ['الله يعطيك العافية','اللَّهُ يُعْطِيكَ الْعَافِيَةَ'],
+ ['يعطيك العافية','يُعْطِيكَ الْعَافِيَةَ'],
+ ['الله يحفظك','اللَّهُ يَحْفَظُكَ'],
+ ['حياك الله','حَيَّاكَ اللَّهُ'],
+ ['في أمان الله','فِي أَمَانِ اللَّهِ'],
+ ['تقبل الله منا ومنكم','تَقَبَّلَ اللَّهُ مِنَّا وَمِنْكُمْ'],
+ ['تقبل الله','تَقَبَّلَ اللَّهُ'],
+ ['عيد مبارك','عِيدٌ مُبَارَكٌ'],
+ ['رمضان كريم','رَمَضَانُ كَرِيمٌ'],
+ ['رمضان مبارك','رَمَضَانُ مُبَارَكٌ'],
+ ['جمعة مباركة','جُمُعَةٌ مُبَارَكَةٌ'],
+ ['مع السلامة','مَعَ السَّلَامَةِ'],
+ ['صباح الخير','صَبَاحُ الْخَيْرِ'],
+ ['صباح النور','صَبَاحُ النُّورِ'],
+ ['مساء الخير','مَسَاءُ الْخَيْرِ'],
+ ['مساء النور','مَسَاءُ النُّورِ'],
+ ['أهلا وسهلا','أَهْلًا وَسَهْلًا'],
+ ['أهلا بك','أَهْلًا بِكَ'],
+ ['على الرحب والسعة','عَلَى الرَّحْبِ وَالسَّعَةِ'],
+ ['شكرا جزيلا','شُكْرًا جَزِيلًا'],
+ ['شكرا لك','شُكْرًا لَكَ'],
+ ['شكرا لكم','شُكْرًا لَكُمْ'],
+ ['كيف حالك','كَيْفَ حَالُكَ'],
+ ['كيف حالكم','كَيْفَ حَالُكُمْ'],
+ ['أنا بخير','أَنَا بِخَيْرٍ'],
+ ['من فضلك','مِنْ فَضْلِكَ'],
+ ['لو سمحت','لَوْ سَمَحْتَ'],
+ ['يا أخي','يَا أَخِي'],
+ ['يا أختي','يَا أُخْتِي']
+];
+const AR_WORDS = {
+ 'شكرا':'شُكْرًا','عفوا':'عَفْوًا','مرحبا':'مَرْحَبًا','وبركاته':'وَبَرَكَاتُهُ','بركاته':'بَرَكَاتُهُ',
+ 'جزاك':'جَزَاكَ','جزاكم':'جَزَاكُمْ','أين':'أَيْنَ','سأصل':'سَأَصِلُ','نصل':'نَصِلُ','أصل':'أَصِلُ','آمين':'آمِين','تشرفنا':'تَشَرَّفْنَا',
+ 'لله':'لِلَّهِ','بالله':'بِاللَّهِ','والله':'وَاللَّهِ'
+};
+const arStrip = w => w.replace(/[ً-ْٰـ]/g,'');
+const arNorm = w => arStrip(w).replace(/[إأآٱ]/g,'ا').replace(/ى/g,'ي');
+const AR_SEP = /(\s+|[.!?؟،,;:…"«»()\[\]\-–—]+)/;
+const isArWord = t => /[ء-ي]/.test(t);
+function arUserDict(){ const out={phr:[],w:{}}; String(state.ardict||'').split('\n').forEach(l=>{ const m=l.split('='); if(m.length<2) return; const k=m[0].trim(), v=m.slice(1).join('=').trim(); if(!k||!v) return; if(/\s/.test(k)) out.phr.push([k,v]); else out.w[arNorm(k)]=v; }); return out; }
+function arPhraseTable(user){
+  return [...user.phr, ...AR_PHRASES].map(([k,v])=>({k:arNorm(k).split(/\s+/), v})).sort((a,b)=>b.k.length-a.k.length);
+}
+function arMatchAt(parts,i,table){
+  for(const e of table){
+    let j=i, n=0, ok=true;
+    while(n<e.k.length){
+      if(j>=parts.length){ ok=false; break; }
+      const t=parts[j];
+      if(/^\s+$/.test(t)){ j++; continue; }
+      if(!isArWord(t) || arNorm(t)!==e.k[n]){ ok=false; break; }
+      n++; j++;
+    }
+    if(ok) return {end:j, text:e.v};
+  }
+  return null;
+}
+function arWordFix(tok,words){
+  const k=arNorm(tok); if(words[k]) return words[k];
+  for(const pre of [['و','وَ'],['ف','فَ']]){ if(k.startsWith(pre[0]) && k.length>2 && words[k.slice(1)]) return pre[1]+words[k.slice(1)]; }
+  return tok;
+}
+/* pausal form: Arabs drop the final short vowel/tanween before a pause (…barakātuh, not …barakātuhu/i) */
+function arWaqf(s){
+  s=s.replace(/([ء-ي])ً([اى])(?=[\s]*(?:[.!?؟،,;:…\n]|$))/g,'$1َ$2');
+  return s.replace(/([ء-ي])([ّ]?)[ً-ِ]([ّ]?)(?=[\s]*(?:[.!?؟،,;:…"»)\n]|$))/g,'$1$2$3');
+}
+function arPrepare(text,tk,hasH){
+  const user=arUserDict(), table=arPhraseTable(user), words={}; for(const k in AR_WORDS) words[arNorm(k)]=AR_WORDS[k]; Object.assign(words,user.w);
+  const parts=text.split(AR_SEP).filter(x=>x!=='');
+  const out=[]; let run=[];
+  const flush=()=>{ if(!run.length) return; const t=run.join(''); let r=t;
+    if(tk && !hasH(t) && isArWord(t)){ try{ const lead=t.match(/^\s*/)[0], trail=t.match(/\s*$/)[0]; r=lead+tk.do_tashkeel(t.trim())+trail; }catch(e){ r=t; } }
+    out.push(r.split(AR_SEP).map(x=>isArWord(x)?arWordFix(x,words):x).join('')); run=[]; };
+  for(let i=0;i<parts.length;){
+    if(isArWord(parts[i])){ const m=arMatchAt(parts,i,table); if(m){ flush(); out.push(m.text); i=m.end; continue; } }
+    run.push(parts[i]); i++;
+  }
+  flush();
+  return arWaqf(out.join(''));
+}
+/* Speech spelling for the eSpeak Arabic front-end (display text stays normal):
+   - shadda + vowel is expanded (C+sukun+C+vowel) — eSpeak otherwise drops the vowel (muħammd, sslaːm);
+   - connected speech: the article's alif is elided after a word; sun letters assimilate (…u s-salām, …u l-khayr);
+   - the name of Allah is spelled so the long ā is heard (bismi llāhi, Allāhu akbar). */
+const AR_SUN='تثدذرزسشصضطظلن';
+function arSpeech(s){
+  const parts=s.split(AR_SEP); let prev=false; const out=[];
+  for(const t of parts){
+    if(t===''){ continue; }
+    if(!isArWord(t)){ out.push(t); if(!/^\s+$/.test(t)) prev=false; continue; }
+    let w=t; const n=arNorm(w); const v=(w.match(/ه([ً-ِ]?)$/)||[])[1]||'';
+    const ALLAH={'الله': prev?'لْلَاه':'أَللَاه','والله':'وَلْلَاه','فالله':'فَلْلَاه','بالله':'بِلْلَاه','لله':'لِلْلَاه','تالله':'تَلْلَاه'};
+    if(ALLAH[n]){ out.push(ALLAH[n]+v); prev=true; continue; }
+    if(prev && arStrip(w)[0]==='ا' && n.startsWith('ال') && n.length>3){
+      const rest=w.replace(/^ا[ً-ْ]*ل[ً-ْ]*/,'');
+      if(rest){ w = AR_SUN.includes(rest[0]) ? rest : 'لْ'+rest; }
+    }
+    w=w.replace(/([ء-ي])([ً-ِ]?)ّ([ً-ِ]?)/g,(m,c,v1,v2)=>c+'ْ'+c+(v1||v2));
+    out.push(w); prev=true;
+  }
+  return out.join('');
+}
+/*AR-END*/
+
 const Engine = (()=>{
   let ortP=null, lameP=null, tkP=null, phP=null; const sessions=new Map();
   const once=(get,set,fn)=>{ if(!get()) set(fn().catch(e=>{ set(null); throw e; })); return get(); };
@@ -620,11 +756,12 @@ const Engine = (()=>{
     text=clean(text,lang); if(!text) throw new Error('нет текста для озвучки');
     const prog=label=>(got,total)=>onStep&&onStep(label+(total?' '+Math.round(got*100/total)+'%':' '+(got/1048576).toFixed(0)+' МБ'));
     onStep&&onStep('Готовлю голос…');
-    if(lang==='ar' && !hasHarakat(text)){
-      const tk=await tashkeel(prog('Загружаю огласовки…'));
-      onStep&&onStep('Расставляю огласовки…');
-      try{ text=tk.do_tashkeel(text); }catch(e){}
+    if(lang==='ar'){
+      let tk=null;
+      if(!hasHarakat(text)){ tk=await tashkeel(prog('Загружаю огласовки…')); onStep&&onStep('Расставляю огласовки…'); }
+      text=arPrepare(text,tk,hasHarakat);
     }
+    const spokenText=text; if(lang==='ar') text=arSpeech(text);
     await phFiles(prog('Загружаю речевой модуль…'));
     const {s,cfg}=await session(voiceKey(lang),prog('Загружаю голос ('+L[lang].short+')…'));
     onStep&&onStep('Создаю голосовое…');
@@ -642,7 +779,7 @@ const Engine = (()=>{
     let blob=null, kind='';
     if(state.fmt==='opus' && await canOpus()){ try{ blob=await opus(f,sr); kind='opus'; }catch(e){ blob=null; } }
     if(!blob){ try{ blob=await mp3(f,sr); kind='mp3'; }catch(e){ blob=wav(f,sr); kind='wav'; } }
-    return {blob,kind,url:URL.createObjectURL(blob),seconds:f.length/sr,peaks:peaks(f),lang};
+    return {blob,kind,url:URL.createObjectURL(blob),seconds:f.length/sr,peaks:peaks(f),lang,spoken:spokenText};
   }
   async function preload(langs,onStep){
     const prog=label=>(got,total)=>onStep&&onStep(label,total?got/total:0);
@@ -783,6 +920,7 @@ async function processCard(c,from,to,text){
     if(!live()){ URL.revokeObjectURL(v.url); return; }
     st.textContent='Голосовое '+L[to].gen+' готово'+(v.kind==='opus'?' · формат WhatsApp':v.kind==='mp3'?' · MP3':'');
     const note=voiceNote(v); pl.appendChild(note); bListen.remove();
+    if(to==='ar' && v.spoken){ const sp=document.createElement('div'); sp.className='spoken is-ar'; sp.textContent=v.spoken; sp.title='Так прочитано в голосовом'; pl.appendChild(sp); }
     acts.prepend(btn('Отправить',()=>shareVoice(v),true,ICON.share), btn('Скачать',()=>downloadVoice(v),false,ICON.dl));
     if(state.autoplay) note.audio.play().catch(()=>{});
     c.scrollIntoView({block:'end'});
