@@ -1,7 +1,7 @@
 {
-  "name": "Tarjuman — RU · AR · EN voice translator",
+  "name": "Tarjuman — RU · AR · EN translator",
   "short_name": "Tarjuman",
-  "description": "Voice and text translator Russian ⇄ Arabic ⇄ English. Developer Alex Grey.",
+  "description": "Fast text translator Russian ⇄ Arabic ⇄ English. Developer Alex Grey.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -27,35 +27,11 @@
     }
   ],
   "share_target": {
-    "action": "./share-target",
-    "method": "POST",
-    "enctype": "multipart/form-data",
+    "action": "./",
+    "method": "GET",
     "params": {
       "title": "title",
-      "text": "text",
-      "files": [
-        {
-          "name": "audio",
-          "accept": [
-            "*/*",
-            "audio/*",
-            "application/ogg",
-            "application/octet-stream",
-            "video/*",
-            ".opus",
-            ".ogg",
-            ".oga",
-            ".m4a",
-            ".mp3",
-            ".aac",
-            ".amr",
-            ".wav",
-            ".webm",
-            ".3gp",
-            ".mp4"
-          ]
-        }
-      ]
+      "text": "text"
     }
   }
 }

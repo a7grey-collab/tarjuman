@@ -160,9 +160,11 @@ footer svg{width:15px; height:15px}
 .uisw button{border:0; background:transparent; border-radius:99px; padding:5px 10px; font-size:13px; font-weight:600; color:var(--muted)}
 .uisw button[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
 .uisw button[data-ui="ar"]{font-family:var(--f-ar)}
-#ardict{font:16px/1.6 var(--f-ar); padding:8px; border-radius:9px; border:1px solid var(--line); background:var(--surface); color:var(--ink); width:100%}
-.spoken{font-size:15px; color:var(--muted); line-height:1.9; padding:2px 4px}
-.card .st{white-space:pre-line; overflow-wrap:anywhere}
+.tabs.two{grid-template-columns:repeat(2,1fr)}
+#src{min-height:150px}
+.result{min-height:120px}
+.count,.tag{font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
+.tag{border:1px solid var(--line); border-radius:99px; padding:2px 8px; background:var(--surface)}
 [dir="rtl"] body{font-family:var(--f-ar), var(--f-ui)}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Amiri:wght@700&display=swap">
@@ -172,110 +174,17 @@ footer svg{width:15px; height:15px}
   <header>
     <div class="mark"><b>Tarjuman</b><span>RU · AR · EN</span></div>
     <div class="hright">
-      <div class="uisw" role="group" aria-label="App language">
-        <button data-ui="ru" aria-pressed="false">Рус</button><button data-ui="en" aria-pressed="false">Eng</button><button data-ui="ar" aria-pressed="false">عربي</button>
-      </div>
+      <div class="uisw" role="group" aria-label="App language"><button data-ui="ru" aria-pressed="false">Рус</button><button data-ui="en" aria-pressed="false">Eng</button><button data-ui="ar" aria-pressed="false">عربي</button></div>
       <div class="chip" id="engine"><i></i></div>
     </div>
   </header>
 
-  <div class="tabs" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="voice" id="t-voice" data-i18n="tabVoice"></button>
-    <button role="tab" aria-selected="false" data-tab="text" id="t-text" data-i18n="tabText"></button>
+  <div class="tabs two" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="text" id="t-text" data-i18n="tabText"></button>
     <button role="tab" aria-selected="false" data-tab="hist" id="t-hist" data-i18n="tabHist"></button>
   </div>
 
-  <details class="set">
-    <summary data-i18n="settings"></summary>
-    <div class="setgrid">
-      <label><span data-i18n="sRuVoice"></span>
-        <select id="ruvoice">
-          <option value="dmitri" data-voice="Dmitri|male">Dmitri</option>
-          <option value="denis" data-voice="Denis|male">Denis</option>
-          <option value="ruslan" data-voice="Ruslan|male">Ruslan</option>
-          <option value="irina" data-voice="Irina|female">Irina</option>
-        </select>
-      </label>
-      <label><span data-i18n="sEnVoice"></span>
-        <select id="envoice">
-          <option value="ryan" data-voice="Ryan|male|usa">Ryan</option>
-          <option value="lessac" data-voice="Lessac|female|usa">Lessac</option>
-          <option value="alan" data-voice="Alan|male|uk">Alan</option>
-        </select>
-      </label>
-      <label><span data-i18n="sSpeed"></span>
-        <select id="speed"><option value="1" data-i18n="spN"></option><option value="1.15" data-i18n="spS"></option><option value="1.3" data-i18n="spSS"></option></select>
-      </label>
-      <label><span data-i18n="sDialect"></span>
-        <select id="dialect"><option value="msa" data-i18n="dMsa"></option><option value="saudi" data-i18n="dSaudi"></option></select>
-      </label>
-      <label><span data-i18n="sFmt"></span>
-        <select id="fmt"><option value="opus" data-i18n="fOpus"></option><option value="mp3" data-i18n="fMp3"></option></select>
-      </label>
-      <label><span data-i18n="sAsr"></span>
-        <select id="asr"><option value="accurate" data-i18n="aAcc"></option><option value="fast" data-i18n="aFast"></option></select>
-      </label>
-      <label><span data-i18n="sAsrLang"></span>
-        <select id="asrlang"><option value="pair" data-i18n="alPair"></option><option value="auto" data-i18n="alAuto"></option></select>
-      </label>
-      <label style="grid-column:1/-1"><span data-i18n="sDict"></span>
-        <textarea id="ardict" rows="3" dir="rtl" placeholder="شكرا = شُكْرًا"></textarea>
-      </label>
-      <label class="row"><input type="checkbox" id="autoplay" checked> <span data-i18n="sAutoplay"></span></label>
-      <label class="row"><input type="checkbox" id="autotext" checked> <span data-i18n="sAutotext"></span></label>
-    </div>
-  </details>
-
-  <!-- VOICE -->
-  <section id="p-voice" class="wrap" style="gap:12px">
-    <div class="pair">
-      <label><span data-i18n="me"></span>
-        <select id="me"><option value="ru">Русский</option><option value="ar">العربية</option><option value="en">English</option></select>
-      </label>
-      <button class="swap" id="pairswap" data-i18n-aria="swapLangs">⇄</button>
-      <label><span data-i18n="them"></span>
-        <select id="them"><option value="ru">Русский</option><option value="ar">العربية</option><option value="en">English</option></select>
-      </label>
-    </div>
-
-    <div class="pack" id="pack">
-      <div class="txt"><span id="pack-txt" data-i18n="pkCheck"></span><div class="bar" id="pack-bar" hidden><i></i></div></div>
-      <button id="pack-btn" data-i18n="pkBtn" hidden></button>
-    </div>
-
-    <div class="feed" id="feed">
-      <div class="card mine l-ru example" id="ex1">
-        <div class="head"><span></span></div>
-        <div class="src" dir="auto"></div>
-        <div class="dst" dir="auto"></div>
-        <div class="acts"><button class="btn main" id="ex1-go"></button></div>
-      </div>
-      <div class="empty" id="feed-empty" data-i18n="feedEmpty"></div>
-    </div>
-
-    <div class="attach">
-      <button class="btn" id="attach-btn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5z"/></svg><span data-i18n="attach"></span></button>
-      <input type="file" id="attach-in" accept="audio/*,.opus,.ogg,.oga,.m4a,.mp3,.aac,.amr,.wav,.webm,.3gp" multiple hidden>
-    </div>
-    <div class="install" id="install" hidden>
-      <div class="txt" id="install-txt"></div>
-      <button class="btn main" id="install-btn" data-i18n="installBtn" hidden></button>
-    </div>
-
-    <form class="typerow" id="typeform">
-      <input id="typein" data-i18n-ph="typePh" autocomplete="off" dir="auto">
-      <button type="submit" data-i18n-aria="createVoice">→</button>
-    </form>
-
-    <div class="recbar">
-      <button class="rec" id="rec-a"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span><small></small></button>
-      <button class="rec" id="rec-b"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span><small></small></button>
-    </div>
-    <div class="hint" data-i18n="hint"></div>
-  </section>
-
-  <!-- TEXT -->
-  <section id="p-text" class="wrap" style="gap:12px" hidden>
+  <section id="p-text" class="wrap" style="gap:12px">
     <div class="pair">
       <label><span data-i18n="from"></span>
         <select id="from"><option value="ru">Русский</option><option value="ar">العربية</option><option value="en">English</option></select>
@@ -286,25 +195,26 @@ footer svg{width:15px; height:15px}
       </label>
     </div>
     <div class="pane">
-      <textarea id="src" data-i18n-ph="srcPh" dir="auto"></textarea>
+      <textarea id="src" data-i18n-ph="srcPh" dir="auto" rows="5"></textarea>
       <div class="tools">
-        <button class="mic" id="mic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span data-i18n="speak"></span></button>
-        <span class="sp"></span>
+        <button class="btn" id="paste" data-i18n="paste"></button>
         <button class="btn" id="clear" data-i18n="clear"></button>
+        <span class="sp"></span>
+        <span class="count" id="count"></span>
       </div>
     </div>
     <div class="pane out l-ar" id="outpane">
-      <div class="result" id="dst" dir="auto"></div>
+      <div class="result muted" id="dst" dir="auto"></div>
       <div class="tools">
-        <button class="btn main" id="mkvoice" data-i18n="createVoice"></button>
-        <button class="btn" id="copy" data-i18n="copy"></button>
+        <button class="btn main" id="copy" data-i18n="copy" disabled></button>
+        <button class="btn" id="send" data-i18n="send" disabled></button>
+        <span class="sp"></span>
+        <span class="tag" id="fixedtag" data-i18n="fixedTag" hidden></span>
       </div>
-      <div id="textvoice" hidden></div>
     </div>
     <div class="status" id="status" aria-live="polite"></div>
   </section>
 
-  <!-- HISTORY -->
   <section id="p-hist" class="wrap" style="gap:10px" hidden>
     <div class="hist" id="hist"></div>
     <button class="btn" id="hist-clear" style="align-self:center" data-i18n="histClear"></button>
@@ -314,169 +224,12 @@ footer svg{width:15px; height:15px}
 
   <footer dir="ltr">Developer Alex Grey
     <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a>
-    · v10
+    · v11
   </footer>
 </div>
 <div class="toast notranslate" translate="no" id="toast" hidden></div>
 
 <script>
-/* ================= interface languages ================= */
-const I18N = {
-ru:{
- shareChromeBug:'Причина — ошибка Chrome {v}: при «Поделиться» он удаляет файл и передаёт только текст. Google исправил это в Chrome 154 и новее.\nЧто сделать:\n1. Обновите Chrome в Play Маркете.\n2. Если обновления нет — установите «Chrome Beta» из Play Маркета, откройте в нём ссылку и установите приложение оттуда.\nСейчас можно так: нажмите кнопку ниже и выберите голосовое в папке Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Voice Notes.', shareDiag:'Chrome {v}',
- shareGot:'Получаю голосовое из WhatsApp…', shareNone:'WhatsApp отправил голосовое, но Chrome не передал сам файл.\nЧто сделать:\n1. Обновите Chrome в Play Маркете.\n2. Если не помогло — установите «Chrome Beta», откройте в нём ссылку и установите приложение оттуда.\nСейчас можно так: нажмите кнопку ниже и выберите файл в папке Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Voice Notes.', shareErr:'Голосовое пришло с ошибкой: {e}', shareText:'Пришёл только текст: {t}',
- chipOnline:'Онлайн-перевод', tabVoice:'Голосовые', tabText:'Текст', tabHist:'История', settings:'Настройки',
- sRuVoice:'Русский голос', sEnVoice:'Английский голос', male:'мужской', female:'женский', usa:'США', uk:'Британия',
- sSpeed:'Скорость речи', spN:'Обычная', spS:'Чуть медленнее', spSS:'Медленно',
- sDialect:'Перевод на арабский', dMsa:'Литературный (фусха)', dSaudi:'Саудовский разговорный (только в Claude)',
- sFmt:'Формат голосового', fOpus:'Как в WhatsApp (OGG Opus)', fMp3:'MP3 (для любых программ)',
- sAsr:'Распознавание голосовых собеседника', aAcc:'Точное, для диалектов (≈250 МБ)', aFast:'Быстрое (≈80 МБ)',
- sAsrLang:'Язык голосовых собеседника', alPair:'Как выбран у собеседника', alAuto:'Определять автоматически',
- sDict:'Арабское произношение: ваши исправления (по одному в строке: слово = слово с харакатами)',
- sAutoplay:'Сразу проигрывать голосовое', sAutotext:'Во вкладке «Текст» тоже создавать голосовое',
- me:'Я говорю', them:'Собеседник', swapLangs:'Поменять языки местами',
- pkCheck:'Проверяю голоса…', pkReady:'Голоса {langs} загружены — голосовые создаются сразу.', pkNeed:'Нужно один раз загрузить голоса {langs}: около {mb} МБ.',
- pkBtn:'Загрузить голоса', pkLoading:'Загружаю: {label} {pct}', pkFail:'Голоса не загрузились: {e}. Проверьте интернет.',
- pkClaude:'Внутри Claude голосовые не создаются: браузер закрывает микрофон и загрузку голосов. Откройте ссылку на переводчик в Chrome или Safari.',
- pkPh:'Речевой модуль', pkTk:'Огласовки', pkVoice:'Голос {l}', mb:'МБ',
- example:'Пример', createVoice:'Создать голосовое',
- feedEmpty:'Как в WhatsApp: зажмите кнопку своего языка, говорите и отпустите. Голосовое на языке собеседника создастся само. Голосовое собеседника перешлите сюда из WhatsApp через «Поделиться» — получите перевод и голосовое на своём языке.',
- attach:'Перевести голосовое собеседника',
- installTxt:'Установите переводчик как приложение: тогда голосовые из WhatsApp можно пересылать сюда через «Поделиться».',
- installAndroid:'Чтобы пересылать голосовые из WhatsApp сюда через «Поделиться», установите переводчик как приложение: в Chrome нажмите ⋮ → «Установить приложение» (или «Добавить на главный экран»).',
- installBtn:'Установить', installed:'Приложение установлено. В WhatsApp: зажмите голосовое → «Поделиться» → Tarjuman.',
- typePh:'Или напишите фразу', send:'Отправить', toVoice:'→ голосовое {x}', recActive:'Отпустите или нажмите — готово',
- hint:'Зажмите и говорите, отпустите — готово. Или нажмите один раз и нажмите снова, когда закончите.',
- from:'С языка', to:'На язык', srcPh:'Напишите или наговорите текст…', speak:'Говорить', clear:'Очистить', copy:'Копировать',
- translating:'Перевожу…', resultPh:'Перевод появится здесь', listening:'Слушаю… нажмите ещё раз, когда закончите',
- histEmpty:'Здесь появятся ваши переводы. Нажмите на запись, чтобы скопировать перевод.', histClear:'Очистить историю', histCleared:'История очищена',
- note:'Голосовые создаются прямо на телефоне или компьютере, без платных сервисов. Арабский текст перед озвучкой получает огласовки (харакаты), а исламские приветствия и формулы переводятся по выверенному словарю. Микрофон работает в Chrome, Edge и Safari.',
- listen:'Прослушать', listenPhone:'Прослушать голосом телефона', edit:'Исправить текст', retranslate:'Перевести заново', download:'Скачать',
- vReady:'Голосовое {x} готово', vWa:' · формат WhatsApp', vMp3:' · MP3', vErr:'Голосовое не создано: {e}.', recording:'● Запись {t}',
- spokenTitle:'Так прочитано в голосовом', fixedNote:'по словарю',
- incoming:'Голосовое собеседника', original:'Оригинал', opening:'Открываю голосовое…', transcribing:'Расшифровываю…',
- asrLoad:'Загружаю модуль распознавания (≈{mb} МБ, один раз)…', asrLoadPct:'Загружаю модуль распознавания: {pct}% (≈{mb} МБ, один раз)',
- asrWork:'Расшифровываю… {t} (обычно до {est})', asrShort:'Запись пустая или слишком короткая.', asrNet:'Не удалось скачать модуль распознавания. Проверьте интернет и попробуйте снова.',
- asrErr:'Не удалось расшифровать ({e}). Если телефон слабый, выберите в настройках «Быстрое» распознавание.', asrNone:'Речь не распознана. Попробуйте другую запись или выберите язык собеседника.',
- asrClaude:'Внутри Claude голосовые не расшифровываются. Откройте ссылку на переводчик в Chrome.',
- copied:'Скопировано', copyManual:'Выделите текст и скопируйте вручную', savedFile:'Файл сохранён — прикрепите его в WhatsApp или Telegram', dictSaved:'Произношение сохранено',
- micDeniedClaude:'Внутри Claude микрофон закрыт. Откройте ссылку на переводчик в Chrome или Safari.',
- micDenied:'Нет доступа к микрофону. Нажмите на значок слева от адреса сайта → Разрешения → Микрофон → Разрешить.',
- noSpeech:'Не расслышал — попробуйте ещё раз.', srNet:'Для распознавания речи нужен интернет.', noMic:'Микрофон не найден или занят другим приложением.',
- srLang:'Этот браузер не распознаёт выбранный язык.', srErr:'Ошибка распознавания: {e}', noSR:'Этот браузер не распознаёт речь. Откройте переводчик в Chrome, Edge или Safari.', micFail:'Не удалось включить микрофон',
- trFail:'Не удалось перевести. Проверьте интернет.', uiLang:'Язык приложения',
- errDownload:'не удалось скачать', errLib:'не загрузилась библиотека', errPhon:'не удалось подготовить текст к озвучке', errNoText:'нет текста для озвучки',
- stPrep:'Готовлю голос…', stLoadTk:'Загружаю огласовки…', stTk:'Расставляю огласовки…', stLoadPh:'Загружаю речевой модуль…', stLoadVoice:'Загружаю голос ({l})…', stSynth:'Создаю голосовое…',
- errAsrStart:'модуль распознавания не запустился', errNoAudio:'браузер не умеет открывать аудио', errOpenAudio:'не удалось открыть этот аудиофайл', errSafariOpus:'(Safari может не поддерживать формат .opus — попробуйте Chrome)'
-},
-en:{
- shareChromeBug:'Cause: a bug in Chrome {v} — when sharing, it drops the file and passes only text. Google fixed this in Chrome 154 and later.\nWhat to do:\n1. Update Chrome in the Play Store.\n2. If there is no update, install “Chrome Beta” from the Play Store, open the link in it and install the app from there.\nRight now: tap the button below and pick the voice message in Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Voice Notes.', shareDiag:'Chrome {v}',
- shareGot:'Receiving the voice message from WhatsApp…', shareNone:'WhatsApp sent the voice message, but Chrome didn’t pass the file itself.\nWhat to do:\n1. Update Chrome in the Play Store.\n2. If that doesn’t help, install “Chrome Beta”, open the link in it and install the app from there.\nRight now you can tap the button below and pick the file in Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Voice Notes.', shareErr:'The voice message arrived with an error: {e}', shareText:'Only text arrived: {t}',
- chipOnline:'Online translation', tabVoice:'Voice', tabText:'Text', tabHist:'History', settings:'Settings',
- sRuVoice:'Russian voice', sEnVoice:'English voice', male:'male', female:'female', usa:'US', uk:'UK',
- sSpeed:'Speech speed', spN:'Normal', spS:'A bit slower', spSS:'Slow',
- sDialect:'Translation into Arabic', dMsa:'Modern Standard (Fusha)', dSaudi:'Saudi colloquial (in Claude only)',
- sFmt:'Voice message format', fOpus:'Like WhatsApp (OGG Opus)', fMp3:'MP3 (works everywhere)',
- sAsr:'Recognizing received voice messages', aAcc:'Accurate, handles dialects (≈250 MB)', aFast:'Fast (≈80 MB)',
- sAsrLang:'Language of received voice messages', alPair:'The other person’s language', alAuto:'Detect automatically',
- sDict:'Arabic pronunciation fixes (one per line: word = word with harakat)',
- sAutoplay:'Play voice messages right away', sAutotext:'Also create a voice message in the Text tab',
- me:'I speak', them:'Other person', swapLangs:'Swap languages',
- pkCheck:'Checking voices…', pkReady:'Voices {langs} are ready — voice messages are created instantly.', pkNeed:'Download the {langs} voices once: about {mb} MB.',
- pkBtn:'Download voices', pkLoading:'Downloading: {label} {pct}', pkFail:'Voices failed to download: {e}. Check your internet.',
- pkClaude:'Voice messages can’t be created inside Claude: the browser blocks the microphone and voice downloads here. Open the translator link in Chrome or Safari.',
- pkPh:'Speech module', pkTk:'Arabic diacritics', pkVoice:'Voice {l}', mb:'MB',
- example:'Example', createVoice:'Create voice message',
- feedEmpty:'Just like WhatsApp: hold your language button, speak and release. A voice message in the other person’s language is created automatically. To translate a voice message you received, share it from WhatsApp to Tarjuman.',
- attach:'Translate a voice message I received',
- installTxt:'Install the translator as an app to share voice messages from WhatsApp straight into it.',
- installAndroid:'To share voice messages from WhatsApp into Tarjuman, install it as an app: in Chrome tap ⋮ → “Install app” (or “Add to Home screen”).',
- installBtn:'Install', installed:'App installed. In WhatsApp: long-press a voice message → Share → Tarjuman.',
- typePh:'Or type a phrase', send:'Send', toVoice:'→ voice message {x}', recActive:'Release or tap — done',
- hint:'Hold and speak, release when done. Or tap once, speak, and tap again when finished.',
- from:'From', to:'To', srcPh:'Type or speak…', speak:'Speak', clear:'Clear', copy:'Copy',
- translating:'Translating…', resultPh:'The translation will appear here', listening:'Listening… tap again when finished',
- histEmpty:'Your translations will appear here. Tap an entry to copy the translation.', histClear:'Clear history', histCleared:'History cleared',
- note:'Voice messages are created right on your phone or computer, with no paid services. Arabic text gets full diacritics (harakat) before it is spoken, and Islamic greetings and formulas are translated from a verified dictionary. The microphone works in Chrome, Edge and Safari.',
- listen:'Listen', listenPhone:'Listen with the phone’s voice', edit:'Edit text', retranslate:'Translate again', download:'Download',
- vReady:'Voice message {x} is ready', vWa:' · WhatsApp format', vMp3:' · MP3', vErr:'Voice message not created: {e}.', recording:'● Recording {t}',
- spokenTitle:'How it was read in the voice message', fixedNote:'from dictionary',
- incoming:'Received voice message', original:'Original', opening:'Opening the voice message…', transcribing:'Transcribing…',
- asrLoad:'Downloading the speech recognition module (≈{mb} MB, once)…', asrLoadPct:'Downloading the speech recognition module: {pct}% (≈{mb} MB, once)',
- asrWork:'Transcribing… {t} (usually up to {est})', asrShort:'The recording is empty or too short.', asrNet:'Couldn’t download the speech recognition module. Check your internet and try again.',
- asrErr:'Couldn’t transcribe ({e}). On a slower phone, choose “Fast” recognition in Settings.', asrNone:'No speech recognized. Try another recording or choose the other person’s language.',
- asrClaude:'Voice messages can’t be transcribed inside Claude. Open the translator link in Chrome.',
- copied:'Copied', copyManual:'Select the text and copy it manually', savedFile:'File saved — attach it in WhatsApp or Telegram', dictSaved:'Pronunciation saved',
- micDeniedClaude:'The microphone is blocked inside Claude. Open the translator link in Chrome or Safari.',
- micDenied:'No microphone access. Tap the icon left of the site address → Permissions → Microphone → Allow.',
- noSpeech:'Didn’t catch that — try again.', srNet:'Speech recognition needs an internet connection.', noMic:'No microphone found, or another app is using it.',
- srLang:'This browser can’t recognize the selected language.', srErr:'Recognition error: {e}', noSR:'This browser can’t recognize speech. Open the translator in Chrome, Edge or Safari.', micFail:'Couldn’t turn on the microphone',
- trFail:'Couldn’t translate. Check your internet.', uiLang:'App language',
- errDownload:'couldn’t download', errLib:'library failed to load', errPhon:'couldn’t prepare the text for speech', errNoText:'no text to speak',
- stPrep:'Preparing the voice…', stLoadTk:'Downloading Arabic diacritics…', stTk:'Adding diacritics…', stLoadPh:'Downloading the speech module…', stLoadVoice:'Downloading voice ({l})…', stSynth:'Creating the voice message…',
- errAsrStart:'the recognition module didn’t start', errNoAudio:'this browser can’t open audio', errOpenAudio:'couldn’t open this audio file', errSafariOpus:'(Safari may not support .opus — try Chrome)'
-},
-ar:{
- shareChromeBug:'السبب: خلل في Chrome {v} — عند المشاركة يحذف الملف ويمرّر النص فقط. أصلحت Google ذلك في Chrome 154 وما بعده.\nماذا تفعل:\n1. حدّث Chrome من متجر Play.\n2. إذا لم يتوفر تحديث، ثبّت «Chrome Beta» من متجر Play وافتح الرابط فيه وثبّت التطبيق منه.\nالآن: اضغط الزر بالأسفل واختر الرسالة الصوتية من المجلد Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Voice Notes.', shareDiag:'Chrome {v}',
- shareGot:'جارٍ استلام الرسالة الصوتية من واتساب…', shareNone:'أرسل واتساب الرسالة الصوتية لكن Chrome لم يمرّر الملف نفسه.\nماذا تفعل:\n1. حدّث Chrome من متجر Play.\n2. إذا لم ينفع، ثبّت «Chrome Beta» وافتح الرابط فيه وثبّت التطبيق منه.\nالآن يمكنك الضغط على الزر بالأسفل واختيار الملف من المجلد Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Voice Notes.', shareErr:'وصلت الرسالة الصوتية مع خطأ: {e}', shareText:'وصل نص فقط: {t}',
- chipOnline:'ترجمة عبر الإنترنت', tabVoice:'الرسائل الصوتية', tabText:'النص', tabHist:'السجل', settings:'الإعدادات',
- sRuVoice:'الصوت الروسي', sEnVoice:'الصوت الإنجليزي', male:'رجل', female:'امرأة', usa:'أمريكا', uk:'بريطانيا',
- sSpeed:'سرعة الكلام', spN:'عادية', spS:'أبطأ قليلاً', spSS:'بطيئة',
- sDialect:'الترجمة إلى العربية', dMsa:'الفصحى', dSaudi:'اللهجة السعودية (داخل Claude فقط)',
- sFmt:'صيغة الرسالة الصوتية', fOpus:'مثل واتساب (OGG Opus)', fMp3:'MP3 (تعمل في كل التطبيقات)',
- sAsr:'التعرّف على الرسائل الصوتية الواردة', aAcc:'دقيق ويفهم اللهجات (≈250 ميغابايت)', aFast:'سريع (≈80 ميغابايت)',
- sAsrLang:'لغة الرسائل الصوتية الواردة', alPair:'لغة الطرف الآخر المختارة', alAuto:'اكتشاف تلقائي',
- sDict:'تصحيح النطق العربي (سطر لكل كلمة: الكلمة = الكلمة بالتشكيل)',
- sAutoplay:'تشغيل الرسالة الصوتية فوراً', sAutotext:'إنشاء رسالة صوتية في تبويب النص أيضاً',
- me:'أتحدث', them:'الطرف الآخر', swapLangs:'تبديل اللغتين',
- pkCheck:'جارٍ التحقق من الأصوات…', pkReady:'أصوات {langs} جاهزة — تُنشأ الرسائل الصوتية فوراً.', pkNeed:'حمّل أصوات {langs} مرة واحدة: حوالي {mb} ميغابايت.',
- pkBtn:'تحميل الأصوات', pkLoading:'جارٍ التحميل: {label} {pct}', pkFail:'تعذّر تحميل الأصوات: {e}. تحقّق من الإنترنت.',
- pkClaude:'لا يمكن إنشاء الرسائل الصوتية داخل Claude لأن المتصفح يمنع الميكروفون وتحميل الأصوات هنا. افتح رابط المترجم في Chrome أو Safari.',
- pkPh:'وحدة النطق', pkTk:'التشكيل', pkVoice:'صوت {l}', mb:'ميغابايت',
- example:'مثال', createVoice:'إنشاء رسالة صوتية',
- feedEmpty:'مثل واتساب: اضغط مطولاً على زر لغتك وتحدث ثم اترك الزر، فتُنشأ رسالة صوتية بلغة الطرف الآخر تلقائياً. ولترجمة رسالة صوتية وصلتك، شاركها من واتساب إلى Tarjuman.',
- attach:'ترجمة رسالة صوتية وصلتني',
- installTxt:'ثبّت المترجم كتطبيق لتتمكن من مشاركة الرسائل الصوتية من واتساب إليه مباشرة.',
- installAndroid:'لمشاركة الرسائل الصوتية من واتساب إلى Tarjuman، ثبّته كتطبيق: في Chrome اضغط ⋮ ← «تثبيت التطبيق» (أو «إضافة إلى الشاشة الرئيسية»).',
- installBtn:'تثبيت', installed:'تم تثبيت التطبيق. في واتساب: اضغط مطولاً على الرسالة الصوتية ← مشاركة ← Tarjuman.',
- typePh:'أو اكتب عبارة', send:'إرسال', toVoice:'← رسالة صوتية {x}', recActive:'اترك الزر أو اضغط — تم',
- hint:'اضغط مطولاً وتحدث ثم اترك الزر. أو اضغط مرة وتحدث ثم اضغط مرة أخرى عند الانتهاء.',
- from:'من', to:'إلى', srcPh:'اكتب أو تحدّث…', speak:'تحدّث', clear:'مسح', copy:'نسخ',
- translating:'جارٍ الترجمة…', resultPh:'ستظهر الترجمة هنا', listening:'أستمع… اضغط مرة أخرى عند الانتهاء',
- histEmpty:'ستظهر ترجماتك هنا. اضغط على أي سطر لنسخ الترجمة.', histClear:'مسح السجل', histCleared:'تم مسح السجل',
- note:'تُنشأ الرسائل الصوتية على هاتفك أو حاسوبك مباشرة دون خدمات مدفوعة. يُشكَّل النص العربي بالكامل قبل نطقه، وتُترجم التحيات والأذكار الإسلامية من قاموس موثّق. يعمل الميكروفون في Chrome وEdge وSafari.',
- listen:'استماع', listenPhone:'استماع بصوت الهاتف', edit:'تعديل النص', retranslate:'ترجمة من جديد', download:'تنزيل',
- vReady:'الرسالة الصوتية {x} جاهزة', vWa:' · بصيغة واتساب', vMp3:' · MP3', vErr:'لم تُنشأ الرسالة الصوتية: {e}.', recording:'● تسجيل {t}',
- spokenTitle:'هكذا قُرئ النص في الرسالة الصوتية', fixedNote:'من القاموس',
- incoming:'رسالة صوتية واردة', original:'الأصل', opening:'جارٍ فتح الرسالة الصوتية…', transcribing:'جارٍ تفريغ الكلام…',
- asrLoad:'جارٍ تحميل وحدة التعرّف على الكلام (≈{mb} ميغابايت، مرة واحدة)…', asrLoadPct:'جارٍ تحميل وحدة التعرّف على الكلام: {pct}% (≈{mb} ميغابايت، مرة واحدة)',
- asrWork:'جارٍ تفريغ الكلام… {t} (عادةً حتى {est})', asrShort:'التسجيل فارغ أو قصير جداً.', asrNet:'تعذّر تحميل وحدة التعرّف على الكلام. تحقّق من الإنترنت وحاول مرة أخرى.',
- asrErr:'تعذّر تفريغ الكلام ({e}). إذا كان الهاتف ضعيفاً فاختر التعرّف «السريع» في الإعدادات.', asrNone:'لم يُتعرّف على كلام. جرّب تسجيلاً آخر أو اختر لغة الطرف الآخر.',
- asrClaude:'لا يمكن تفريغ الرسائل الصوتية داخل Claude. افتح رابط المترجم في Chrome.',
- copied:'تم النسخ', copyManual:'حدّد النص وانسخه يدوياً', savedFile:'تم حفظ الملف — أرفقه في واتساب أو تيليجرام', dictSaved:'تم حفظ النطق',
- micDeniedClaude:'الميكروفون محظور داخل Claude. افتح رابط المترجم في Chrome أو Safari.',
- micDenied:'لا يوجد إذن للميكروفون. اضغط على الأيقونة بجانب عنوان الموقع ← الأذونات ← الميكروفون ← سماح.',
- noSpeech:'لم أسمع جيداً — حاول مرة أخرى.', srNet:'التعرّف على الكلام يحتاج إلى الإنترنت.', noMic:'لم يُعثر على ميكروفون أو أن تطبيقاً آخر يستخدمه.',
- srLang:'هذا المتصفح لا يتعرّف على اللغة المختارة.', srErr:'خطأ في التعرّف: {e}', noSR:'هذا المتصفح لا يتعرّف على الكلام. افتح المترجم في Chrome أو Edge أو Safari.', micFail:'تعذّر تشغيل الميكروفون',
- trFail:'تعذّرت الترجمة. تحقّق من الإنترنت.', uiLang:'لغة التطبيق',
- errDownload:'تعذّر التحميل', errLib:'تعذّر تحميل المكتبة', errPhon:'تعذّر تجهيز النص للنطق', errNoText:'لا يوجد نص للنطق',
- stPrep:'جارٍ تجهيز الصوت…', stLoadTk:'جارٍ تحميل التشكيل…', stTk:'جارٍ تشكيل النص…', stLoadPh:'جارٍ تحميل وحدة النطق…', stLoadVoice:'جارٍ تحميل الصوت ({l})…', stSynth:'جارٍ إنشاء الرسالة الصوتية…',
- errAsrStart:'لم تبدأ وحدة التعرّف', errNoAudio:'المتصفح لا يفتح ملفات الصوت', errOpenAudio:'تعذّر فتح ملف الصوت هذا', errSafariOpus:'(قد لا يدعم Safari صيغة ‎.opus — جرّب Chrome)'
-}};
-/* "in <language>" for each interface language */
-const VIN = { ru:{ru:'на русском',ar:'на арабском',en:'на английском'}, en:{ru:'in Russian',ar:'in Arabic',en:'in English'}, ar:{ru:'بالروسية',ar:'بالعربية',en:'بالإنجليزية'} };
-const UI_LANGS=['ru','en','ar'];
-let UI='ru';
-function t(k,vars){ let s=(I18N[UI]&&I18N[UI][k]!=null)?I18N[UI][k]:(I18N.en[k]!=null?I18N.en[k]:k); if(vars) s=s.replace(/\{(\w+)\}/g,(m,n)=>vars[n]!=null?vars[n]:''); return s; }
-var applyI18n=function(){
-  document.documentElement.lang=UI; document.documentElement.dir=UI==='ar'?'rtl':'ltr'; document.documentElement.setAttribute('translate','no'); document.documentElement.classList.add('notranslate');
-  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.dataset.i18n); });
-  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder=t(el.dataset.i18nPh); });
-  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{ el.setAttribute('aria-label',t(el.dataset.i18nAria)); });
-  document.querySelectorAll('[data-t]').forEach(el=>{ try{ el.textContent=renderT(JSON.parse(el.dataset.t)); }catch(e){} });
-  document.querySelectorAll('.uisw button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.ui===UI));
-};
-
 /* ================= fixed Islamic greetings & formulas (machine translation often breaks them) ================= */
 const FIXED = {
  salam_full:{ar:'السلام عليكم ورحمة الله وبركاته', ru:'Ассаляму алейкум ва рахматуллахи ва баракятух', en:'Assalamu alaikum wa rahmatullahi wa barakatuh'},
@@ -591,33 +344,62 @@ function planFixed(text,from){
 }
 function convSep(s,to){ if(to==='ar') return s.replace(/,/g,'،').replace(/\?/g,'؟').replace(/;/g,'؛'); return s.replace(/،/g,',').replace(/؟/g,'?').replace(/؛/g,';'); }
 
-const $ = s => document.querySelector(s);
-const L = {
-  ru:{name:'Русский', short:'RU', full:'Russian', sr:'ru-RU', speak:'Говорю по-русски'},
-  ar:{name:'العربية', short:'AR', full:'Arabic',  sr:'ar-SA', speak:'أتكلم بالعربية'},
-  en:{name:'English', short:'EN', full:'English', sr:'en-US', speak:'I speak English'}
+/* ================= interface languages ================= */
+const I18N = {
+ru:{ chipOnline:'Онлайн-перевод', tabText:'Перевод', tabHist:'История', from:'С языка', to:'На язык', swapLangs:'Поменять языки местами',
+ srcPh:'Напишите или вставьте текст…', paste:'Вставить', clear:'Очистить', copy:'Копировать', send:'Отправить',
+ translating:'Перевожу…', resultPh:'Перевод появится здесь', trFail:'Не удалось перевести. Проверьте интернет.',
+ histEmpty:'Здесь появятся ваши переводы. Нажмите на запись, чтобы снова открыть её.', histClear:'Очистить историю', histCleared:'История очищена',
+ copied:'Скопировано', copyManual:'Выделите текст и скопируйте вручную', pasteFail:'Не удалось вставить — вставьте текст долгим нажатием',
+ note:'Перевод текста RU ⇄ AR ⇄ EN. Язык текста определяется автоматически. Исламские приветствия и формулы переводятся по выверенному словарю. Сообщение из WhatsApp можно переслать сюда: зажмите его → «Поделиться» → Tarjuman.',
+ fixedTag:'по словарю', chars:'{n} симв.' },
+en:{ chipOnline:'Online translation', tabText:'Translate', tabHist:'History', from:'From', to:'To', swapLangs:'Swap languages',
+ srcPh:'Type or paste text…', paste:'Paste', clear:'Clear', copy:'Copy', send:'Send',
+ translating:'Translating…', resultPh:'The translation will appear here', trFail:'Couldn’t translate. Check your internet.',
+ histEmpty:'Your translations will appear here. Tap an entry to open it again.', histClear:'Clear history', histCleared:'History cleared',
+ copied:'Copied', copyManual:'Select the text and copy it manually', pasteFail:'Couldn’t paste — long-press the box to paste',
+ note:'Text translation RU ⇄ AR ⇄ EN. The source language is detected automatically. Islamic greetings and formulas are translated from a verified dictionary. You can share a WhatsApp message here: long-press it → Share → Tarjuman.',
+ fixedTag:'from dictionary', chars:'{n} chars' },
+ar:{ chipOnline:'ترجمة عبر الإنترنت', tabText:'ترجمة', tabHist:'السجل', from:'من', to:'إلى', swapLangs:'تبديل اللغتين',
+ srcPh:'اكتب النص أو الصقه…', paste:'لصق', clear:'مسح', copy:'نسخ', send:'إرسال',
+ translating:'جارٍ الترجمة…', resultPh:'ستظهر الترجمة هنا', trFail:'تعذّرت الترجمة. تحقّق من الإنترنت.',
+ histEmpty:'ستظهر ترجماتك هنا. اضغط على أي سطر لفتحه من جديد.', histClear:'مسح السجل', histCleared:'تم مسح السجل',
+ copied:'تم النسخ', copyManual:'حدّد النص وانسخه يدوياً', pasteFail:'تعذّر اللصق — اضغط مطولاً على الحقل للصق',
+ note:'ترجمة النصوص بين الروسية والعربية والإنجليزية. تُكتشف لغة النص تلقائياً، وتُترجم التحيات والأذكار الإسلامية من قاموس موثّق. يمكنك مشاركة رسالة من واتساب إلى هنا: اضغط عليها مطولاً ← مشاركة ← Tarjuman.',
+ fixedTag:'من القاموس', chars:'{n} حرفاً' }
 };
-const LANGS = ['ru','ar','en'];
-const IN_CLAUDE = !!(window.claude && window.claude.use) || /(^|\.)claude\.(ai|site)$|claudeusercontent/.test(location.hostname);
+const UI_LANGS=['ru','en','ar'];
+let UI='ru';
+function t(k,v){ let s=(I18N[UI]&&I18N[UI][k]!=null)?I18N[UI][k]:(I18N.en[k]!=null?I18N.en[k]:k); if(v) s=s.replace(/\{(\w+)\}/g,(m,n)=>v[n]!=null?v[n]:''); return s; }
+function applyI18n(){
+  const h=document.documentElement; h.lang=UI; h.dir=UI==='ar'?'rtl':'ltr'; h.setAttribute('translate','no'); h.classList.add('notranslate');
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.placeholder=t(el.dataset.i18nPh));
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));
+  document.querySelectorAll('.uisw button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ui===UI));
+}
+
+const $=s=>document.querySelector(s);
+const L={ ru:{full:'Russian',short:'RU'}, ar:{full:'Arabic',short:'AR'}, en:{full:'English',short:'EN'} };
+const LANGS=['ru','ar','en'];
 
 /* ================= settings ================= */
-const state = { ui:'', dialect:'msa', autoplay:true, autotext:true, ruvoice:'dmitri', envoice:'ryan', speed:'1', fmt:'opus', ardict:'', asr:'accurate', asrlang:'pair', me:'ru', them:'ar', from:'ru', to:'ar' };
+const state={ ui:'', me:'ru', them:'ar', from:'ru', to:'ar' };
 let hadPrefs=false;
-try{ const raw=localStorage.getItem('tarjuman.prefs.v3'); if(raw){ hadPrefs=true; const p=JSON.parse(raw); for(const k in p) if(k in state) state[k]=p[k]; } }catch(e){}
+try{ const raw=localStorage.getItem('tarjuman.prefs.v3'); if(raw){ hadPrefs=true; const p=JSON.parse(raw); for(const k in state) if(p[k]!=null) state[k]=p[k]; } }catch(e){}
 function browserLang(){ const ls=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'en']).map(x=>String(x).toLowerCase()); for(const l of ls){ const c=l.slice(0,2); if(UI_LANGS.includes(c)) return c; } return 'en'; }
-if(!UI_LANGS.includes(state.ui)) state.ui = hadPrefs && UI_LANGS.includes(state.me) ? state.me : browserLang();
-if(!hadPrefs){ state.me=state.ui; state.them = state.ui==='ar' ? 'ru' : 'ar'; state.from=state.me; state.to=state.them; }
-UI=state.ui;
+if(!UI_LANGS.includes(state.ui)) state.ui = hadPrefs&&UI_LANGS.includes(state.me) ? state.me : browserLang();
+if(!hadPrefs){ state.me=state.ui; state.them=state.ui==='ar'?'ru':'ar'; state.from=state.me; state.to=state.them; }
 if(!LANGS.includes(state.me)) state.me='ru';
-if(!LANGS.includes(state.them) || state.them===state.me) state.them = state.me==='ar'?'ru':'ar';
+if(!LANGS.includes(state.them)||state.them===state.me) state.them=state.me==='ar'?'ru':'ar';
 if(!LANGS.includes(state.from)) state.from=state.me;
-if(!LANGS.includes(state.to) || state.to===state.from) state.to = state.from==='ar'?'ru':'ar';
-const SAVE_KEYS=Object.keys(state);
-function savePrefs(){ try{ const o={}; SAVE_KEYS.forEach(k=>o[k]=state[k]); localStorage.setItem('tarjuman.prefs.v3', JSON.stringify(o)); }catch(e){} }
+if(!LANGS.includes(state.to)||state.to===state.from) state.to=state.from===state.me?state.them:state.me;
+UI=state.ui;
+function savePrefs(){ try{ const raw=localStorage.getItem('tarjuman.prefs.v3'); const o=raw?JSON.parse(raw):{}; Object.assign(o,state); localStorage.setItem('tarjuman.prefs.v3',JSON.stringify(o)); }catch(e){} }
 
 /* ================= helpers ================= */
 let toastT;
-function toast(m){ const el=$('#toast'); el.textContent=m; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true,3200); }
+function toast(m){ const el=$('#toast'); el.textContent=m; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true,2600); }
 function detect(s){
   const c={ru:(s.match(/[Ѐ-ӿ]/g)||[]).length, ar:(s.match(/[؀-ۿ]/g)||[]).length, en:(s.match(/[A-Za-z]/g)||[]).length};
   const best=LANGS.reduce((a,b)=>c[b]>c[a]?b:a,'ru'); return c[best]?best:null;
@@ -626,38 +408,18 @@ async function copyText(x){
   try{ await navigator.clipboard.writeText(x); toast(t('copied')); }
   catch(e){ const ta=document.createElement('textarea'); ta.value=x; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast(t('copied')); }catch(_){ toast(t('copyManual')); } ta.remove(); }
 }
-let engineName='';
-function setEngine(n){ engineName=n||''; $('#engine').innerHTML='<i></i>'; $('#engine').append(engineName||t('chipOnline')); }
 const pad=n=>String(n).padStart(2,'0');
-function stamp(d=new Date()){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds()); }
-function hhmm(d=new Date()){ return pad(d.getHours())+':'+pad(d.getMinutes()); }
-function mmss(s){ s=Math.max(0,Math.floor(s)); return Math.floor(s/60)+':'+pad(s%60); }
-function renderT(parts){ return parts.map(([k,v])=>{ if(k==='=') return v; v=v?Object.assign({},v):null; if(v&&v.xl) v.x=VIN[UI][v.xl]; return t(k,v); }).join(''); }
-function setT(el,parts){ el.dataset.t=JSON.stringify(parts); el.textContent=renderT(parts); }
-function setRaw(el,text){ el.removeAttribute('data-t'); el.textContent=text; }
-function btnT(key,fn,main,icon){ const b=btn(t(key),fn,main,icon); b.querySelector('span').dataset.t=JSON.stringify([[key]]); return b; }
-function btn(label,fn,main,icon){ const b=document.createElement('button'); b.className='btn'+(main?' main':''); b.innerHTML=(icon||'')+'<span></span>'; b.querySelector('span').textContent=label; b.onclick=fn; return b; }
-const ICON={
-  share:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16a3 3 0 0 0-2.4 1.2l-6.7-3.4a3 3 0 0 0 0-1.6l6.7-3.4A3 3 0 1 0 15 7c0 .3 0 .5.1.8L8.4 11.2a3 3 0 1 0 0 3.6l6.7 3.4A3 3 0 1 0 18 16z"/></svg>',
-  dl:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>',
-  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
-  pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>'
-};
+let engineName='';
+function setEngine(n){ engineName=n||engineName; const el=$('#engine'); el.innerHTML='<i></i>'; el.append(engineName||t('chipOnline')); }
 
 /* ================= translation ================= */
 let sampleFn=null; const cache=new Map();
 (async()=>{ try{ if(window.claude&&window.claude.use){ const s=await window.claude.use('sample'); if(s){ sampleFn=s; setEngine('Claude AI'); } } }catch(e){} })();
-function styleNote(to){
-  if(to==='ar') return state.dialect==='saudi'
-    ? 'Write the Arabic in natural Saudi colloquial Arabic as spoken in Riyadh, in Arabic script.'
-    : 'Write the Arabic in clear, natural Modern Standard Arabic with a polite tone.';
-  return 'Write natural, conversational '+L[to].full+'. The source may be in any dialect; understand it correctly.';
-}
 async function viaClaude(text,from,to,signal){
-  const r=await sampleFn(`You are a professional ${L[from].full}–${L[to].full} interpreter for quick everyday voice messages.
-Translate the text below from ${L[from].full} to ${L[to].full}. ${styleNote(to)}
-Islamic greetings and formulas must use their standard fixed forms (e.g. السلام عليكم ورحمة الله وبركاته, إن شاء الله, جزاك الله خيرا), never a word-by-word rendering.
-Keep meaning, tone, names, numbers. Output ONLY the translation, no quotes or notes.
+  const r=await sampleFn(`You are a professional ${L[from].full}–${L[to].full} translator for everyday messages.
+Translate the text below from ${L[from].full} to ${L[to].full}. Write natural, correct ${L[to].full}${to==='ar'?' (clear Modern Standard Arabic, polite tone)':''}.
+Islamic greetings and formulas must use their standard fixed forms, never a word-by-word rendering.
+Keep meaning, tone, names, numbers and line breaks. Output ONLY the translation.
 
 Text:
 <<<
@@ -675,7 +437,7 @@ async function viaMyMemory(text,from,to,signal){
   const j=await r.json(); if(String(j.responseStatus)!=='200') throw new Error('mm'); return (j.responseData.translatedText||'').trim();
 }
 async function translateRaw(text,from,to,signal){
-  const key=from+to+state.dialect+'|'+text; if(cache.has(key)) return cache.get(key);
+  const key=from+to+'|'+text; if(cache.has(key)) return cache.get(key);
   let out='';
   if(sampleFn){ try{ out=await viaClaude(text,from,to,signal); }catch(e){ if(e&&e.code==='cancelled') throw e; if(e&&e.code==='not_granted') sampleFn=null; } }
   if(!out){ try{ out=await viaGoogle(text,from,to,signal); if(!sampleFn) setEngine('Google'); }catch(e){ if(e.name==='AbortError') throw e; } }
@@ -683,462 +445,25 @@ async function translateRaw(text,from,to,signal){
   if(!out) throw new Error(t('trFail'));
   cache.set(key,out); return out;
 }
-/* greetings and religious formulas come from the verified dictionary; the rest goes to the translator */
+/* paragraphs are translated separately so line breaks survive; greetings/formulas come from the dictionary */
 async function translate(text,from,to,signal){
-  text=text.trim(); if(!text) return ''; if(from===to) return text;
-  const plan=planFixed(text,from);
-  if(!plan) return translateRaw(text,from,to,signal);
-  const parts=await Promise.all(plan.map(p=> p.fixed ? FIXED[p.fixed][to] : p.text!=null ? (p.text.trim()? translateRaw(p.text.trim(),from,to,signal) : p.text) : convSep(p.sep,to)));
-  return parts.join('').replace(/[ \t]+/g,' ').replace(/\s+([،,.!?؟])/g,'$1').trim();
+  text=text.trim(); if(!text) return {out:'',fixed:false}; if(from===to) return {out:text,fixed:false};
+  const paras=text.split(/(\n+)/); let fixedAny=false;
+  const parts=await Promise.all(paras.map(async p=>{
+    if(!p.trim()) return p;
+    const plan=planFixed(p,from);
+    if(!plan) return translateRaw(p.trim(),from,to,signal);
+    fixedAny=true;
+    const xs=await Promise.all(plan.map(x=> x.fixed ? FIXED[x.fixed][to] : x.text!=null ? (x.text.trim()? translateRaw(x.text.trim(),from,to,signal) : x.text) : convSep(x.sep,to)));
+    return xs.join('').replace(/[ \t]+/g,' ').replace(/\s+([،,.!?؟])/g,'$1').trim();
+  }));
+  return {out:parts.join('').trim(), fixed:fixedAny};
 }
-
-/* ================= speech recognition ================= */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const IS_ANDROID = /Android/i.test(navigator.userAgent);
-function srError(c){
-  if(c==='not-allowed'||c==='service-not-allowed') return IN_CLAUDE ? t('micDeniedClaude') : t('micDenied');
-  if(c==='no-speech') return t('noSpeech');
-  if(c==='network') return t('srNet');
-  if(c==='audio-capture') return t('noMic');
-  if(c==='language-not-supported') return t('srLang');
-  return t('srErr',{e:c});
-}
-/* a listening session that survives Android's auto-stop on pauses: it restarts until the user stops it */
-function createListener(lang,h){
-  if(!SR){ toast(t('noSR')); return null; }
-  let finalText='', stopped=false, r=null, restarts=0, fatal=null, netErrs=0, lastNet=false;
-  const join=(a,b)=>a&&b?a+' '+b:(a||b||'');
-  function start(){
-    r=new SR(); r.lang=L[lang].sr; r.interimResults=true; r.continuous=!IS_ANDROID; r.maxAlternatives=1;
-    let segFinal='';
-    r.onresult=e=>{
-      let interim=''; segFinal='';
-      for(let i=0;i<e.results.length;i++){ const x=e.results[i][0].transcript; if(e.results[i].isFinal) segFinal+=(segFinal?' ':'')+x.trim(); else interim+=x; }
-      h.interim && h.interim(join(finalText, join(segFinal, interim.trim())));
-    };
-    r.onerror=e=>{
-      // Android Chrome reports short drops of Google's speech service as "network": retry quietly a few times
-      if(e.error==='network' && netErrs<3){ netErrs++; lastNet=true; return; }
-      if(['not-allowed','service-not-allowed','audio-capture','language-not-supported','network'].includes(e.error)){ fatal=e.error; toast(srError(e.error)); }
-    };
-    r.onend=()=>{
-      finalText=join(finalText,segFinal);
-      if(!stopped && !fatal && restarts<30){ restarts++; const wait=lastNet?400:0; lastNet=false; setTimeout(()=>{ if(stopped){ h.end(finalText.trim(),fatal); return; } try{ start(); }catch(e){ h.end(finalText.trim(),fatal); } },wait); return; }
-      h.end(finalText.trim(), fatal);
-    };
-    r.start();
-  }
-  try{ start(); }catch(e){ toast(t('micFail')); return null; }
-  return { stop(){ stopped=true; try{ r.stop(); }catch(e){} }, abort(){ stopped=true; try{ r.abort(); }catch(e){} } };
-}
-
-/* only one sound at a time: a voice message OR the phone voice, never both */
-let currentAudio=null;
-function stopAllSound(except){
-  if(window.speechSynthesis) try{ speechSynthesis.cancel(); }catch(e){}
-  if(currentAudio && currentAudio!==except){ try{ currentAudio.pause(); }catch(e){} }
-}
-function speakDevice(text,lang){
-  if(!window.speechSynthesis||!text) return;
-  stopAllSound();
-  const u=new SpeechSynthesisUtterance(text); u.lang=L[lang].sr; u.rate=.95;
-  const vs=speechSynthesis.getVoices(); const v=vs.find(v=>v.lang.replace('_','-').toLowerCase()===L[lang].sr.toLowerCase())||vs.find(v=>v.lang.toLowerCase().startsWith(lang));
-  if(v) u.voice=v; speechSynthesis.speak(u);
-}
-if(window.speechSynthesis) try{ speechSynthesis.getVoices(); }catch(e){}
-
-const CDN = {
-  hf:'https://huggingface.co/diffusionstudio/piper-voices/resolve/main/',
-  ort:'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js',
-  ortWasm:'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/',
-  piperJs:'https://cdn.jsdelivr.net/npm/@diffusionstudio/vits-web@1.0.3/dist/piper-DeOu3H9E.js',
-  piperBin:'https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize',
-  tkJs:'https://cdn.jsdelivr.net/npm/libtashkeel-wasm@1.6.4/libtashkeel_wasm_bg.js',
-  tkWasm:'https://cdn.jsdelivr.net/npm/libtashkeel-wasm@1.6.4/libtashkeel_wasm_bg.wasm',
-  lame:'https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js'
-};
-const VOICE_PATH = {
-  ar:'ar/ar_JO/kareem/medium/ar_JO-kareem-medium.onnx',
-  ru_dmitri:'ru/ru_RU/dmitri/medium/ru_RU-dmitri-medium.onnx',
-  ru_denis:'ru/ru_RU/denis/medium/ru_RU-denis-medium.onnx',
-  ru_ruslan:'ru/ru_RU/ruslan/medium/ru_RU-ruslan-medium.onnx',
-  ru_irina:'ru/ru_RU/irina/medium/ru_RU-irina-medium.onnx',
-  en_ryan:'en/en_US/ryan/medium/en_US-ryan-medium.onnx',
-  en_lessac:'en/en_US/lessac/medium/en_US-lessac-medium.onnx',
-  en_alan:'en/en_GB/alan/medium/en_GB-alan-medium.onnx'
-};
-const voiceKey = lang => lang==='ar' ? 'ar' : lang==='ru' ? 'ru_'+state.ruvoice : 'en_'+state.envoice;
-
-const DB = (()=>{
-  let p=null;
-  function open(){ if(p) return p; p=new Promise((res,rej)=>{ try{ const r=indexedDB.open('tarjuman-voices',1); r.onupgradeneeded=()=>r.result.createObjectStore('f'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }); p.catch(()=>{}); return p; }
-  return {
-    async get(k){ try{ const db=await open(); return await new Promise(res=>{ const q=db.transaction('f').objectStore('f').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(undefined); }); }catch(e){ return undefined; } },
-    async put(k,v){ try{ const db=await open(); await new Promise(res=>{ const t=db.transaction('f','readwrite'); t.objectStore('f').put(v,k); t.oncomplete=res; t.onerror=res; t.onabort=res; }); }catch(e){} },
-    async has(k){ try{ const db=await open(); return await new Promise(res=>{ const q=db.transaction('f').objectStore('f').getKey(k); q.onsuccess=()=>res(q.result!==undefined); q.onerror=()=>res(false); }); }catch(e){ return false; } }
-  };
-})();
-const inflight=new Map();
-function fetchBuf(url,onProg){
-  if(inflight.has(url)){ const e=inflight.get(url); if(onProg) e.listeners.push(onProg); return e.p; }
-  const entry={listeners:onProg?[onProg]:[]};
-  entry.p=(async()=>{
-    const hit=await DB.get(url); if(hit) return hit;
-    const r=await fetch(url); if(!r.ok) throw new Error(t('errDownload')+' '+url.split('/').pop()+' ('+r.status+')');
-    const total=+(r.headers.get('Content-Length')||0); let buf;
-    if(r.body && r.body.getReader){
-      const rd=r.body.getReader(); const parts=[]; let got=0;
-      for(;;){ const {done,value}=await rd.read(); if(done) break; parts.push(value); got+=value.length; entry.listeners.forEach(f=>{ try{ f(got,total); }catch(e){} }); }
-      const all=new Uint8Array(got); let o=0; for(const q of parts){ all.set(q,o); o+=q.length; } buf=all.buffer;
-    } else buf=await r.arrayBuffer();
-    await DB.put(url,buf); return buf;
-  })().finally(()=>inflight.delete(url));
-  inflight.set(url,entry); return entry.p;
-}
-function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>{ s.remove(); rej(new Error(t('errLib')+' '+src.split('/').pop())); }; document.head.appendChild(s); }); }
-
-
-/*AR-BEGIN*/
-/* Arabic pronunciation layer: verified phrases + common-word fixes + pausal form (waqf), applied before speech */
-const AR_PHRASES = [
- ['السلام عليكم ورحمة الله وبركاته','السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ'],
- ['وعليكم السلام ورحمة الله وبركاته','وَعَلَيْكُمُ السَّلَامُ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ'],
- ['ورحمة الله وبركاته','وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ'],
- ['السلام عليكم ورحمة الله','السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ'],
- ['وعليكم السلام','وَعَلَيْكُمُ السَّلَامُ'],
- ['السلام عليكم','السَّلَامُ عَلَيْكُمْ'],
- ['بسم الله الرحمن الرحيم','بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ'],
- ['بسم الله','بِسْمِ اللَّهِ'],
- ['والحمد لله','وَالْحَمْدُ لِلَّهِ'],
- ['الحمد لله','الْحَمْدُ لِلَّهِ'],
- ['إن شاء الله','إِنْ شَاءَ اللَّهُ'],
- ['ما شاء الله','مَا شَاءَ اللَّهُ'],
- ['جزاك الله خيرا','جَزَاكَ اللَّهُ خَيْرًا'],
- ['جزاكم الله خيرا','جَزَاكُمُ اللَّهُ خَيْرًا'],
- ['بارك الله فيك','بَارَكَ اللَّهُ فِيكَ'],
- ['بارك الله فيكم','بَارَكَ اللَّهُ فِيكُمْ'],
- ['سبحان الله','سُبْحَانَ اللَّهِ'],
- ['الله أكبر','اللَّهُ أَكْبَرُ'],
- ['أستغفر الله','أَسْتَغْفِرُ اللَّهَ'],
- ['لا إله إلا الله','لَا إِلَهَ إِلَّا اللَّهُ'],
- ['لا حول ولا قوة إلا بالله','لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ'],
- ['صلى الله عليه وسلم','صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ'],
- ['الله يعطيك العافية','اللَّهُ يُعْطِيكَ الْعَافِيَةَ'],
- ['يعطيك العافية','يُعْطِيكَ الْعَافِيَةَ'],
- ['الله يحفظك','اللَّهُ يَحْفَظُكَ'],
- ['حياك الله','حَيَّاكَ اللَّهُ'],
- ['في أمان الله','فِي أَمَانِ اللَّهِ'],
- ['تقبل الله منا ومنكم','تَقَبَّلَ اللَّهُ مِنَّا وَمِنْكُمْ'],
- ['تقبل الله','تَقَبَّلَ اللَّهُ'],
- ['عيد مبارك','عِيدٌ مُبَارَكٌ'],
- ['رمضان كريم','رَمَضَانُ كَرِيمٌ'],
- ['رمضان مبارك','رَمَضَانُ مُبَارَكٌ'],
- ['جمعة مباركة','جُمُعَةٌ مُبَارَكَةٌ'],
- ['مع السلامة','مَعَ السَّلَامَةِ'],
- ['صباح الخير','صَبَاحُ الْخَيْرِ'],
- ['صباح النور','صَبَاحُ النُّورِ'],
- ['مساء الخير','مَسَاءُ الْخَيْرِ'],
- ['مساء النور','مَسَاءُ النُّورِ'],
- ['أهلا وسهلا','أَهْلًا وَسَهْلًا'],
- ['أهلا بك','أَهْلًا بِكَ'],
- ['على الرحب والسعة','عَلَى الرَّحْبِ وَالسَّعَةِ'],
- ['شكرا جزيلا','شُكْرًا جَزِيلًا'],
- ['شكرا لك','شُكْرًا لَكَ'],
- ['شكرا لكم','شُكْرًا لَكُمْ'],
- ['كيف حالك','كَيْفَ حَالُكَ'],
- ['كيف حالكم','كَيْفَ حَالُكُمْ'],
- ['أنا بخير','أَنَا بِخَيْرٍ'],
- ['من فضلك','مِنْ فَضْلِكَ'],
- ['لو سمحت','لَوْ سَمَحْتَ'],
- ['يا أخي','يَا أَخِي'],
- ['يا أختي','يَا أُخْتِي']
-];
-const AR_WORDS = {
- 'شكرا':'شُكْرًا','عفوا':'عَفْوًا','مرحبا':'مَرْحَبًا','وبركاته':'وَبَرَكَاتُهُ','بركاته':'بَرَكَاتُهُ',
- 'جزاك':'جَزَاكَ','جزاكم':'جَزَاكُمْ','أين':'أَيْنَ','سأصل':'سَأَصِلُ','نصل':'نَصِلُ','أصل':'أَصِلُ','آمين':'آمِين','تشرفنا':'تَشَرَّفْنَا',
- 'لله':'لِلَّهِ','بالله':'بِاللَّهِ','والله':'وَاللَّهِ'
-};
-const arStrip = w => w.replace(/[ً-ْٰـ]/g,'');
-const arNorm = w => arStrip(w).replace(/[إأآٱ]/g,'ا').replace(/ى/g,'ي');
-const AR_SEP = /(\s+|[.!?؟،,;:…"«»()\[\]\-–—]+)/;
-const isArWord = t => /[ء-ي]/.test(t);
-function arUserDict(){ const out={phr:[],w:{}}; String(state.ardict||'').split('\n').forEach(l=>{ const m=l.split('='); if(m.length<2) return; const k=m[0].trim(), v=m.slice(1).join('=').trim(); if(!k||!v) return; if(/\s/.test(k)) out.phr.push([k,v]); else out.w[arNorm(k)]=v; }); return out; }
-function arPhraseTable(user){
-  return [...user.phr, ...AR_PHRASES].map(([k,v])=>({k:arNorm(k).split(/\s+/), v})).sort((a,b)=>b.k.length-a.k.length);
-}
-function arMatchAt(parts,i,table){
-  for(const e of table){
-    let j=i, n=0, ok=true;
-    while(n<e.k.length){
-      if(j>=parts.length){ ok=false; break; }
-      const t=parts[j];
-      if(/^\s+$/.test(t)){ j++; continue; }
-      if(!isArWord(t) || arNorm(t)!==e.k[n]){ ok=false; break; }
-      n++; j++;
-    }
-    if(ok) return {end:j, text:e.v};
-  }
-  return null;
-}
-function arWordFix(tok,words){
-  const k=arNorm(tok); if(words[k]) return words[k];
-  for(const pre of [['و','وَ'],['ف','فَ']]){ if(k.startsWith(pre[0]) && k.length>2 && words[k.slice(1)]) return pre[1]+words[k.slice(1)]; }
-  return tok;
-}
-/* pausal form: Arabs drop the final short vowel/tanween before a pause (…barakātuh, not …barakātuhu/i) */
-function arWaqf(s){
-  s=s.replace(/([ء-ي])ً([اى])(?=[\s]*(?:[.!?؟،,;:…\n]|$))/g,'$1َ$2');
-  return s.replace(/([ء-ي])([ّ]?)[ً-ِ]([ّ]?)(?=[\s]*(?:[.!?؟،,;:…"»)\n]|$))/g,'$1$2$3');
-}
-function arPrepare(text,tk,hasH){
-  const user=arUserDict(), table=arPhraseTable(user), words={}; for(const k in AR_WORDS) words[arNorm(k)]=AR_WORDS[k]; Object.assign(words,user.w);
-  const parts=text.split(AR_SEP).filter(x=>x!=='');
-  const out=[]; let run=[];
-  const flush=()=>{ if(!run.length) return; const t=run.join(''); let r=t;
-    if(tk && !hasH(t) && isArWord(t)){ try{ const lead=t.match(/^\s*/)[0], trail=t.match(/\s*$/)[0]; r=lead+tk.do_tashkeel(t.trim())+trail; }catch(e){ r=t; } }
-    out.push(r.split(AR_SEP).map(x=>isArWord(x)?arWordFix(x,words):x).join('')); run=[]; };
-  for(let i=0;i<parts.length;){
-    if(isArWord(parts[i])){ const m=arMatchAt(parts,i,table); if(m){ flush(); out.push(m.text); i=m.end; continue; } }
-    run.push(parts[i]); i++;
-  }
-  flush();
-  return arWaqf(out.join(''));
-}
-/* Speech spelling for the eSpeak Arabic front-end (display text stays normal):
-   - shadda + vowel is expanded (C+sukun+C+vowel) — eSpeak otherwise drops the vowel (muħammd, sslaːm);
-   - connected speech: the article's alif is elided after a word; sun letters assimilate (…u s-salām, …u l-khayr);
-   - the name of Allah is spelled so the long ā is heard (bismi llāhi, Allāhu akbar). */
-const AR_SUN='تثدذرزسشصضطظلن';
-function arSpeech(s){
-  const parts=s.split(AR_SEP); let prev=false; const out=[];
-  for(const t of parts){
-    if(t===''){ continue; }
-    if(!isArWord(t)){ out.push(t); if(!/^\s+$/.test(t)) prev=false; continue; }
-    let w=t; const n=arNorm(w); const v=(w.match(/ه([ً-ِ]?)$/)||[])[1]||'';
-    const ALLAH={'الله': prev?'لْلَاه':'أَللَاه','والله':'وَلْلَاه','فالله':'فَلْلَاه','بالله':'بِلْلَاه','لله':'لِلْلَاه','تالله':'تَلْلَاه'};
-    if(ALLAH[n]){ out.push(ALLAH[n]+v); prev=true; continue; }
-    if(prev && arStrip(w)[0]==='ا' && n.startsWith('ال') && n.length>3){
-      const rest=w.replace(/^ا[ً-ْ]*ل[ً-ْ]*/,'');
-      if(rest){ w = AR_SUN.includes(rest[0]) ? rest : 'لْ'+rest; }
-    }
-    w=w.replace(/([ء-ي])([ً-ِ]?)ّ([ً-ِ]?)/g,(m,c,v1,v2)=>c+'ْ'+c+(v1||v2));
-    out.push(w); prev=true;
-  }
-  return out.join('');
-}
-/*AR-END*/
-
-const Engine = (()=>{
-  let ortP=null, lameP=null, tkP=null, phP=null; const sessions=new Map();
-  const once=(get,set,fn)=>{ if(!get()) set(fn().catch(e=>{ set(null); throw e; })); return get(); };
-  const ort=()=>once(()=>ortP,v=>ortP=v,async()=>{ if(!window.ort) await loadScript(CDN.ort); window.ort.env.wasm.wasmPaths=CDN.ortWasm; window.ort.env.wasm.numThreads=1; return window.ort; });
-  const lame=()=>once(()=>lameP,v=>lameP=v,async()=>{ if(!window.lamejs) await loadScript(CDN.lame); return window.lamejs; });
-  const tashkeel=(onProg)=>once(()=>tkP,v=>tkP=v,async()=>{ const bg=await import(CDN.tkJs); const buf=await fetchBuf(CDN.tkWasm,onProg); const {instance}=await WebAssembly.instantiate(buf,{'./libtashkeel_wasm_bg.js':bg}); bg.__wbg_set_wasm(instance.exports); return bg; });
-  const phFiles=(onProg)=>once(()=>phP,v=>phP=v,async()=>{ const [mod,wasm,data]=await Promise.all([import(CDN.piperJs), fetchBuf(CDN.piperBin+'.wasm'), fetchBuf(CDN.piperBin+'.data',onProg)]); return {mod,wasm,data}; });
-  async function phonemize(text,espeakVoice){
-    const {mod,wasm,data}=await phFiles();
-    return new Promise((res,rej)=>{
-      let done=false;
-      mod.createPiperPhonemize({
-        wasmBinary:wasm.slice(0), getPreloadedPackage:()=>data.slice(0),
-        print:l=>{ if(done) return; try{ const j=JSON.parse(l); if(j.phoneme_ids){ done=true; res(j.phoneme_ids); } }catch(e){} },
-        printErr:()=>{},
-        locateFile:f=>f.endsWith('.wasm')?CDN.piperBin+'.wasm':f.endsWith('.data')?CDN.piperBin+'.data':f
-      }).then(m=>{
-        try{ m.callMain(['-l',espeakVoice,'--input',JSON.stringify([{text}]),'--espeak_data','/espeak-ng-data']); }catch(e){ if(!done){ done=true; rej(new Error(t('errPhon'))); } return; }
-        setTimeout(()=>{ if(!done){ done=true; rej(new Error(t('errPhon'))); } },30000);
-      }).catch(rej);
-    });
-  }
-  function session(key,onProg){
-    if(sessions.has(key)){ const s=sessions.get(key); sessions.delete(key); sessions.set(key,s); return s; } // keep most recent last
-    const p=(async()=>{
-      const O=await ort();
-      const cfg=JSON.parse(new TextDecoder().decode(await fetchBuf(CDN.hf+VOICE_PATH[key]+'.json')));
-      const model=await fetchBuf(CDN.hf+VOICE_PATH[key],onProg);
-      const s=await O.InferenceSession.create(new Uint8Array(model));
-      return {s,cfg};
-    })().catch(e=>{ sessions.delete(key); throw e; });
-    sessions.set(key,p);
-    while(sessions.size>2){ const [k,old]=sessions.entries().next().value; sessions.delete(k); old.then(x=>{ try{ x.s.release&&x.s.release(); }catch(e){} }).catch(()=>{}); }
-    return p;
-  }
-  async function isReady(lang){
-    const k=voiceKey(lang);
-    const ok=await DB.has(CDN.hf+VOICE_PATH[k]) && await DB.has(CDN.piperBin+'.data');
-    return ok && (lang!=='ar' || await DB.has(CDN.tkWasm));
-  }
-  function hasHarakat(t){ const h=(t.match(/[ً-ْ]/g)||[]).length, l=(t.match(/[ء-ي]/g)||[]).length; return l>0 && h/l>0.35; }
-  function clean(t,lang){
-    t=t.replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu,' ').replace(/[*_#~`>|<]/g,' ').replace(/https?:\/\/\S+/g,' ').replace(/\s+/g,' ').trim();
-    if(lang==='ar') t=t.replace(/ـ/g,'');
-    return t;
-  }
-  function toInt16(f){ const o=new Int16Array(f.length); for(let i=0;i<f.length;i++){ let v=f[i]; v=v>1?1:v<-1?-1:v; o[i]=v<0?v*32768:v*32767; } return o; }
-  function wav(f,sr){
-    const i16=toInt16(f), b=new ArrayBuffer(44+i16.length*2), d=new DataView(b); const w=(o,s)=>{ for(let i=0;i<s.length;i++) d.setUint8(o+i,s.charCodeAt(i)); };
-    w(0,'RIFF'); d.setUint32(4,36+i16.length*2,true); w(8,'WAVE'); w(12,'fmt '); d.setUint32(16,16,true); d.setUint16(20,1,true); d.setUint16(22,1,true);
-    d.setUint32(24,sr,true); d.setUint32(28,sr*2,true); d.setUint16(32,2,true); d.setUint16(34,16,true); w(36,'data'); d.setUint32(40,i16.length*2,true);
-    new Int16Array(b,44).set(i16); return new Blob([b],{type:'audio/wav'});
-  }
-  async function mp3(f,sr){
-    const lj=await lame(); const i16=toInt16(f); const enc=new lj.Mp3Encoder(1,sr,64); const out=[];
-    for(let i=0;i<i16.length;i+=1152){ const c=enc.encodeBuffer(i16.subarray(i,i+1152)); if(c.length) out.push(new Uint8Array(c)); }
-    const e=enc.flush(); if(e.length) out.push(new Uint8Array(e));
-    return new Blob(out,{type:'audio/mpeg'});
-  }
-  /* --- OGG Opus (the format of WhatsApp voice notes) --- */
-  const CRC=(()=>{ const t=new Uint32Array(256); for(let i=0;i<256;i++){ let r=i<<24; for(let j=0;j<8;j++) r=(r&0x80000000)?((r<<1)^0x04c11db7):(r<<1); t[i]=r>>>0; } return t; })();
-  function oggPage(type,granule,serial,seq,packets){
-    const segs=[]; for(const p of packets){ let n=p.length; while(n>=255){ segs.push(255); n-=255; } segs.push(n); }
-    const len=packets.reduce((a,p)=>a+p.length,0), page=new Uint8Array(27+segs.length+len), d=new DataView(page.buffer);
-    page.set([79,103,103,83],0); page[4]=0; page[5]=type; d.setBigInt64(6,BigInt(granule),true); d.setUint32(14,serial,true); d.setUint32(18,seq,true);
-    page[26]=segs.length; page.set(segs,27); let o=27+segs.length; for(const p of packets){ page.set(p,o); o+=p.length; }
-    let c=0; for(let i=0;i<page.length;i++) c=((c<<8)^CRC[((c>>>24)^page[i])&255])>>>0; d.setUint32(22,c,true);
-    return page;
-  }
-  async function canOpus(){
-    if(!window.AudioEncoder || !window.OfflineAudioContext) return false;
-    try{ return (await AudioEncoder.isConfigSupported({codec:'opus',sampleRate:48000,numberOfChannels:1,bitrate:32000})).supported; }catch(e){ return false; }
-  }
-  async function opus(f,sr){
-    const n48=Math.ceil(f.length*48000/sr);
-    const ctx=new OfflineAudioContext(1,n48,48000); const ab=ctx.createBuffer(1,f.length,sr); ab.copyToChannel(f,0);
-    const src=ctx.createBufferSource(); src.buffer=ab; src.connect(ctx.destination); src.start();
-    const pcm=(await ctx.startRendering()).getChannelData(0);
-    const packets=[]; let head=null, err=null;
-    const enc=new AudioEncoder({ output:(chunk,meta)=>{ const b=new Uint8Array(chunk.byteLength); chunk.copyTo(b); packets.push({b,dur:chunk.duration}); if(meta&&meta.decoderConfig&&meta.decoderConfig.description) head=new Uint8Array(meta.decoderConfig.description); }, error:e=>err=e });
-    enc.configure({codec:'opus',sampleRate:48000,numberOfChannels:1,bitrate:32000});
-    for(let i=0;i<pcm.length;i+=4800){ const part=pcm.slice(i,i+4800); enc.encode(new AudioData({format:'f32',sampleRate:48000,numberOfFrames:part.length,numberOfChannels:1,timestamp:Math.round(i*1e6/48000),data:part})); }
-    await enc.flush(); enc.close(); if(err) throw err; if(!packets.length) throw new Error('opus');
-    if(!head || head.length<19 || String.fromCharCode(...head.slice(0,8))!=='OpusHead'){
-      head=new Uint8Array(19); const d=new DataView(head.buffer); head.set([79,112,117,115,72,101,97,100],0); head[8]=1; head[9]=1; d.setUint16(10,312,true); d.setUint32(12,48000,true);
-    }
-    const preSkip=new DataView(head.buffer,head.byteOffset).getUint16(10,true);
-    const vendor=new TextEncoder().encode('Tarjuman'); const tags=new Uint8Array(8+4+vendor.length+4); tags.set(new TextEncoder().encode('OpusTags'),0); new DataView(tags.buffer).setUint32(8,vendor.length,true); tags.set(vendor,12);
-    const serial=(Math.random()*0xffffffff)>>>0, pages=[oggPage(2,0,serial,0,[head]), oggPage(0,0,serial,1,[tags])];
-    let seq=2, gran=preSkip, batch=[], segCount=0; const finalGran=preSkip+pcm.length;
-    for(let i=0;i<packets.length;i++){
-      const p=packets[i], segs=Math.floor(p.b.length/255)+1;
-      if(segCount+segs>255){ pages.push(oggPage(0,gran,serial,seq++,batch)); batch=[]; segCount=0; }
-      batch.push(p.b); segCount+=segs; gran+=Math.round((p.dur||20000)*48000/1e6);
-      if(i===packets.length-1) pages.push(oggPage(4,Math.min(gran,finalGran),serial,seq++,batch));
-      else if(batch.length>=50){ pages.push(oggPage(0,gran,serial,seq++,batch)); batch=[]; segCount=0; }
-    }
-    return new Blob(pages,{type:'audio/ogg; codecs=opus'});
-  }
-  function peaks(f,n=40){ const out=[], step=Math.max(1,Math.floor(f.length/n)); let mx=0; for(let i=0;i<n;i++){ let s=0; for(let j=i*step;j<Math.min(f.length,(i+1)*step);j++) s+=f[j]*f[j]; const v=Math.sqrt(s/step); out.push(v); if(v>mx) mx=v; } return out.map(v=>mx?Math.max(.12,v/mx):.12); }
-
-  async function synth(text,lang,onStep){
-    text=clean(text,lang); if(!text) throw new Error(t('errNoText'));
-    const prog=label=>(got,total)=>onStep&&onStep(label+(total?' '+Math.round(got*100/total)+'%':' '+(got/1048576).toFixed(0)+' '+t('mb')));
-    onStep&&onStep(t('stPrep'));
-    if(lang==='ar'){
-      let tk=null;
-      if(!hasHarakat(text)){ tk=await tashkeel(prog(t('stLoadTk'))); onStep&&onStep(t('stTk')); }
-      text=arPrepare(text,tk,hasHarakat);
-    }
-    const spokenText=text; if(lang==='ar') text=arSpeech(text);
-    await phFiles(prog(t('stLoadPh')));
-    const {s,cfg}=await session(voiceKey(lang),prog(t('stLoadVoice',{l:L[lang].short})));
-    onStep&&onStep(t('stSynth'));
-    const ids=await phonemize(text,(cfg.espeak&&cfg.espeak.voice)||lang);
-    const O=await ort(); const inf=cfg.inference||{};
-    const feeds={
-      input:new O.Tensor('int64',BigInt64Array.from(ids.map(BigInt)),[1,ids.length]),
-      input_lengths:new O.Tensor('int64',BigInt64Array.from([BigInt(ids.length)]),[1]),
-      scales:new O.Tensor('float32',Float32Array.from([inf.noise_scale??0.667,(inf.length_scale??1)*parseFloat(state.speed||'1'),inf.noise_w??0.8]),[3])
-    };
-    if(cfg.speaker_id_map && Object.keys(cfg.speaker_id_map).length) feeds.sid=new O.Tensor('int64',BigInt64Array.from([0n]),[1]);
-    const r=await s.run(feeds); const pcm=(r.output||r[Object.keys(r)[0]]).data;
-    const sr=(cfg.audio&&cfg.audio.sample_rate)||22050;
-    const padN=Math.round(sr*0.15); const f=new Float32Array(pcm.length+padN*2); f.set(pcm,padN);
-    let blob=null, kind='';
-    if(state.fmt==='opus' && await canOpus()){ try{ blob=await opus(f,sr); kind='opus'; }catch(e){ blob=null; } }
-    if(!blob){ try{ blob=await mp3(f,sr); kind='mp3'; }catch(e){ blob=wav(f,sr); kind='wav'; } }
-    return {blob,kind,url:URL.createObjectURL(blob),seconds:f.length/sr,peaks:peaks(f),lang,spoken:spokenText};
-  }
-  async function preload(langs,onStep){
-    const prog=label=>(got,total)=>onStep&&onStep(label,total?got/total:0);
-    await ort();
-    await phFiles(prog(t('pkPh')));
-    if(langs.includes('ar')) await tashkeel(prog(t('pkTk')));
-    for(const l of langs) await session(voiceKey(l),prog(t('pkVoice',{l:L[l].short})));
-    try{ await lame(); }catch(e){}
-  }
-  return {synth,preload,isReady,canOpus};
-})();
-
-
-
-/* ================= files for sharing ================= */
-function fileFor(v,ext){
-  const name='Tarjuman_'+L[v.lang].short+'_'+stamp()+'.'+ext;
-  const type=v.kind==='opus'?'audio/ogg':v.kind==='mp3'?'audio/mpeg':'audio/wav';
-  return new File([v.blob],name,{type});
-}
-async function shareVoice(v){
-  const exts = v.kind==='opus' ? ['opus','ogg'] : [v.kind];
-  try{
-    if(navigator.canShare){ for(const ext of exts){ const f=fileFor(v,ext); if(navigator.canShare({files:[f]})){ await navigator.share({files:[f]}); return; } } }
-  }catch(e){ if(e.name==='AbortError') return; }
-  downloadVoice(v); toast(t('savedFile'));
-}
-function downloadVoice(v){
-  const f=fileFor(v, v.kind==='opus'?'ogg':v.kind);
-  const a=document.createElement('a'); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000);
-}
-
-/* WhatsApp-style voice note player */
-function voiceNote(v){
-  const el=document.createElement('div'); el.className='vn'; el.dir='ltr';
-  el.innerHTML='<button class="play">'+ICON.play+'</button><div class="wave"></div><span class="dur"></span>';
-  const wave=el.querySelector('.wave'), dur=el.querySelector('.dur'), play=el.querySelector('.play');
-  play.setAttribute('aria-label',t('listen'));
-  v.peaks.forEach(p=>{ const i=document.createElement('i'); i.style.height=Math.round(p*100)+'%'; wave.appendChild(i); });
-  const bars=[...wave.children]; dur.textContent=mmss(v.seconds);
-  const au=new Audio(v.url); au.preload='auto';
-  const paint=()=>{ const frac=au.duration?au.currentTime/au.duration:0; const k=Math.round(frac*bars.length); bars.forEach((b,i)=>b.classList.toggle('on',i<k)); dur.textContent=au.paused?mmss(v.seconds):mmss(au.currentTime); };
-  au.ontimeupdate=paint;
-  au.onplay=()=>{ stopAllSound(au); currentAudio=au; play.innerHTML=ICON.pause; };
-  au.onpause=()=>{ play.innerHTML=ICON.play; paint(); };
-  au.onended=()=>{ au.currentTime=0; paint(); };
-  play.onclick=()=>{ if(au.paused) au.play().catch(()=>{}); else au.pause(); };
-  wave.onclick=e=>{ const r=wave.getBoundingClientRect(); if(au.duration){ au.currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*au.duration; paint(); } };
-  el.audio=au;
-  return el;
-}
-
-/* ================= voice-pack banner (auto-downloads on Wi-Fi / desktop) ================= */
-let packBusy=false;
-function pairLangs(){ return [...new Set([state.me,state.them])]; }
-function packSize(langs){ return Math.round(18+langs.length*61+(langs.includes('ar')?13:0)); }
-async function refreshPack(autoStart){
-  if(IN_CLAUDE){ $('#pack').className='pack'; $('#pack-txt').textContent=t('pkClaude'); $('#pack-btn').hidden=true; return; }
-  if(packBusy) return;
-  const langs=pairLangs(); const ready=(await Promise.all(langs.map(l=>Engine.isReady(l)))).every(Boolean);
-  const names=langs.map(l=>L[l].short).join(' + ');
-  if(ready){ $('#pack').className='pack ok'; $('#pack-txt').textContent=t('pkReady',{langs:names}); $('#pack-btn').hidden=true; return; }
-  $('#pack').className='pack'; $('#pack-txt').textContent=t('pkNeed',{langs:names,mb:packSize(langs)}); $('#pack-btn').hidden=false;
-  const c=navigator.connection; const wifiOrUnknown=!c || !c.type || c.type==='wifi' || c.type==='ethernet';
-  if(autoStart && wifiOrUnknown && !(c&&c.saveData)) loadPack();
-}
-async function loadPack(){
-  if(packBusy) return; packBusy=true;
-  const bar=$('#pack-bar'), fill=bar.querySelector('i');
-  $('#pack-btn').hidden=true; bar.hidden=false;
-  try{
-    await Engine.preload(pairLangs(),(label,frac)=>{ $('#pack-txt').textContent=t('pkLoading',{label,pct:frac?Math.round(frac*100)+'%':'…'}); fill.style.width=Math.round(frac*100)+'%'; });
-  }catch(e){ toast(t('pkFail',{e:e.message||'error'})); }
-  bar.hidden=true; packBusy=false; refreshPack(false);
-}
-$('#pack-btn').onclick=loadPack;
 
 /* ================= history ================= */
 const HK='tarjuman.history.v1';
 function getHist(){ try{ return JSON.parse(localStorage.getItem(HK)||'[]'); }catch(e){ return []; } }
-function addHist(from,to,src,dst){ const h=getHist(); if(h[0]&&h[0].src===src&&h[0].to===to&&h[0].dst===dst) return; h.unshift({from,to,src,dst,t:Date.now()}); try{ localStorage.setItem(HK,JSON.stringify(h.slice(0,150))); }catch(e){} }
+function addHist(from,to,src,dst){ const h=getHist(); if(h[0]&&h[0].src===src&&h[0].dst===dst) return; h.unshift({from,to,src,dst,t:Date.now()}); try{ localStorage.setItem(HK,JSON.stringify(h.slice(0,200))); }catch(e){} }
 function renderHist(){
   const box=$('#hist'); box.innerHTML=''; const h=getHist();
   if(!h.length){ const e=document.createElement('div'); e.className='empty'; e.textContent=t('histEmpty'); box.appendChild(e); return; }
@@ -1146,412 +471,95 @@ function renderHist(){
   h.forEach(it=>{
     const b=document.createElement('button'); b.className='hi'; const d=new Date(it.t);
     b.innerHTML='<span class="w" dir="ltr"></span><span class="s" dir="auto"></span><span class="d" dir="auto"></span>';
-    b.querySelector('.w').textContent=((L[it.from]||L.ru).short)+' → '+((L[it.to]||L.ar).short)+' · '+d.toLocaleDateString(loc)+' '+hhmm(d);
+    b.querySelector('.w').textContent=((L[it.from]||L.ru).short)+' → '+((L[it.to]||L.ar).short)+' · '+d.toLocaleDateString(loc)+' '+pad(d.getHours())+':'+pad(d.getMinutes());
     const s=b.querySelector('.s'), dd=b.querySelector('.d'); s.textContent=it.src; dd.textContent=it.dst;
     if(it.from==='ar') s.classList.add('is-ar'); if(it.to==='ar') dd.classList.add('is-ar');
-    b.onclick=()=>copyText(it.dst); box.appendChild(b);
+    b.onclick=()=>{ if(!L[it.from]||!L[it.to]) return; setDir(it.from,it.to); src.value=it.src; showResult(it.dst,false); updateCount(); $('#t-text').click(); };
+    box.appendChild(b);
   });
 }
 $('#hist-clear').onclick=()=>{ try{ localStorage.removeItem(HK); }catch(e){} renderHist(); toast(t('histCleared')); };
 
 /* ================= tabs ================= */
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected', x===b));
-  ['voice','text','hist'].forEach(n=>$('#p-'+n).hidden = n!==b.dataset.tab);
+  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  ['text','hist'].forEach(n=>$('#p-'+n).hidden=n!==b.dataset.tab);
   if(b.dataset.tab==='hist') renderHist();
 });
 
-/* ================= VOICE tab ================= */
-const feed=$('#feed');
-const EX={ ru:'Здравствуйте! Я подъеду через двадцать минут.', en:'Hello! I will arrive in twenty minutes.', ar:'مرحبًا! سأصل بعد عشرين دقيقة.' };
-function renderExample(){
-  const c=$('#ex1'); if(!c) return;
-  c.className='card mine example l-'+state.me;
-  c.querySelector('.head span').textContent=t('example')+' · '+L[state.me].short+' → '+L[state.them].short;
-  const s=c.querySelector('.src'), d=c.querySelector('.dst');
-  s.textContent=EX[state.me]; d.textContent=EX[state.them];
-  s.classList.toggle('is-ar',state.me==='ar'); d.classList.toggle('is-ar',state.them==='ar');
-  $('#ex1-go').textContent=t('createVoice');
-}
-function applyPair(){
-  $('#me').value=state.me; $('#them').value=state.them;
-  [['#rec-a',state.me,state.them],['#rec-b',state.them,state.me]].forEach(([id,from,to])=>{
-    const b=$(id), on=!!(rec&&rec.btn===b); b.className='rec l-'+from+(on?' on':'');
-    const lbl=b.querySelector('.lbl'); lbl.textContent=on?t('recActive'):L[from].speak; lbl.classList.toggle('ar-t',from==='ar'&&!on);
-    b.querySelector('small').textContent=t('toVoice',{x:VIN[UI][to]});
-    b.dataset.from=from; b.dataset.to=to;
-  });
-  renderExample();
-}
-function onPairChange(changed){
-  if(state.me===state.them){ const free=LANGS.find(l=>l!==state.me); if(changed==='me') state.them=free; else state.me=free; }
-  savePrefs(); applyPair(); refreshPack(true);
-}
-$('#me').onchange=e=>{ state.me=e.target.value; onPairChange('me'); };
-$('#them').onchange=e=>{ state.them=e.target.value; onPairChange('them'); };
-$('#pairswap').onclick=()=>{ [state.me,state.them]=[state.them,state.me]; onPairChange(); };
-
-function clearExamples(){ feed.querySelectorAll('.example').forEach(n=>n.remove()); const e=$('#feed-empty'); if(e) e.remove(); }
-function newCard(from,to,mine){
-  clearExamples();
-  const c=document.createElement('div'); c.className='card l-'+from+(mine?' mine':' theirs');
-  c.innerHTML='<div class="head"><span dir="ltr"></span><span class="tm"></span></div><div class="orig"></div><div class="src" dir="auto"></div><div class="dst" dir="auto"></div><div class="st"></div><div class="player"></div><div class="acts"></div>';
-  c.querySelector('.head span').textContent=L[from].short+' → '+L[to].short;
-  c.querySelector('.tm').textContent=hhmm();
-  if(from==='ar') c.querySelector('.src').classList.add('is-ar');
-  if(to==='ar') c.querySelector('.dst').classList.add('is-ar');
-  c.gen=0; feed.appendChild(c); c.scrollIntoView({block:'end',behavior:'smooth'});
-  return c;
-}
-const isLatestCard=c=>{ const all=feed.querySelectorAll('.card'); return all[all.length-1]===c; };
-async function processCard(c,from,to,text){
-  const gen=++c.gen; const live=()=>c.gen===gen && c.isConnected;
-  const srcEl=c.querySelector('.src'), dstEl=c.querySelector('.dst'), st=c.querySelector('.st'), pl=c.querySelector('.player'), acts=c.querySelector('.acts');
-  if(pl.querySelector('.vn')) pl.querySelector('.vn').audio.pause();
-  srcEl.textContent=text; dstEl.textContent=''; pl.innerHTML=''; acts.innerHTML=''; st.className='st'; setT(st,[['translating']]);
-  let tr;
-  try{ tr=await translate(text,from,to); }catch(e){ if(!live()) return; st.className='st err'; setRaw(st,e.message); addEdit(); return; }
-  if(!live()) return;
-  dstEl.textContent=tr; addHist(from,to,text,tr);
-  acts.append(btnT('copy',()=>copyText(tr))); addEdit();
-  try{
-    const v=await Engine.synth(tr,to,m=>{ if(live()) setRaw(st,m); });
-    if(!live()){ URL.revokeObjectURL(v.url); return; }
-    setT(st,[['vReady',{xl:to}]].concat(v.kind==='opus'?[['vWa']]:v.kind==='mp3'?[['vMp3']]:[]));
-    const note=voiceNote(v); pl.appendChild(note);
-    if(to==='ar' && v.spoken){ const sp=document.createElement('div'); sp.className='spoken is-ar'; sp.dir='rtl'; sp.textContent=v.spoken; sp.title=t('spokenTitle'); pl.appendChild(sp); }
-    acts.prepend(btnT('send',()=>shareVoice(v),true,ICON.share), btnT('download',()=>downloadVoice(v),false,ICON.dl));
-    if(state.autoplay && isLatestCard(c) && !rec) note.audio.play().catch(()=>{});
-    c.scrollIntoView({block:'end'});
-  }catch(e){
-    if(!live()) return;
-    st.className='st err'; setT(st,[['vErr',{e:(e&&e.message)?e.message:'error'}]]);
-    acts.prepend(btnT('listenPhone',()=>speakDevice(tr,to)));   // phone voice only on request — never on top of a voice message
-  }
-  function addEdit(){
-    acts.appendChild(btnT('edit',()=>{
-      if(c.querySelector('textarea')) return;
-      const ta=document.createElement('textarea'); ta.value=srcEl.textContent; ta.dir='auto'; if(from==='ar') ta.classList.add('is-ar');
-      srcEl.hidden=true; srcEl.after(ta); ta.focus();
-      const go=btnT('retranslate',()=>{ const x=ta.value.trim(); if(!x) return; ta.remove(); go.remove(); srcEl.hidden=false; processCard(c,from,to,x); },true);
-      ta.after(go);
-    }));
-  }
-}
-
-/* WhatsApp-style recording: hold to talk and release, or tap to start and tap to finish */
-let rec=null;
-function startRec(b){
-  const from=b.dataset.from, to=b.dataset.to, mine=b.id==='rec-a';
-  stopAllSound();
-  const c=newCard(from,to,mine); const srcEl=c.querySelector('.src'), st=c.querySelector('.st');
-  st.className='st rec'; const t0=Date.now(); let text='';
-  const tick=setInterval(()=>{ setT(st,[['recording',{t:mmss((Date.now()-t0)/1000)}]]); },250);
-  setT(st,[['recording',{t:'0:00'}]]);
-  const session={btn:b, card:c};
-  const lis=createListener(from,{
-    interim:x=>{ text=x; srcEl.textContent=x; },
-    end:(x)=>{
-      clearInterval(tick);
-      if(rec===session){ rec=null; applyPair(); }
-      const final=(x||text).trim();
-      if(!final){ c.remove(); return; }
-      st.className='st'; setRaw(st,''); processCard(c,from,to,final);
-    }
-  });
-  if(!lis){ clearInterval(tick); c.remove(); return; }
-  session.lis=lis; rec=session; applyPair();
-  if(navigator.vibrate) try{ navigator.vibrate(30); }catch(e){}
-}
-function stopRec(){ if(rec) rec.lis.stop(); }
-['#rec-a','#rec-b'].forEach(id=>{
-  const b=$(id); let downAt=0, startedHere=false;
-  b.addEventListener('contextmenu',e=>e.preventDefault());
-  b.addEventListener('pointerdown',e=>{
-    e.preventDefault(); downAt=Date.now(); startedHere=false;
-    if(rec){ const same=rec.btn===b; stopRec(); if(same) return; }
-    startRec(b); startedHere=true;
-    try{ b.setPointerCapture(e.pointerId); }catch(_){}
-  });
-  const up=()=>{ if(!startedHere) return; startedHere=false; if(Date.now()-downAt>450) stopRec(); };
-  b.addEventListener('pointerup',up); b.addEventListener('pointercancel',up);
-  b.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(rec&&rec.btn===b) stopRec(); else { if(rec) stopRec(); startRec(b); } } });
-});
-
-$('#typeform').addEventListener('submit',e=>{
-  e.preventDefault(); const x=$('#typein').value.trim(); if(!x) return;
-  const d=detect(x); let from=state.me, to=state.them, mine=true;
-  if(d===state.them){ from=state.them; to=state.me; mine=false; }
-  $('#typein').value=''; processCard(newCard(from,to,mine),from,to,x);
-});
-$('#ex1-go').onclick=()=>{ processCard(newCard(state.me,state.them,true),state.me,state.them,EX[state.me]); };
-
-/* ================= TEXT tab ================= */
+/* ================= translator ================= */
 const src=$('#src'), dst=$('#dst');
-let textVoiceUrl=null;
 function applyDir(){
   $('#from').value=state.from; $('#to').value=state.to;
   src.classList.toggle('is-ar',state.from==='ar'); dst.classList.toggle('is-ar',state.to==='ar');
   $('#outpane').className='pane out l-'+state.to;
   if(dst.classList.contains('muted')) dst.textContent=t('resultPh');
 }
-function setDir(from,to){ if(from===to) to=LANGS.find(l=>l!==from); state.from=from; state.to=to; savePrefs(); applyDir(); }
-$('#from').onchange=e=>{ const f=e.target.value; setDir(f, state.to===f?state.from:state.to); runText(); };
-$('#to').onchange=e=>{ const x=e.target.value; setDir(state.from===x?state.to:state.from, x); runText(); };
-$('#swap').onclick=()=>{ const out=!dst.classList.contains('muted')&&dst.textContent; setDir(state.to,state.from); if(out) src.value=out; runText(); };
-let ctrl=null, debT=null, histT=null, textGen=0;
-function clearTextVoice(){ const box=$('#textvoice'); const n=box.querySelector('.vn'); if(n&&n.audio) n.audio.pause(); box.hidden=true; box.innerHTML=''; if(textVoiceUrl){ URL.revokeObjectURL(textVoiceUrl); textVoiceUrl=null; } }
-async function runText(){
-  const text=src.value.trim(); if(ctrl) ctrl.abort(); ctrl=new AbortController(); const gen=++textGen;
-  clearTextVoice(); clearTimeout(histT);
-  if(!text){ dst.textContent=t('resultPh'); dst.classList.add('muted'); $('#status').textContent=''; return; }
+function setDir(from,to){ if(from===to) to=from===state.me?state.them:(LANGS.find(l=>l!==from)); state.from=from; state.to=to; savePrefs(); applyDir(); }
+$('#from').onchange=e=>{ const f=e.target.value; setDir(f, state.to===f?state.from:state.to); runText(true); };
+$('#to').onchange=e=>{ const x=e.target.value; setDir(state.from===x?state.to:state.from, x); runText(true); };
+$('#swap').onclick=()=>{ const out=!dst.classList.contains('muted')&&dst.textContent; setDir(state.to,state.from); if(out){ src.value=out; updateCount(); } runText(true); };
+function showResult(text,fixed){
+  dst.classList.remove('muted'); dst.textContent=text; $('#fixedtag').hidden=!fixed;
+  $('#copy').disabled=false; $('#send').disabled=false;
+}
+function clearResult(){ dst.textContent=t('resultPh'); dst.classList.add('muted'); $('#fixedtag').hidden=true; $('#copy').disabled=true; $('#send').disabled=true; }
+function updateCount(){ const n=src.value.length; $('#count').textContent=n?t('chars',{n}):''; }
+let ctrl=null, debT=null, histT=null, gen=0;
+async function runText(now){
+  clearTimeout(debT);
+  if(!now){ debT=setTimeout(()=>runText(true),450); return; }
+  const text=src.value.trim(); if(ctrl) ctrl.abort(); ctrl=new AbortController(); const g=++gen; clearTimeout(histT);
+  if(!text){ clearResult(); $('#status').textContent=''; return; }
   $('#status').textContent=t('translating');
   try{
-    const out=await translate(text,state.from,state.to,ctrl.signal); if(gen!==textGen) return;
-    dst.textContent=out; dst.classList.remove('muted'); $('#status').textContent='';
-    const f=state.from,x=state.to; histT=setTimeout(()=>addHist(f,x,text,out),2500);
-    if(state.autotext) makeTextVoice(gen);
-    return out;
-  }catch(e){ if(e&&(e.code==='cancelled'||e.name==='AbortError')) return; if(gen===textGen) $('#status').textContent=e.message||t('trFail'); }
-}
-async function makeTextVoice(gen){
-  gen=gen||textGen; const text=dst.textContent.trim(); if(dst.classList.contains('muted')||!text) return;
-  const box=$('#textvoice'); clearTextVoice(); box.hidden=false; const st=document.createElement('div'); st.className='status'; setT(st,[['stPrep']]); box.appendChild(st);
-  const lang=state.to;
-  try{
-    const v=await Engine.synth(text,lang,m=>{ if(gen===textGen) setRaw(st,m); });
-    if(gen!==textGen){ URL.revokeObjectURL(v.url); return; }
-    textVoiceUrl=v.url; setT(st,[['vReady',{xl:lang}]]);
-    box.appendChild(voiceNote(v));
-    if(lang==='ar' && v.spoken){ const sp=document.createElement('div'); sp.className='spoken is-ar'; sp.dir='rtl'; sp.textContent=v.spoken; box.appendChild(sp); }
-    const a=document.createElement('div'); a.className='acts'; a.append(btnT('send',()=>shareVoice(v),true,ICON.share), btnT('download',()=>downloadVoice(v),false,ICON.dl)); box.appendChild(a);
-  }catch(e){ if(gen===textGen) setT(st,[['vErr',{e:e.message||'error'}]]); }
+    const {out,fixed}=await translate(text,state.from,state.to,ctrl.signal); if(g!==gen) return;
+    showResult(out,fixed); $('#status').textContent='';
+    const f=state.from,x=state.to; histT=setTimeout(()=>addHist(f,x,text,out),1800);
+  }catch(e){ if(e&&(e.code==='cancelled'||e.name==='AbortError')) return; if(g===gen) $('#status').textContent=e.message||t('trFail'); }
 }
 src.addEventListener('input',()=>{
+  updateCount();
   const d=detect(src.value);
-  if(d && d!==state.from){ if(d===state.to) setDir(d,state.from); else setDir(d,state.to); }
-  clearTimeout(debT); debT=setTimeout(runText,800);
+  if(d && d!==state.from){ if(d===state.to) setDir(d,state.from); else setDir(d, d===state.me?state.them:state.me); }
+  runText(false);
 });
-$('#clear').onclick=()=>{ src.value=''; runText(); src.focus(); };
+src.addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); runText(true); } });
+$('#clear').onclick=()=>{ src.value=''; updateCount(); runText(true); src.focus(); };
+$('#paste').onclick=async()=>{ try{ const x=await navigator.clipboard.readText(); if(x){ src.value=x; src.dispatchEvent(new Event('input')); runText(true); } }catch(e){ toast(t('pasteFail')); src.focus(); } };
 $('#copy').onclick=()=>{ if(!dst.classList.contains('muted')) copyText(dst.textContent); };
-$('#mkvoice').onclick=()=>makeTextVoice();
-let recText=null;
-$('#mic').onclick=()=>{
-  if(recText){ recText.stop(); return; }
-  stopAllSound();
-  const base=src.value&&!/\s$/.test(src.value)?src.value+' ':src.value;
-  recText=createListener(state.from,{
-    interim:x=>{ src.value=base+x; },
-    end:async(x)=>{ recText=null; $('#mic').classList.remove('on'); $('#status').textContent=''; if(x){ src.value=base+x; await runText(); } }
-  });
-  if(recText){ $('#mic').classList.add('on'); $('#status').textContent=t('listening'); }
-};
-
-/* ================= settings ================= */
-const bindSel=(id,key,after)=>{ const el=$('#'+id); el.value=state[key]; el.onchange=()=>{ state[key]=el.value; savePrefs(); after&&after(); }; };
-const bindChk=(id,key)=>{ const el=$('#'+id); el.checked=!!state[key]; el.onchange=()=>{ state[key]=el.checked; savePrefs(); }; };
-bindSel('dialect','dialect',()=>cache.clear());
-bindSel('ruvoice','ruvoice',()=>refreshPack(true));
-bindSel('envoice','envoice',()=>refreshPack(true));
-bindSel('speed','speed'); bindSel('fmt','fmt'); bindSel('asr','asr'); bindSel('asrlang','asrlang');
-bindChk('autoplay','autoplay'); bindChk('autotext','autotext');
-{ const ta=$('#ardict'); ta.value=state.ardict||''; ta.addEventListener('change',()=>{ state.ardict=ta.value; savePrefs(); toast(t('dictSaved')); }); }
+$('#send').onclick=async()=>{ if(dst.classList.contains('muted')) return; const x=dst.textContent; try{ if(navigator.share){ await navigator.share({text:x}); return; } }catch(e){ if(e.name==='AbortError') return; } copyText(x); };
 
 /* ================= interface language = the user's main language ================= */
 function setUI(lang,fromUser){
   if(!UI_LANGS.includes(lang)) return;
   UI=lang; state.ui=lang;
-  if(fromUser){
-    const prevMe=state.me;
-    state.me=lang;
-    if(state.them===lang) state.them = prevMe!==lang ? prevMe : (lang==='ar'?'ru':'ar');
-    state.from=state.me; state.to=state.them;
-  }
-  savePrefs(); applyI18n(); setEngine(engineName); applyPair(); applyDir(); refreshPack(fromUser);
+  if(fromUser){ const prev=state.me; state.me=lang; if(state.them===lang) state.them=prev!==lang?prev:(lang==='ar'?'ru':'ar'); state.from=state.me; state.to=state.them; }
+  savePrefs(); applyI18n(); setEngine(); applyDir(); updateCount();
   if(!$('#p-hist').hidden) renderHist();
+  if(fromUser && src.value.trim()){ const d=detect(src.value); if(d) setDir(d, d===state.me?state.them:state.me); runText(true); }
 }
 document.querySelectorAll('.uisw button').forEach(b=>b.onclick=()=>setUI(b.dataset.ui,true));
 
-const TF_URL='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6/dist/transformers.min.js';
-const ASR_MODELS={ accurate:{id:'onnx-community/whisper-small', mb:250}, fast:{id:'onnx-community/whisper-base', mb:80} };
-const ASR = (()=>{
-  const SRC = `
-let asr=null, cur=null;
-self.onmessage = async (e) => {
-  const m = e.data;
-  try {
-    if (!asr || cur !== m.model) {
-      const T = await import('${TF_URL}');
-      T.env.allowLocalModels = false;
-      const files = {};
-      asr = await T.pipeline('automatic-speech-recognition', m.model, {
-        dtype: { encoder_model: 'q8', decoder_model_merged: 'q8' }, device: 'wasm',
-        progress_callback: (x) => {
-          if (x.status === 'progress' && x.total) {
-            files[x.file] = [x.loaded || 0, x.total];
-            let a = 0, b = 0; for (const k in files) { a += files[k][0]; b += files[k][1]; }
-            self.postMessage({ type: 'progress', id: m.id, frac: b ? a / b : 0 });
-          }
-        }
-      });
-      cur = m.model;
-    }
-    if (m.type === 'load') { self.postMessage({ type: 'done', id: m.id }); return; }
-    self.postMessage({ type: 'working', id: m.id });
-    const out = await asr(m.pcm, { language: m.lang || null, task: 'transcribe', chunk_length_s: 30, stride_length_s: 5 });
-    self.postMessage({ type: 'done', id: m.id, text: (out && out.text ? out.text : '').trim() });
-  } catch (err) {
-    self.postMessage({ type: 'error', id: m.id, message: String((err && err.message) || err) });
-  }
-};`;
-  let worker=null, seq=0; const jobs=new Map();
-  function getWorker(){
-    if(worker) return worker;
-    const url=URL.createObjectURL(new Blob([SRC],{type:'text/javascript'}));
-    worker=new Worker(url,{type:'module'});
-    worker.onmessage=e=>{ const m=e.data, j=jobs.get(m.id); if(!j) return;
-      if(m.type==='progress') j.onProg&&j.onProg('load',m.frac);
-      else if(m.type==='working') j.onProg&&j.onProg('work');
-      else if(m.type==='done'){ jobs.delete(m.id); j.res(m.text||''); }
-      else if(m.type==='error'){ jobs.delete(m.id); j.rej(new Error(m.message)); }
-    };
-    worker.onerror=e=>{ const err=new Error(t('errAsrStart')+(e&&e.message?': '+e.message:'')); jobs.forEach(j=>j.rej(err)); jobs.clear(); try{worker.terminate();}catch(_){} worker=null; };
-    return worker;
-  }
-  function call(msg,onProg,transfer){ return new Promise((res,rej)=>{ const id=++seq; jobs.set(id,{res,rej,onProg}); getWorker().postMessage(Object.assign({id},msg),transfer||[]); }); }
-  // jobs run one after another
-  let chain=Promise.resolve();
-  function queue(fn){ const p=chain.then(fn,fn); chain=p.catch(()=>{}); return p; }
-  return {
-    model:()=>ASR_MODELS[state.asr]||ASR_MODELS.accurate,
-    load(onProg){ return queue(()=>call({type:'load',model:this.model().id},onProg)); },
-    transcribe(pcm,lang,onProg){ return queue(()=>call({type:'run',model:this.model().id,pcm,lang},onProg,[pcm.buffer])); },
-    async isReady(){ try{ if(!window.caches) return false; const c=await caches.open('transformers-cache'); const base='https://huggingface.co/'+this.model().id+'/resolve/main/onnx/'; return !!(await c.match(base+'encoder_model_quantized.onnx')) && !!(await c.match(base+'decoder_model_merged_quantized.onnx')); }catch(e){ return false; } }
-  };
-})();
-
-async function decodeAudio(blob){
-  const buf=await blob.arrayBuffer();
-  const AC=window.AudioContext||window.webkitAudioContext; if(!AC) throw new Error(t('errNoAudio'));
-  const ac=new AC(); let ab;
-  try{ ab=await new Promise((res,rej)=>{ const p=ac.decodeAudioData(buf.slice(0),res,rej); if(p&&p.then) p.then(res,rej); }); }
-  catch(e){ throw new Error(t('errOpenAudio')+(/iPhone|iPad|Mac/.test(navigator.userAgent)?' '+t('errSafariOpus'):'')); }
-  finally{ try{ ac.close(); }catch(e){} }
-  const n=Math.max(1,Math.ceil(ab.duration*16000)); const off=new OfflineAudioContext(1,n,16000);
-  const s=off.createBufferSource(); s.buffer=ab; s.connect(off.destination); s.start();
-  const r=await off.startRendering(); return {pcm:r.getChannelData(0), seconds:ab.duration};
+/* ================= text shared from WhatsApp (Share → Tarjuman) ================= */
+function pickUpSharedText(){
+  const q=new URLSearchParams(location.search);
+  const x=[q.get('title'),q.get('text'),q.get('t')].filter(Boolean).join('\n').trim();
+  if(q.has('shared')||q.has('text')||q.has('title')) history.replaceState(null,'',location.pathname);
+  if(!x) return;
+  src.value=x; updateCount();
+  const d=detect(x); if(d) setDir(d, d===state.me?state.them:state.me);
+  runText(true);
 }
-function wavePeaks(f,n=40){ const out=[], step=Math.max(1,Math.floor(f.length/n)); let mx=0; for(let i=0;i<n;i++){ let s=0; for(let j=i*step;j<Math.min(f.length,(i+1)*step);j++) s+=f[j]*f[j]; const v=Math.sqrt(s/step); out.push(v); if(v>mx) mx=v; } return out.map(v=>mx?Math.max(.12,v/mx):.12); }
-
-
-
-let incomingChain=Promise.resolve();
-function handleIncoming(blob,name){ incomingChain=incomingChain.then(()=>processIncoming(blob,name)).catch(()=>{}); }
-async function processIncoming(blob,name){
-  if(IN_CLAUDE){ toast(t('asrClaude')); return; }
-  $('#t-voice').click();
-  const hint = state.asrlang==='auto' ? null : state.them;
-  let from = hint || state.them, to = from===state.me ? state.them : state.me;
-  const c=newCard(from,to,false); c.classList.add('incoming');
-  const orig=c.querySelector('.orig'), st=c.querySelector('.st'), srcEl=c.querySelector('.src');
-  setT(c.querySelector('.head span'),[['incoming']]);
-  st.className='st'; setT(st,[['opening']]);
-  let audio;
-  try{ audio=await decodeAudio(blob); }
-  catch(e){ st.className='st err'; setRaw(st,e.message); return; }
-  const url=URL.createObjectURL(blob);
-  const lab=document.createElement('span'); lab.className='lab'; setT(lab,[['original'],['=',' · '+mmss(audio.seconds)]]); orig.appendChild(lab);
-  const pcmCopy=audio.pcm.slice(0);
-  orig.appendChild(voiceNote({url,seconds:audio.seconds,peaks:wavePeaks(audio.pcm),lang:from}));
-  if(audio.seconds<0.3){ st.className='st err'; setT(st,[['asrShort']]); return; }
-  const ready=await ASR.isReady(); const t0=Date.now(); let tick=null; const m=ASR.model();
-  setT(st, ready ? [['transcribing']] : [['asrLoad',{mb:m.mb}]]);
-  let text='';
-  try{
-    text=await ASR.transcribe(pcmCopy, hint, (phase,frac)=>{
-      if(phase==='load') setT(st,[['asrLoadPct',{pct:Math.round((frac||0)*100),mb:m.mb}]]);
-      else if(phase==='work'){ clearInterval(tick); const est=Math.max(5,Math.round(audio.seconds*(state.asr==='fast'?0.4:1.1))); tick=setInterval(()=>{ setT(st,[['asrWork',{t:mmss((Date.now()-t0)/1000),est:mmss(est+5)}]]); },500); }
-    });
-  }catch(e){ clearInterval(tick); st.className='st err'; const net=/locate file|fetch|network|Failed to load|404|403/i.test(e.message||''); setT(st, net ? [['asrNet']] : [['asrErr',{e:e.message||'error'}]]); return; }
-  clearInterval(tick);
-  text=text.replace(/\[(?:music|музыка|silence|BLANK_AUDIO)[^\]]*\]/gi,'').trim();
-  if(!text){ st.className='st err'; setT(st,[['asrNone']]); return; }
-  const d=detect(text);
-  if(d && d!==from){ from=d; to = from===state.me ? state.them : state.me; c.className='card theirs incoming l-'+from; }
-  srcEl.classList.toggle('is-ar',from==='ar'); c.querySelector('.dst').classList.toggle('is-ar',to==='ar');
-  setT(c.querySelector('.head span'),[['incoming'],['=',' · '+L[from].short+' → '+L[to].short]]);
-  processCard(c,from,to,text);
-}
-$('#attach-btn').onclick=()=>$('#attach-in').click();
-$('#attach-in').onchange=e=>{ [...e.target.files].forEach(f=>handleIncoming(f,f.name)); e.target.value=''; };
-['dragover','drop'].forEach(ev=>document.addEventListener(ev,e=>{
-  const f=e.dataTransfer&&[...(e.dataTransfer.items||[])].some(i=>i.kind==='file'); if(!f) return; e.preventDefault();
-  if(ev==='drop') [...e.dataTransfer.files].filter(x=>/^audio\/|\.(opus|ogg|oga|m4a|mp3|aac|amr|wav|webm)$/i.test(x.type+' '+x.name)).forEach(x=>handleIncoming(x,x.name));
-}));
-
-/* ================= app install + share target (WhatsApp → Share → Tarjuman) ================= */
-const STANDALONE = matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
-let installEvt=null, installState='';
-function renderInstall(){
-  if(installState==='done'){ $('#install').hidden=false; $('#install-txt').textContent=t('installed'); $('#install-btn').hidden=true; return; }
-  if(installState==='prompt'){ $('#install').hidden=false; $('#install-txt').textContent=t('installTxt'); $('#install-btn').hidden=false; return; }
-  if(installState==='android'){ $('#install').hidden=false; $('#install-txt').textContent=t('installAndroid'); $('#install-btn').hidden=true; return; }
-  $('#install').hidden=true;
-}
-async function readShared(){
-  if(!window.caches) return 0; let got=0;
-  try{
-    const c=await caches.open('tarjuman-share'); const keys=await c.keys();
-    for(const k of keys){ if(!/\/shared\//.test(k.url)) continue; const r=await c.match(k); await c.delete(k); if(!r) continue; const b=await r.blob(); if(!b.size) continue; got++; handleIncoming(b, decodeURIComponent(r.headers.get('x-name')||'voice')); }
-  }catch(e){}
-  return got;
-}
-function shareNotice(parts){
-  $('#t-voice').click(); clearExamples();
-  const c=document.createElement('div'); c.className='card theirs incoming l-'+state.them;
-  c.innerHTML='<div class="head"><span></span><span class="tm"></span></div><div class="st err"></div><div class="acts"></div>';
-  setT(c.querySelector('.head span'),[['incoming']]); c.querySelector('.tm').textContent=hhmm();
-  setT(c.querySelector('.st'),parts);
-  c.querySelector('.acts').appendChild(btnT('attach',()=>$('#attach-in').click(),true));
-  feed.appendChild(c); c.scrollIntoView({block:'end'});
-}
-async function chromeVersion(){
-  try{ if(navigator.userAgentData && navigator.userAgentData.getHighEntropyValues){ const h=await navigator.userAgentData.getHighEntropyValues(['fullVersionList']); const c=(h.fullVersionList||[]).find(x=>/Google Chrome|Chromium/.test(x.brand)); if(c) return c.version; } }catch(e){}
-  const m=navigator.userAgent.match(/Chrome\/([\d.]+)/); return m?m[1]:'';
-}
-async function pickUpShared(){
-  const q=new URLSearchParams(location.search); const shared=q.has('shared');
-  if(shared) toast(t('shareGot'));
-  let got=await readShared();
-  for(let i=0; shared && !got && i<4; i++){ await new Promise(r=>setTimeout(r,400)); got=await readShared(); }
-  if(shared){
-    if(!got){
-      const v=await chromeVersion(); const major=parseInt(v)||0;
-      if(q.get('e')) shareNotice([['shareErr',{e:q.get('e')}]]);
-      else if(IS_ANDROID && major && major<=153) shareNotice([['shareChromeBug',{v}]]);
-      else shareNotice([['shareNone'],['=','\n'],['shareDiag',{v:v||'?'}]]);
-    }
-    history.replaceState(null,'',location.pathname);
-  }
-}
-if(!IN_CLAUDE && (location.protocol==='https:'||location.hostname==='localhost') && 'serviceWorker' in navigator){
+if(!(window.claude&&window.claude.use) && (location.protocol==='https:'||location.hostname==='localhost') && 'serviceWorker' in navigator){
   if(!document.querySelector('link[rel=manifest]')){ const l=document.createElement('link'); l.rel='manifest'; l.href='manifest.webmanifest'; document.head.appendChild(l); }
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{ try{ r.update(); }catch(e){} }).catch(()=>{});
-  pickUpShared();
-  if(!STANDALONE && IS_ANDROID) installState='android';
-  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); installEvt=e; if(!STANDALONE){ installState='prompt'; renderInstall(); } });
-  $('#install-btn').onclick=async()=>{ if(!installEvt) return; installEvt.prompt(); const r=await installEvt.userChoice.catch(()=>null); installEvt=null; installState = r&&r.outcome==='accepted' ? 'done' : 'android'; renderInstall(); };
-  window.addEventListener('appinstalled',()=>{ installState='done'; renderInstall(); });
 }
 
 /* ================= start ================= */
-function applyVoiceOptions(){ document.querySelectorAll('option[data-voice]').forEach(o=>{ const [name,g,r]=o.dataset.voice.split('|'); o.textContent=name+' ('+t(g)+(r?', '+t(r):'')+')'; }); }
-const _applyI18n=applyI18n; applyI18n=function(){ _applyI18n(); applyVoiceOptions(); renderInstall(); };
-applyI18n(); setEngine(engineName); applyPair(); applyDir(); renderInstall();
-{ const SAMPLE={ru:['Здравствуйте! Сколько стоит доставка до Эр-Рияда?','ru'],en:['Hello! How much is delivery to Riyadh?','en'],ar:['مرحبًا! كم تكلفة التوصيل إلى الرياض؟','ar']};
-  const OUT={ru:'Здравствуйте! Сколько стоит доставка до Эр-Рияда?',en:'Hello! How much is delivery to Riyadh?',ar:'مرحبًا! كم تكلفة التوصيل إلى الرياض؟'};
-  src.value=SAMPLE[state.from][0]; dst.textContent=OUT[state.to]; dst.classList.remove('muted'); applyDir(); }
-refreshPack(true);
+applyI18n(); setEngine(); applyDir(); clearResult(); updateCount();
+pickUpSharedText();
+if(!src.value) src.focus({preventScroll:true});
 
 </script>
 </body>
