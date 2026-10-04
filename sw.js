@@ -1,4 +1,4 @@
-/* Tarjuman service worker v4 (text edition): text shared from WhatsApp opens in the translator. Developer Alex Grey · https://t.me/a7grey */
+/* Tarjuman service worker v5 (text edition): always load the newest app version; WhatsApp text share. Developer Alex Grey · https://t.me/a7grey */
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {
@@ -10,5 +10,10 @@ self.addEventListener('fetch', (e) => {
       const q = new URLSearchParams({ shared: '1' }); if (text) q.set('text', text.slice(0, 4000));
       return Response.redirect(new URL('./?' + q.toString(), self.registration.scope).href, 303);
     })());
+    return;
+  }
+  // pages: always fresh from the network (no stale cached version), cache only as offline fallback
+  if (e.request.mode === 'navigate' && url.origin === location.origin) {
+    e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(() => fetch(e.request)));
   }
 });
