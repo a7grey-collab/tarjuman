@@ -166,6 +166,14 @@ footer svg{width:15px; height:15px}
 .count,.tag{font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
 .tag{border:1px solid var(--line); border-radius:99px; padding:2px 8px; background:var(--surface)}
 [dir="rtl"] body{font-family:var(--f-ar), var(--f-ui)}
+.micbar{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.micbtn{border:0; border-radius:16px; padding:13px 8px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--on-accent); touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none}
+.micbtn svg{width:22px; height:22px; flex:none}
+.micbtn.l-ru{background:var(--ru)} .micbtn.l-ar{background:var(--ar)} .micbtn.l-en{background:var(--en)}
+.micbtn .ar-t{font-family:var(--f-ar)}
+.micbtn.on{background:var(--danger); animation:pulse 1.2s infinite}
+.hint{font-size:12.5px; color:var(--muted); text-align:center}
+.result.muted.is-ar{direction:inherit; text-align:start; font-family:var(--f-ui)!important; font-size:15px; line-height:1.5}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Amiri:wght@700&display=swap">
 </head>
@@ -203,6 +211,10 @@ footer svg{width:15px; height:15px}
         <span class="count" id="count"></span>
       </div>
     </div>
+    <div class="micbar">
+      <button class="micbtn" id="mic-a" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span></button>
+      <button class="micbtn" id="mic-b" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span></button>
+    </div>
     <div class="pane out l-ar" id="outpane">
       <div class="result muted" id="dst" dir="auto"></div>
       <div class="tools">
@@ -213,6 +225,7 @@ footer svg{width:15px; height:15px}
       </div>
     </div>
     <div class="status" id="status" aria-live="polite"></div>
+    <div class="hint" data-i18n="micHint"></div>
   </section>
 
   <section id="p-hist" class="wrap" style="gap:10px" hidden>
@@ -224,7 +237,7 @@ footer svg{width:15px; height:15px}
 
   <footer dir="ltr">Developer Alex Grey
     <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a>
-    · v11
+    · v12
   </footer>
 </div>
 <div class="toast notranslate" translate="no" id="toast" hidden></div>
@@ -346,21 +359,21 @@ function convSep(s,to){ if(to==='ar') return s.replace(/,/g,'،').replace(/\?/g,
 
 /* ================= interface languages ================= */
 const I18N = {
-ru:{ chipOnline:'Онлайн-перевод', tabText:'Перевод', tabHist:'История', from:'С языка', to:'На язык', swapLangs:'Поменять языки местами',
+ru:{ recording:'● Слушаю… {t}', recTap:'Нажмите ещё раз, когда закончите', micHint:'Нажмите кнопку своего языка и говорите — текст появится в поле и сразу переведётся. Нажмите ещё раз, чтобы закончить (или удерживайте и отпустите).', micDenied:'Нет доступа к микрофону. Нажмите на значок слева от адреса сайта → Разрешения → Микрофон → Разрешить.', micDeniedClaude:'Внутри Claude микрофон закрыт. Откройте ссылку на переводчик в Chrome или Safari.', noSpeech:'Не расслышал — попробуйте ещё раз.', srNet:'Для распознавания речи нужен интернет.', noMic:'Микрофон не найден или занят другим приложением.', srLang:'Этот браузер не распознаёт выбранный язык.', srErr:'Ошибка распознавания: {e}', noSR:'Этот браузер не распознаёт речь. Откройте переводчик в Chrome или Safari.', micFail:'Не удалось включить микрофон', chipOnline:'Онлайн-перевод', tabText:'Перевод', tabHist:'История', from:'С языка', to:'На язык', swapLangs:'Поменять языки местами',
  srcPh:'Напишите или вставьте текст…', paste:'Вставить', clear:'Очистить', copy:'Копировать', send:'Отправить',
  translating:'Перевожу…', resultPh:'Перевод появится здесь', trFail:'Не удалось перевести. Проверьте интернет.',
  histEmpty:'Здесь появятся ваши переводы. Нажмите на запись, чтобы снова открыть её.', histClear:'Очистить историю', histCleared:'История очищена',
  copied:'Скопировано', copyManual:'Выделите текст и скопируйте вручную', pasteFail:'Не удалось вставить — вставьте текст долгим нажатием',
  note:'Перевод текста RU ⇄ AR ⇄ EN. Язык текста определяется автоматически. Исламские приветствия и формулы переводятся по выверенному словарю. Сообщение из WhatsApp можно переслать сюда: зажмите его → «Поделиться» → Tarjuman.',
  fixedTag:'по словарю', chars:'{n} симв.' },
-en:{ chipOnline:'Online translation', tabText:'Translate', tabHist:'History', from:'From', to:'To', swapLangs:'Swap languages',
+en:{ recording:'● Listening… {t}', recTap:'Tap again when finished', micHint:'Tap your language button and speak — the text appears in the box and is translated right away. Tap again to finish (or hold and release).', micDenied:'No microphone access. Tap the icon left of the site address → Permissions → Microphone → Allow.', micDeniedClaude:'The microphone is blocked inside Claude. Open the translator link in Chrome or Safari.', noSpeech:'Didn’t catch that — try again.', srNet:'Speech recognition needs an internet connection.', noMic:'No microphone found, or another app is using it.', srLang:'This browser can’t recognize the selected language.', srErr:'Recognition error: {e}', noSR:'This browser can’t recognize speech. Open the translator in Chrome or Safari.', micFail:'Couldn’t turn on the microphone', chipOnline:'Online translation', tabText:'Translate', tabHist:'History', from:'From', to:'To', swapLangs:'Swap languages',
  srcPh:'Type or paste text…', paste:'Paste', clear:'Clear', copy:'Copy', send:'Send',
  translating:'Translating…', resultPh:'The translation will appear here', trFail:'Couldn’t translate. Check your internet.',
  histEmpty:'Your translations will appear here. Tap an entry to open it again.', histClear:'Clear history', histCleared:'History cleared',
  copied:'Copied', copyManual:'Select the text and copy it manually', pasteFail:'Couldn’t paste — long-press the box to paste',
  note:'Text translation RU ⇄ AR ⇄ EN. The source language is detected automatically. Islamic greetings and formulas are translated from a verified dictionary. You can share a WhatsApp message here: long-press it → Share → Tarjuman.',
  fixedTag:'from dictionary', chars:'{n} chars' },
-ar:{ chipOnline:'ترجمة عبر الإنترنت', tabText:'ترجمة', tabHist:'السجل', from:'من', to:'إلى', swapLangs:'تبديل اللغتين',
+ar:{ recording:'● أستمع… {t}', recTap:'اضغط مرة أخرى عند الانتهاء', micHint:'اضغط زر لغتك وتحدث — يظهر النص في الحقل ويُترجم فوراً. اضغط مرة أخرى للإنهاء (أو اضغط مطولاً ثم اترك).', micDenied:'لا يوجد إذن للميكروفون. اضغط على الأيقونة بجانب عنوان الموقع ← الأذونات ← الميكروفون ← سماح.', micDeniedClaude:'الميكروفون محظور داخل Claude. افتح رابط المترجم في Chrome أو Safari.', noSpeech:'لم أسمع جيداً — حاول مرة أخرى.', srNet:'التعرّف على الكلام يحتاج إلى الإنترنت.', noMic:'لم يُعثر على ميكروفون أو أن تطبيقاً آخر يستخدمه.', srLang:'هذا المتصفح لا يتعرّف على اللغة المختارة.', srErr:'خطأ في التعرّف: {e}', noSR:'هذا المتصفح لا يتعرّف على الكلام. افتح المترجم في Chrome أو Safari.', micFail:'تعذّر تشغيل الميكروفون', chipOnline:'ترجمة عبر الإنترنت', tabText:'ترجمة', tabHist:'السجل', from:'من', to:'إلى', swapLangs:'تبديل اللغتين',
  srcPh:'اكتب النص أو الصقه…', paste:'لصق', clear:'مسح', copy:'نسخ', send:'إرسال',
  translating:'جارٍ الترجمة…', resultPh:'ستظهر الترجمة هنا', trFail:'تعذّرت الترجمة. تحقّق من الإنترنت.',
  histEmpty:'ستظهر ترجماتك هنا. اضغط على أي سطر لفتحه من جديد.', histClear:'مسح السجل', histCleared:'تم مسح السجل',
@@ -380,7 +393,7 @@ function applyI18n(){
 }
 
 const $=s=>document.querySelector(s);
-const L={ ru:{full:'Russian',short:'RU'}, ar:{full:'Arabic',short:'AR'}, en:{full:'English',short:'EN'} };
+const L={ ru:{full:'Russian',short:'RU',sr:'ru-RU',speak:'Говорю по-русски'}, ar:{full:'Arabic',short:'AR',sr:'ar-SA',speak:'أتكلم بالعربية'}, en:{full:'English',short:'EN',sr:'en-US',speak:'I speak English'} };
 const LANGS=['ru','ar','en'];
 
 /* ================= settings ================= */
@@ -494,6 +507,7 @@ function applyDir(){
   src.classList.toggle('is-ar',state.from==='ar'); dst.classList.toggle('is-ar',state.to==='ar');
   $('#outpane').className='pane out l-'+state.to;
   if(dst.classList.contains('muted')) dst.textContent=t('resultPh');
+  if(typeof applyMics==='function' && document.querySelector('#mic-a')) try{ applyMics(); }catch(e){}
 }
 function setDir(from,to){ if(from===to) to=from===state.me?state.them:(LANGS.find(l=>l!==from)); state.from=from; state.to=to; savePrefs(); applyDir(); }
 $('#from').onchange=e=>{ const f=e.target.value; setDir(f, state.to===f?state.from:state.to); runText(true); };
@@ -529,6 +543,68 @@ $('#clear').onclick=()=>{ src.value=''; updateCount(); runText(true); src.focus(
 $('#paste').onclick=async()=>{ try{ const x=await navigator.clipboard.readText(); if(x){ src.value=x; src.dispatchEvent(new Event('input')); runText(true); } }catch(e){ toast(t('pasteFail')); src.focus(); } };
 $('#copy').onclick=()=>{ if(!dst.classList.contains('muted')) copyText(dst.textContent); };
 $('#send').onclick=async()=>{ if(dst.classList.contains('muted')) return; const x=dst.textContent; try{ if(navigator.share){ await navigator.share({text:x}); return; } }catch(e){ if(e.name==='AbortError') return; } copyText(x); };
+
+
+/* ================= dictation: speak, get text, translate text (no voice output) ================= */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const IS_ANDROID = /Android/i.test(navigator.userAgent);
+const IN_CLAUDE = !!(window.claude && window.claude.use);
+function srError(c){
+  if(c==='not-allowed'||c==='service-not-allowed') return IN_CLAUDE ? t('micDeniedClaude') : t('micDenied');
+  if(c==='no-speech') return t('noSpeech'); if(c==='network') return t('srNet'); if(c==='audio-capture') return t('noMic');
+  if(c==='language-not-supported') return t('srLang'); return t('srErr',{e:c});
+}
+function createListener(lang,h){
+  if(!SR){ toast(t('noSR')); return null; }
+  let finalText='', stopped=false, r=null, restarts=0, fatal=null, netErrs=0, lastNet=false;
+  const join=(a,b)=>a&&b?a+' '+b:(a||b||'');
+  function start(){
+    r=new SR(); r.lang=L[lang].sr; r.interimResults=true; r.continuous=!IS_ANDROID; r.maxAlternatives=1;
+    let segFinal='';
+    r.onresult=e=>{ let interim=''; segFinal=''; for(let i=0;i<e.results.length;i++){ const x=e.results[i][0].transcript; if(e.results[i].isFinal) segFinal+=(segFinal?' ':'')+x.trim(); else interim+=x; } h.interim&&h.interim(join(finalText,join(segFinal,interim.trim()))); };
+    r.onerror=e=>{ if(e.error==='network'&&netErrs<3){ netErrs++; lastNet=true; return; } if(['not-allowed','service-not-allowed','audio-capture','language-not-supported','network'].includes(e.error)){ fatal=e.error; toast(srError(e.error)); } };
+    r.onend=()=>{ finalText=join(finalText,segFinal);
+      if(!stopped&&!fatal&&restarts<30){ restarts++; const w=lastNet?400:0; lastNet=false; setTimeout(()=>{ if(stopped){ h.end(finalText.trim(),fatal); return; } try{ start(); }catch(e){ h.end(finalText.trim(),fatal); } },w); return; }
+      h.end(finalText.trim(),fatal); };
+    r.start();
+  }
+  try{ start(); }catch(e){ toast(t('micFail')); return null; }
+  return { stop(){ stopped=true; try{ r.stop(); }catch(e){} } };
+}
+function pairOrder(){ const a=state.from, b=state.to; return (b===state.me) ? [b,a] : [a,b]; }
+function applyMics(){
+  const [a,b]=pairOrder();
+  [['#mic-a',a],['#mic-b',b]].forEach(([id,lang])=>{
+    const el=$(id), on=!!(rec&&rec.btn===el); el.dataset.lang=lang; el.className='micbtn l-'+lang+(on?' on':'');
+    const lbl=el.querySelector('.lbl'); lbl.textContent=on?t('recTap'):L[lang].speak; lbl.classList.toggle('ar-t',lang==='ar'&&!on);
+  });
+}
+let rec=null;
+function startRec(btn){
+  const lang=btn.dataset.lang, other=lang===state.from?state.to:state.from;
+  setDir(lang,other);
+  const base=''; src.value=''; updateCount(); clearResult();
+  const t0=Date.now(); const st=$('#status');
+  const tick=setInterval(()=>{ st.textContent=t('recording',{t:Math.floor((Date.now()-t0)/1000)+'s'}); },300);
+  st.textContent=t('recording',{t:'0s'});
+  const session={btn};
+  const lis=createListener(lang,{
+    interim:x=>{ src.value=base+x; updateCount(); },
+    end:(x)=>{ clearInterval(tick); if(rec===session){ rec=null; applyMics(); } st.textContent=''; if(x){ src.value=base+x; updateCount(); runText(true); } }
+  });
+  if(!lis){ clearInterval(tick); st.textContent=''; return; }
+  session.lis=lis; rec=session; applyMics();
+  if(navigator.vibrate) try{ navigator.vibrate(25); }catch(e){}
+}
+function stopRec(){ if(rec) rec.lis.stop(); }
+['#mic-a','#mic-b'].forEach(id=>{
+  const b=$(id); let downAt=0, startedHere=false;
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+  b.addEventListener('pointerdown',e=>{ e.preventDefault(); downAt=Date.now(); startedHere=false; if(rec){ const same=rec.btn===b; stopRec(); if(same) return; } startRec(b); startedHere=true; try{ b.setPointerCapture(e.pointerId); }catch(_){} });
+  const up=()=>{ if(!startedHere) return; startedHere=false; if(Date.now()-downAt>450) stopRec(); };
+  b.addEventListener('pointerup',up); b.addEventListener('pointercancel',up);
+  b.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(rec&&rec.btn===b) stopRec(); else { if(rec) stopRec(); startRec(b); } } });
+});
 
 /* ================= interface language = the user's main language ================= */
 function setUI(lang,fromUser){
