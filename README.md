@@ -1,9 +1,11 @@
 # Tarjuman RU · AR · EN
 
-Voice and text translator Russian ⇄ Arabic ⇄ English.
+Fast voice & text translator Russian ⇄ Arabic ⇄ English — fits on one phone screen.
 
-- Hold to talk — get a ready voice message in the other language (OGG Opus, like WhatsApp).
-- Share a voice message from WhatsApp to Tarjuman — get the transcript, translation and a voice message in your language.
+- Speak or type → instant translation, read aloud
+- “Voice msg” → ready WhatsApp voice message
+- Translate a voice message from a file
+- Install on Android / iOS (instructions in the menu)
 
 https://a7grey-collab.github.io/tarjuman/
 

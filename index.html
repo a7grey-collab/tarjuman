@@ -2,247 +2,272 @@
 <html lang="ru" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="google" content="notranslate">
 <meta name="theme-color" content="#16201D">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Tarjuman</title>
 <style>
-/* Layout: one narrow column; WhatsApp-like voice feed is the main screen. Language colors: RU ink-blue, AR palm-green, EN clay */
+/* Layout: one phone screen, no page scroll — header / language bar / source / translation / mic buttons. RU ink-blue, AR palm-green, EN clay */
 :root{
   --bg:#F1F3EF; --surface:#FFFFFF; --ink:#16201D; --muted:#5D6A65; --line:#DAE0DA;
   --ru:#2C4890; --ru-soft:#E5EAF6; --ar:#0A7656; --ar-soft:#DDF0E8; --en:#9A4A1E; --en-soft:#F6E8DE;
-  --on-accent:#FFFFFF; --danger:#B3261E; --warn-soft:#FFF4D6; --warn:#7A5600; --wave:#9AA7A1;
+  --on-accent:#FFFFFF; --danger:#B3261E; --notice:#FFF4D6; --notice-ink:#5A4300;
   --f-ui:"Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-ar:"IBM Plex Sans Arabic","Noto Naskh Arabic",Tahoma,"Geeza Pro",sans-serif;
   --f-mark:"Amiri", Georgia, serif;
-  --r:14px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0E1412; --surface:#161F1C; --ink:#E6ECE9; --muted:#93A19B; --line:#27322E;
-  --ru:#93ABEE; --ru-soft:#1C2640; --ar:#52D0A4; --ar-soft:#123026; --en:#E9A27A; --en-soft:#3A2418;
-  --on-accent:#0E1412; --danger:#F2867E; --warn-soft:#3A2F12; --warn:#F3D27A; --wave:#5C6A64; color-scheme:dark}}
+  --bg:#0E1412; --surface:#161F1C; --ink:#E6ECE9; --muted:#9AA8A2; --line:#2A3531;
+  --ru:#3D5BA8; --ru-soft:#1C2640; --ar:#0F8A66; --ar-soft:#123026; --en:#A8592C; --en-soft:#3A2418;
+  --on-accent:#FFFFFF; --danger:#C2453D; --notice:#3A2F12; --notice-ink:#F3D27A; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0E1412; --surface:#161F1C; --ink:#E6ECE9; --muted:#93A19B; --line:#27322E;
-  --ru:#93ABEE; --ru-soft:#1C2640; --ar:#52D0A4; --ar-soft:#123026; --en:#E9A27A; --en-soft:#3A2418;
-  --on-accent:#0E1412; --danger:#F2867E; --warn-soft:#3A2F12; --warn:#F3D27A; --wave:#5C6A64; color-scheme:dark}
-
+  --bg:#0E1412; --surface:#161F1C; --ink:#E6ECE9; --muted:#9AA8A2; --line:#2A3531;
+  --ru:#3D5BA8; --ru-soft:#1C2640; --ar:#0F8A66; --ar-soft:#123026; --en:#A8592C; --en-soft:#3A2418;
+  --on-accent:#FFFFFF; --danger:#C2453D; --notice:#3A2F12; --notice-ink:#F3D27A; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{background:var(--bg); color:var(--ink); font:15px/1.5 var(--f-ui); margin:0; padding-inline:16px; padding-block:12px 24px}
-.wrap{max-width:720px; margin:0 auto; display:flex; flex-direction:column; gap:14px}
-section.wrap{width:100%}
+html,body{height:100%}
+body{margin:0; background:var(--bg); color:var(--ink); font:15px/1.4 var(--f-ui); overflow:hidden; padding-inline:12px}
+[dir="rtl"] body{font-family:var(--f-ar),var(--f-ui)}
 button{font:inherit; color:inherit; cursor:pointer}
-button:disabled{opacity:.5; cursor:default}
-button:focus-visible,textarea:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--ru); outline-offset:2px}
-select{font:inherit; padding:7px 8px; border-radius:9px; border:1px solid var(--line); background:var(--surface); color:var(--ink)}
-
-header{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
-.mark{display:flex; align-items:baseline; gap:8px}
-.mark b{font:700 26px/1 var(--f-mark)}
-.mark span{font-size:12px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase}
-.chip{font-size:12px; padding:4px 10px; border-radius:99px; border:1px solid var(--line); color:var(--muted); background:var(--surface); white-space:nowrap}
-.chip i{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--ar); margin-right:6px; vertical-align:1px}
-
-.tabs{display:grid; grid-template-columns:repeat(3,1fr); background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:4px; gap:4px}
-.tabs button{border:0; background:transparent; padding:9px 4px; border-radius:9px; font-weight:500; color:var(--muted)}
-.tabs button[aria-selected="true"]{background:var(--ink); color:var(--bg)}
-
-details.set{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:0 12px}
-details.set summary{cursor:pointer; padding:10px 0; font-size:14px; color:var(--muted); list-style:none; display:flex; justify-content:space-between; gap:8px}
-details.set summary::-webkit-details-marker{display:none}
-details.set summary::after{content:"▾"}
-details.set[open] summary::after{content:"▴"}
-.setgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; padding-bottom:12px; font-size:13px; color:var(--muted)}
-.setgrid label{display:flex; flex-direction:column; gap:4px}
-.setgrid label.row{flex-direction:row; align-items:center; gap:8px}
-
-/* language pair */
-.pair{display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:end}
-.pair label{display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted); letter-spacing:.04em; min-width:0}
-.pair select{font-weight:600; padding:10px; border-radius:11px}
-.swap{width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:var(--surface); font-size:18px}
-
-/* voice pack banner */
-.pack{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:10px 12px; border-radius:12px; background:var(--warn-soft); color:var(--warn); font-size:13.5px}
-.pack.ok{background:var(--ar-soft); color:var(--ar)}
-.pack .txt{flex:1; min-width:200px}
-.pack button{border:0; border-radius:9px; padding:7px 12px; background:var(--ink); color:var(--bg); font-weight:600; font-size:13px}
-.bar{height:5px; border-radius:9px; background:rgba(127,127,127,.25); overflow:hidden; margin-top:6px}
-.bar i{display:block; height:100%; width:0; background:currentColor; transition:width .2s}
-
-/* feed */
-.feed{display:flex; flex-direction:column; gap:12px; min-height:180px}
-.card{border-radius:18px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; width:min(100%,520px); min-width:0}
-.card.mine{align-self:flex-start; border-bottom-left-radius:5px}
-.card.theirs{align-self:flex-end; border-bottom-right-radius:5px}
-.card.l-ru{background:var(--ru-soft)} .card.l-ar{background:var(--ar-soft)} .card.l-en{background:var(--en-soft)}
-.card .head{display:flex; justify-content:space-between; gap:8px; font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); font-variant-numeric:tabular-nums}
-.card .src{font-size:14px; color:var(--muted); overflow-wrap:anywhere}
-.card .dst{font-size:20px; line-height:1.55; overflow-wrap:anywhere}
-.card textarea{width:100%; min-height:70px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:8px; font:15px/1.5 var(--f-ui)}
-.card .st{font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums}
-.card .st.err{color:var(--danger)}
-.card .st.rec{color:var(--danger); font-weight:600}
-.card.example{opacity:.85}
-.acts{display:flex; gap:6px; flex-wrap:wrap}
-.btn{border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:7px 11px; font-size:13px; display:inline-flex; align-items:center; gap:6px}
-.btn svg{width:16px; height:16px}
-.btn.main{background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:600}
-.spoken{font-size:15px; color:var(--muted); line-height:1.9; padding:2px 4px}
-.orig{display:flex; flex-direction:column; gap:4px}
-.orig:empty{display:none}
-.orig .lab{font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--muted)}
-.attach{display:flex; gap:8px; flex-wrap:wrap}
-.attach .btn{flex:1; justify-content:center; padding:11px 12px; font-size:14px; font-weight:600; border-style:dashed}
-.install{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:var(--surface); font-size:13.5px}
-.install .txt{flex:1; min-width:200px}
-.empty{color:var(--muted); font-size:14px; text-align:center; padding:4px 8px}
-.is-ar{font-family:var(--f-ar)!important; direction:rtl; text-align:right}
-.dst.is-ar{font-size:22px; line-height:1.75}
-
-/* WhatsApp-like voice note */
-.vn{display:flex; align-items:center; gap:10px; background:var(--surface); border-radius:99px; padding:6px 14px 6px 6px; min-width:0}
-.vn .play{flex:none; width:40px; height:40px; border-radius:50%; border:0; background:var(--ink); color:var(--bg); display:grid; place-items:center}
-.vn .play svg{width:18px; height:18px}
-.vn .wave{flex:1; min-width:0; height:30px; display:flex; align-items:center; gap:2px; cursor:pointer}
-.vn .wave i{flex:1; min-width:2px; max-width:4px; border-radius:2px; background:var(--wave)}
-.vn .wave i.on{background:var(--ink)}
-.vn .dur{flex:none; font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
-
-.recbar{display:grid; grid-template-columns:1fr 1fr; gap:10px; position:sticky; bottom:0; padding-block:8px calc(8px + env(safe-area-inset-bottom,0px)); background:var(--bg); z-index:2}
-.rec{border:0; border-radius:18px; padding:14px 8px; font-weight:600; font-size:16px; display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--on-accent); box-shadow:0 6px 18px rgba(0,0,0,.12); touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none}
-.rec svg{width:28px; height:28px}
-.rec.l-ru{background:var(--ru)} .rec.l-ar{background:var(--ar)} .rec.l-en{background:var(--en)}
-.rec .lbl.ar-t{font-family:var(--f-ar)}
-.rec small{font-weight:400; font-size:12px; opacity:.92}
-.rec.on{background:var(--danger); animation:pulse 1.2s infinite}
-@keyframes pulse{50%{box-shadow:0 0 0 9px rgba(179,38,30,.16)}}
-@media (prefers-reduced-motion:reduce){.rec.on,.mic.on{animation:none}}
-.hint{font-size:12.5px; color:var(--muted); text-align:center}
-.typerow{display:flex; gap:8px}
-.typerow input{flex:1; min-width:0; padding:11px 12px; border-radius:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font:16px var(--f-ui)}
-.typerow button{border:0; border-radius:12px; padding:0 16px; background:var(--ink); color:var(--bg); font-weight:600}
-
-/* text tab */
-.pane{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); display:flex; flex-direction:column; min-width:0}
-.pane.out{border-color:transparent}
-.pane.out.l-ru{background:var(--ru-soft)} .pane.out.l-ar{background:var(--ar-soft)} .pane.out.l-en{background:var(--en-soft)}
-#src{width:100%; min-height:120px; resize:vertical; border:0; background:transparent; color:var(--ink); padding:14px; font:18px/1.5 var(--f-ui); border-radius:var(--r)}
-#src.is-ar{font-size:21px; line-height:1.7}
-.result{padding:14px; min-height:90px; font-size:19px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere}
-.result.is-ar{font-size:22px; line-height:1.75}
-.result.muted{color:var(--muted); font-size:15px}
-.tools{display:flex; gap:6px; padding:8px 10px; border-top:1px solid var(--line); align-items:center; flex-wrap:wrap}
-.pane.out .tools{border-top-color:rgba(127,127,127,.18)}
-.tools .sp{flex:1}
-.mic{border:0; background:var(--ink); color:var(--bg); border-radius:99px; padding:9px 16px; font-weight:600; display:inline-flex; align-items:center; gap:8px}
-.mic svg{width:18px; height:18px}
-.mic.on{background:var(--danger); color:var(--on-accent); animation:pulse 1.2s infinite}
-.status{font-size:13px; color:var(--muted); min-height:20px}
-#textvoice{padding:0 10px 10px; display:flex; flex-direction:column; gap:8px}
-
-/* history */
-.hist{display:flex; flex-direction:column; gap:8px}
-.hi{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:3px; text-align:left; width:100%}
-.hi .s{color:var(--muted); font-size:13px; overflow-wrap:anywhere}
-.hi .d{font-size:17px; overflow-wrap:anywhere}
-.hi .w{font-size:11px; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; font-variant-numeric:tabular-nums}
-
-.note{font-size:12.5px; color:var(--muted); line-height:1.55}
-footer{display:flex; justify-content:center; align-items:center; gap:6px; font-size:13px; color:var(--muted); padding-top:8px; flex-wrap:wrap}
-footer a{color:var(--ru); text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-weight:500}
-footer svg{width:15px; height:15px}
-.toast{position:fixed; left:50%; top:calc(12px + env(safe-area-inset-top,0px)); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:9px 16px; border-radius:99px; font-size:14px; max-width:calc(100% - 32px); text-align:center; z-index:10}
-
-.hright{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
-.uisw{display:inline-flex; background:var(--surface); border:1px solid var(--line); border-radius:99px; padding:3px; gap:2px}
-.uisw button{border:0; background:transparent; border-radius:99px; padding:5px 10px; font-size:13px; font-weight:600; color:var(--muted)}
+button:disabled{opacity:.4; cursor:default}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ru); outline-offset:2px}
+.app{max-width:640px; margin:0 auto; height:100%; height:100svh; display:grid; grid-template-rows:auto auto auto minmax(64px,1fr) minmax(64px,1fr) auto auto auto; grid-template-areas:'top' 'notice' 'lang' 'src' 'dst' 'status' 'mics' 'sign'; gap:8px; padding-block:8px calc(6px + env(safe-area-inset-bottom,0px)); min-height:0}
+.top{display:flex; align-items:center; gap:8px; min-width:0}
+.logo{font:700 20px/1 var(--f-mark); flex:1 1 auto; min-width:0; white-space:nowrap}
+.uisw{display:inline-flex; background:var(--surface); border:1px solid var(--line); border-radius:99px; padding:2px; gap:1px; flex:none}
+.uisw button{border:0; background:transparent; border-radius:99px; padding:4px 7px; font-size:13px; font-weight:600; color:var(--muted); white-space:nowrap}
 .uisw button[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
 .uisw button[data-ui="ar"]{font-family:var(--f-ar)}
-.tabs.two{grid-template-columns:repeat(2,1fr)}
-#src{min-height:150px}
-.result{min-height:120px}
-.count,.tag{font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
-.tag{border:1px solid var(--line); border-radius:99px; padding:2px 8px; background:var(--surface)}
-[dir="rtl"] body{font-family:var(--f-ar), var(--f-ui)}
+.icon{flex:none; width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--surface); display:grid; place-items:center; padding:0}
+.icon svg{width:20px; height:20px}
+.notice{background:var(--notice); color:var(--notice-ink); border-radius:12px; padding:8px 10px; font-size:13.5px}
+.notice .ntop{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.notice .ntop b{flex:1; min-width:140px}
+.notice ul{margin:6px 0 0; padding-inline-start:18px; display:grid; gap:2px}
+.btn{border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:6px 12px; font-size:13.5px; display:inline-flex; align-items:center; gap:6px}
+.btn.main{background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:600}
+.btn svg{width:18px; height:18px; flex:none}
+.langbar{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:8px; align-items:center}
+.langbar select{width:100%; min-width:0; font:600 15px var(--f-ui); padding:9px 8px; border-radius:11px; border:1px solid var(--line); background:var(--surface); color:var(--ink)}
+.card{display:flex; flex-direction:column; min-height:0; border-radius:16px; overflow:hidden}
+.card.in{background:var(--surface); border:1px solid var(--line)}
+.card.out.l-ru{background:var(--ru-soft)} .card.out.l-ar{background:var(--ar-soft)} .card.out.l-en{background:var(--en-soft)}
+#src{flex:1; min-height:0; width:100%; resize:none; border:0; background:transparent; color:var(--ink); padding:12px 14px 4px; font:18px/1.45 var(--f-ui)}
+#src::placeholder{color:var(--muted)}
+#src.is-ar{font-family:var(--f-ar); font-size:20px}
+.result{flex:1; min-height:0; overflow:auto; padding:12px 14px 4px; font-size:19px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere}
+.result.is-ar{font-family:var(--f-ar); font-size:21px; line-height:1.7}
+.result.muted{color:var(--muted); font-size:16px}
+.result.muted.is-ar{direction:inherit; text-align:start; font-family:var(--f-ui)}
+.tools{display:flex; align-items:center; gap:6px; padding:6px 8px 8px; flex-wrap:nowrap; min-width:0}
+.tools .icon{width:36px; height:36px; background:transparent}
+.card.out .tools .icon{border-color:rgba(127,127,127,.25)}
+.pill{flex:none; border:0; border-radius:99px; padding:7px 12px; background:var(--ink); color:var(--bg); font-weight:600; font-size:13px; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; max-width:46%; overflow:hidden}
+.pill span{overflow:hidden; text-overflow:ellipsis}
+.pill svg{width:16px; height:16px; flex:none}
+.pill.busy{animation:pulse 1.2s infinite}
+.sp{flex:1; min-width:0}
+.tag{font-size:11.5px; color:var(--muted); border:1px solid rgba(127,127,127,.3); border-radius:99px; padding:2px 7px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}
+.status{font-size:12.5px; color:var(--muted); min-height:1.2em; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.status:empty{min-height:0; margin-top:-8px}
 .micbar{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-.micbtn{border:0; border-radius:16px; padding:13px 8px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--on-accent); touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none}
+.micbtn{border:0; border-radius:16px; padding:12px 8px; min-height:52px; font-weight:600; font-size:15px; line-height:1.2; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--on-accent); touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; min-width:0}
 .micbtn svg{width:22px; height:22px; flex:none}
+.micbtn .lbl{min-width:0; overflow:hidden; text-overflow:ellipsis}
 .micbtn.l-ru{background:var(--ru)} .micbtn.l-ar{background:var(--ar)} .micbtn.l-en{background:var(--en)}
 .micbtn .ar-t{font-family:var(--f-ar)}
 .micbtn.on{background:var(--danger); animation:pulse 1.2s infinite}
-.hint{font-size:12.5px; color:var(--muted); text-align:center}
-.result.muted.is-ar{direction:inherit; text-align:start; font-family:var(--f-ui)!important; font-size:15px; line-height:1.5}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(179,38,30,.18)}}
+@media (prefers-reduced-motion:reduce){.micbtn.on,.pill.busy{animation:none}}
+.sign{font-size:11px; color:var(--muted); text-align:center; display:flex; justify-content:center; align-items:center; gap:4px; white-space:nowrap}
+.sign a,.sheet footer a{color:var(--ru); text-decoration:none; display:inline-flex; align-items:center; gap:3px; font-weight:500}
+[data-theme="dark"] .sign a{color:#93ABEE}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sign a{color:#93ABEE}}
+.sign svg,.sheet footer svg{width:13px; height:13px}
+.sheet{position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:20; display:flex; justify-content:center; align-items:flex-end}
+.sheet-in{background:var(--bg); width:100%; max-width:640px; max-height:92%; overflow:auto; border-radius:18px 18px 0 0; padding:12px 14px calc(16px + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:10px}
+.sheet-head{display:flex; align-items:center; justify-content:space-between; font-size:17px}
+.sheet h3{margin:6px 0 0; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+.sheet label{display:flex; flex-direction:column; gap:4px; font-size:13.5px; color:var(--muted)}
+.sheet label.row{flex-direction:row; align-items:center; gap:8px; color:var(--ink)}
+.sheet select{font:inherit; padding:8px; border-radius:9px; border:1px solid var(--line); background:var(--surface); color:var(--ink); width:100%}
+.sheet .two{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.btn.wide{justify-content:center; padding:11px; font-weight:600}
+.hist{display:flex; flex-direction:column; gap:6px}
+.hi{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:8px 10px; display:flex; flex-direction:column; gap:2px; text-align:start; width:100%}
+.hi .w{font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums}
+.hi .s{font-size:13px; color:var(--muted); overflow-wrap:anywhere} .hi .d{font-size:15px; overflow-wrap:anywhere}
+.empty{color:var(--muted); font-size:14px}
+.sheet footer{font-size:12px; color:var(--muted); text-align:center; display:flex; justify-content:center; align-items:center; gap:4px; padding-top:6px}
+.toast{position:fixed; left:50%; top:calc(10px + env(safe-area-inset-top,0px)); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:9px 16px; border-radius:14px; font-size:14px; width:max-content; max-width:calc(100% - 32px); text-align:center; z-index:30}
+
+@media (max-width:380px){ .top{gap:6px} .icon{width:34px; height:34px} }
+.btn.inst{flex-direction:column; gap:4px; text-align:center; white-space:normal; line-height:1.25}
+.btn.inst svg{width:22px; height:22px}
+.inststeps{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:8px}
+.inststeps p{margin:0; white-space:pre-line; font-size:14px; line-height:1.5}
+.instlink{display:grid; gap:6px; justify-items:start}
+.instlink code{font-size:12.5px; overflow-wrap:anywhere; width:100%; background:var(--bg); border-radius:8px; padding:6px 8px}
+
+.notice.modal{position:fixed; z-index:25; left:50%; top:50%; transform:translate(-50%,-50%); width:min(92vw,420px); max-height:80%; overflow:auto; padding:14px 16px; box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.notice.modal .ntop{flex-direction:column; align-items:stretch}
+.notice.modal .ntop b{font-size:16px}
+.notice.modal #notice-ok{order:3; justify-content:center}
+.notice.modal ul{margin:8px 0 10px}
+.nback{position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:24}
+
+.top{grid-area:top} .notice{grid-area:notice} .langbar{grid-area:lang} .card.in{grid-area:src} .card.out{grid-area:dst} .status{grid-area:status} .micbar{grid-area:mics} .sign{grid-area:sign}
+.app > .notice[hidden]{display:block!important; visibility:hidden; height:0; padding:0; margin-top:-8px; overflow:hidden}
+.notice.modal #notice-ok{width:100%; justify-content:center; padding:9px}
+
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Amiri:wght@700&display=swap">
 </head>
 <body translate="no">
-<div class="wrap notranslate" translate="no">
-  <header>
-    <div class="mark"><b>Tarjuman</b><span>RU · AR · EN</span></div>
-    <div class="hright">
-      <div class="uisw" role="group" aria-label="App language"><button data-ui="ru" aria-pressed="false">Рус</button><button data-ui="en" aria-pressed="false">Eng</button><button data-ui="ar" aria-pressed="false">عربي</button></div>
-      <div class="chip" id="engine"><i></i></div>
-    </div>
+<div class="app notranslate" translate="no">
+  <header class="top">
+    <b class="logo">Tarjuman</b>
+    <div class="uisw" role="group" aria-label="App language"><button data-ui="ru" aria-pressed="false">Рус</button><button data-ui="en" aria-pressed="false">Eng</button><button data-ui="ar" aria-pressed="false">عربي</button></div>
+    <button class="icon" id="menu-btn" aria-expanded="false" data-i18n-aria="menu"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg></button>
   </header>
 
-  <div class="tabs two" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="text" id="t-text" data-i18n="tabText"></button>
-    <button role="tab" aria-selected="false" data-tab="hist" id="t-hist" data-i18n="tabHist"></button>
+  <div class="nback" id="nback" hidden></div>
+  <div class="notice" id="notice" role="status" hidden>
+    <div class="ntop"><b id="notice-txt"></b><button class="btn main" id="notice-btn" data-i18n="update" hidden></button></div>
+    <ul id="notice-list" hidden></ul>
+    <button class="btn" id="notice-ok" data-i18n="ok" hidden></button>
   </div>
 
-  <section id="p-text" class="wrap" style="gap:12px">
-    <div class="pair">
-      <label><span data-i18n="from"></span>
-        <select id="from"><option value="ru">Русский</option><option value="ar">العربية</option><option value="en">English</option></select>
-      </label>
-      <button class="swap" id="swap" data-i18n-aria="swapLangs">⇄</button>
-      <label><span data-i18n="to"></span>
-        <select id="to"><option value="ru">Русский</option><option value="ar">العربية</option><option value="en">English</option></select>
-      </label>
-    </div>
-    <div class="pane">
-      <textarea id="src" data-i18n-ph="srcPh" dir="auto" rows="5"></textarea>
-      <div class="tools">
-        <button class="btn" id="paste" data-i18n="paste"></button>
-        <button class="btn" id="clear" data-i18n="clear"></button>
-        <span class="sp"></span>
-        <span class="count" id="count"></span>
-      </div>
-    </div>
-    <div class="micbar">
-      <button class="micbtn" id="mic-a" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span></button>
-      <button class="micbtn" id="mic-b" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span></button>
-    </div>
-    <div class="pane out l-ar" id="outpane">
-      <div class="result muted" id="dst" dir="auto"></div>
-      <div class="tools">
-        <button class="btn main" id="copy" data-i18n="copy" disabled></button>
-        <button class="btn" id="send" data-i18n="send" disabled></button>
-        <span class="sp"></span>
-        <span class="tag" id="fixedtag" data-i18n="fixedTag" hidden></span>
-      </div>
-    </div>
-    <div class="status" id="status" aria-live="polite"></div>
-    <div class="hint" data-i18n="micHint"></div>
-  </section>
+  <div class="langbar">
+    <select id="from" aria-label="From"><option value="ru">Русский</option><option value="ar">العربية</option><option value="en">English</option></select>
+    <button class="icon swap" id="swap" data-i18n-aria="swapLangs">⇄</button>
+    <select id="to" aria-label="To"><option value="ru">Русский</option><option value="ar">العربية</option><option value="en">English</option></select>
+  </div>
 
-  <section id="p-hist" class="wrap" style="gap:10px" hidden>
+  <div class="card in">
+    <textarea id="src" data-i18n-ph="srcPh" dir="auto"></textarea>
+    <div class="tools">
+      <button class="icon" id="paste" data-i18n-aria="paste"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.2A3 3 0 0 0 12 1a3 3 0 0 0-2.8 2H5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 17H5V5h2v3h10V5h2v15z"/></svg></button>
+      <button class="icon" id="clear" data-i18n-aria="clear"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button>
+    </div>
+  </div>
+
+  <div class="card out l-ar" id="outcard">
+    <div class="result muted" id="dst" dir="auto"></div>
+    <div class="tools">
+      <button class="icon" id="speak" data-i18n-aria="speakBtn" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></button>
+      <button class="icon" id="copy" data-i18n-aria="copy" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg></button>
+      <button class="icon" id="share" data-i18n-aria="share" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16a3 3 0 0 0-2.4 1.2l-6.7-3.4a3 3 0 0 0 0-1.6l6.7-3.4A3 3 0 1 0 15 7c0 .3 0 .5.1.8L8.4 11.2a3 3 0 1 0 0 3.6l6.7 3.4A3 3 0 1 0 18 16z"/></svg></button>
+      <button class="pill" id="vmsg" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span data-i18n="voiceMsg"></span></button>
+      <span class="sp"></span>
+      <span class="tag" id="fixedtag" data-i18n="fixedTag" hidden></span>
+    </div>
+  </div>
+
+  <div class="status" id="status" aria-live="polite"></div>
+
+  <div class="micbar">
+    <button class="micbtn" id="mic-a" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span></button>
+    <button class="micbtn" id="mic-b" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span></button>
+  </div>
+  <div class="sign" dir="ltr">Developer Alex Grey <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a> · v13</div>
+</div>
+
+<div class="sheet notranslate" id="sheet" translate="no" hidden>
+  <div class="sheet-in">
+    <div class="sheet-head"><b data-i18n="menu"></b><button class="icon" id="sheet-close" data-i18n-aria="close"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button></div>
+    <h3 data-i18n="install"></h3>
+    <div class="two">
+      <button class="btn wide inst" id="inst-android"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 1 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg><span data-i18n="instAndroid"></span></button>
+      <button class="btn wide inst" id="inst-ios"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9a4.8 4.8 0 0 0-3.8-2c-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9a5 5 0 0 0-4.2 2.6c-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6s1.8-.8 3.4-.8 2 .8 3.4.8 2.3-1.3 3.1-2.5a11 11 0 0 0 1.4-2.9 4.5 4.5 0 0 1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 .1-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg><span data-i18n="instIOS"></span></button>
+    </div>
+    <div class="inststeps" id="inst-steps" hidden><p id="inst-text"></p><div class="instlink"><code dir="ltr">https://a7grey-collab.github.io/tarjuman/</code><button class="btn" id="copy-link" data-i18n="copyLink"></button></div></div>
+    <button class="btn wide" id="file-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5z"/></svg><span data-i18n="fromFile"></span></button>
+    <input type="file" id="file-in" accept="audio/*,.opus,.ogg,.oga,.m4a,.mp3,.aac,.amr,.wav,.webm,.3gp" hidden>
+    <h3 data-i18n="settings"></h3>
+    <label class="row"><input type="checkbox" id="autoSpeak"> <span data-i18n="autoSpeak"></span></label>
+    <label><span data-i18n="speed"></span><select id="speed"><option value="1" data-i18n="spN"></option><option value="1.15" data-i18n="spS"></option><option value="1.3" data-i18n="spSS"></option></select></label>
+    <label><span data-i18n="fmt"></span><select id="fmt"><option value="opus" data-i18n="fOpus"></option><option value="mp3" data-i18n="fMp3"></option></select></label>
+    <div class="two">
+      <label><span data-i18n="ruVoice"></span><select id="ruvoice"><option value="dmitri" data-voice="Dmitri|male">Dmitri</option><option value="denis" data-voice="Denis|male">Denis</option><option value="ruslan" data-voice="Ruslan|male">Ruslan</option><option value="irina" data-voice="Irina|female">Irina</option></select></label>
+      <label><span data-i18n="enVoice"></span><select id="envoice"><option value="ryan" data-voice="Ryan|male">Ryan</option><option value="lessac" data-voice="Lessac|female">Lessac</option><option value="alan" data-voice="Alan|male">Alan</option></select></label>
+    </div>
+    <label><span data-i18n="asr"></span><select id="asr"><option value="accurate" data-i18n="aAcc"></option><option value="fast" data-i18n="aFast"></option></select></label>
+    <h3 data-i18n="history"></h3>
     <div class="hist" id="hist"></div>
-    <button class="btn" id="hist-clear" style="align-self:center" data-i18n="histClear"></button>
-  </section>
-
-  <p class="note" data-i18n="note"></p>
-
-  <footer dir="ltr">Developer Alex Grey
-    <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a>
-    · v12
-  </footer>
+    <button class="btn" id="hist-clear" data-i18n="histClear"></button>
+    <footer dir="ltr">Developer Alex Grey <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a> · v13</footer>
+  </div>
 </div>
 <div class="toast notranslate" translate="no" id="toast" hidden></div>
 
 <script>
+/* ================= interface languages ================= */
+const APP_VERSION='v13';
+const I18N={
+ru:{ install:'Установка', instAndroid:'Установить на Android', instIOS:'Установить на iPhone (iOS)', instAndroidSteps:'1. Откройте ссылку в Chrome.\n2. Нажмите ⋮ → «Установить приложение» (или «Добавить на главный экран»).\n3. Значок Tarjuman появится на рабочем экране.', instIOSSteps:'1. Откройте ссылку в Safari.\n2. Нажмите «Поделиться» (квадрат со стрелкой вверх) → «На экран „Домой“» → «Добавить».\n3. Значок Tarjuman появится на рабочем экране.', instDone:'Приложение уже установлено на этом устройстве.', copyLink:'Скопировать ссылку', swapLangs:'Поменять языки', menu:'Меню', close:'Закрыть', history:'История', settings:'Настройки', histEmpty:'Здесь появятся ваши переводы.', histClear:'Очистить историю', histCleared:'История очищена',
+ autoSpeak:'Озвучивать перевод после наговаривания', speed:'Скорость речи', spN:'Обычная', spS:'Чуть медленнее', spSS:'Медленно',
+ vmVoices:'Голоса для голосовых сообщений', ruVoice:'Русский', enVoice:'Английский', male:'муж.', female:'жен.', fmt:'Формат голосового', fOpus:'Как в WhatsApp (OGG)', fMp3:'MP3',
+ asr:'Распознавание голосовых из файла', aAcc:'Точное (≈250 МБ)', aFast:'Быстрое (≈80 МБ)',
+ paste:'Вставить', clear:'Очистить', copy:'Копировать', share:'Отправить', speakBtn:'Прослушать', voiceMsg:'Голосовое', fromFile:'Перевести голосовое из файла',
+ srcPh:'Введите текст или нажмите микрофон', resultPh:'Перевод', translating:'Перевожу…', trFail:'Не удалось перевести. Проверьте интернет.',
+ listening:'● Слушаю… {t}', recTap:'Готово', copied:'Скопировано', copyManual:'Выделите текст и скопируйте вручную', pasteFail:'Вставьте текст долгим нажатием в поле',
+ micDenied:'Нет доступа к микрофону: значок слева от адреса → Разрешения → Микрофон → Разрешить.', micDeniedClaude:'Внутри Claude микрофон закрыт. Откройте ссылку в Chrome или Safari.',
+ noSpeech:'Не расслышал — попробуйте ещё раз.', srNet:'Для распознавания речи нужен интернет.', noMic:'Микрофон не найден или занят.', srLang:'Браузер не распознаёт этот язык.', srErr:'Ошибка распознавания: {e}', noSR:'Браузер не распознаёт речь. Откройте в Chrome или Safari.', micFail:'Не удалось включить микрофон',
+ vmReady:'Голосовое готово', savedFile:'Файл сохранён — прикрепите его в WhatsApp', noVoice:'На телефоне нет голоса для этого языка — готовлю свой…',
+ opening:'Открываю голосовое…', asrLoad:'Загружаю распознавание: {pct}% (один раз)', asrWork:'Расшифровываю… {t}', asrNet:'Не удалось скачать распознавание. Проверьте интернет.', asrErr:'Не удалось расшифровать ({e})', asrNone:'Речь не распознана.', asrShort:'Запись пустая или слишком короткая.',
+ updated:'Приложение обновлено до {v}', updAvail:'Доступно обновление {v}', update:'Обновить', ok:'Понятно', fixedTag:'по словарю',
+ news:['Всё помещается на одном экране','В меню: кнопки «Установить на Android» и «Установить на iPhone»','Перевод снова озвучивается голосом','Кнопка «Голосовое» — готовое голосовое для WhatsApp','В меню: перевод голосового из файла, история и настройки'],
+ errDownload:'не удалось скачать', errLib:'не загрузилась библиотека', errPhon:'не удалось подготовить текст', errNoText:'нет текста', mb:'МБ',
+ stPrep:'Готовлю голос…', stLoadTk:'Загружаю огласовки…', stTk:'Расставляю огласовки…', stLoadPh:'Загружаю речевой модуль…', stLoadVoice:'Загружаю голос ({l})…', stSynth:'Создаю голосовое…', pkPh:'Речевой модуль', pkTk:'Огласовки', pkVoice:'Голос {l}',
+ errAsrStart:'модуль распознавания не запустился', errNoAudio:'браузер не открывает аудио', errOpenAudio:'не удалось открыть аудиофайл', errSafariOpus:'(Safari может не открывать .opus — попробуйте Chrome)' },
+en:{ install:'Install', instAndroid:'Install on Android', instIOS:'Install on iPhone (iOS)', instAndroidSteps:'1. Open the link in Chrome.\n2. Tap ⋮ → “Install app” (or “Add to Home screen”).\n3. The Tarjuman icon appears on your home screen.', instIOSSteps:'1. Open the link in Safari.\n2. Tap Share (square with an up arrow) → “Add to Home Screen” → “Add”.\n3. The Tarjuman icon appears on your home screen.', instDone:'The app is already installed on this device.', copyLink:'Copy link', swapLangs:'Swap languages', menu:'Menu', close:'Close', history:'History', settings:'Settings', histEmpty:'Your translations will appear here.', histClear:'Clear history', histCleared:'History cleared',
+ autoSpeak:'Read the translation aloud after dictation', speed:'Speech speed', spN:'Normal', spS:'A bit slower', spSS:'Slow',
+ vmVoices:'Voices for voice messages', ruVoice:'Russian', enVoice:'English', male:'male', female:'female', fmt:'Voice message format', fOpus:'Like WhatsApp (OGG)', fMp3:'MP3',
+ asr:'Recognizing voice messages from files', aAcc:'Accurate (≈250 MB)', aFast:'Fast (≈80 MB)',
+ paste:'Paste', clear:'Clear', copy:'Copy', share:'Send', speakBtn:'Listen', voiceMsg:'Voice msg', fromFile:'Translate a voice message from a file',
+ srcPh:'Type text or tap the microphone', resultPh:'Translation', translating:'Translating…', trFail:'Couldn’t translate. Check your internet.',
+ listening:'● Listening… {t}', recTap:'Done', copied:'Copied', copyManual:'Select the text and copy it manually', pasteFail:'Long-press the box to paste',
+ micDenied:'No microphone access: icon left of the address → Permissions → Microphone → Allow.', micDeniedClaude:'The microphone is blocked inside Claude. Open the link in Chrome or Safari.',
+ noSpeech:'Didn’t catch that — try again.', srNet:'Speech recognition needs the internet.', noMic:'No microphone found, or it is busy.', srLang:'The browser can’t recognize this language.', srErr:'Recognition error: {e}', noSR:'This browser can’t recognize speech. Open in Chrome or Safari.', micFail:'Couldn’t turn on the microphone',
+ vmReady:'Voice message ready', savedFile:'File saved — attach it in WhatsApp', noVoice:'No phone voice for this language — preparing our own…',
+ opening:'Opening the voice message…', asrLoad:'Downloading recognition: {pct}% (once)', asrWork:'Transcribing… {t}', asrNet:'Couldn’t download recognition. Check your internet.', asrErr:'Couldn’t transcribe ({e})', asrNone:'No speech recognized.', asrShort:'The recording is empty or too short.',
+ updated:'App updated to {v}', updAvail:'Update {v} available', update:'Update', ok:'Got it', fixedTag:'from dictionary',
+ news:['Everything fits on one screen','In the menu: “Install on Android” and “Install on iPhone” buttons','Translations are read aloud again','“Voice msg” button — a ready voice message for WhatsApp','In the menu: translate a voice message from a file, history and settings'],
+ errDownload:'couldn’t download', errLib:'library failed to load', errPhon:'couldn’t prepare the text', errNoText:'no text', mb:'MB',
+ stPrep:'Preparing the voice…', stLoadTk:'Downloading diacritics…', stTk:'Adding diacritics…', stLoadPh:'Downloading the speech module…', stLoadVoice:'Downloading voice ({l})…', stSynth:'Creating the voice message…', pkPh:'Speech module', pkTk:'Diacritics', pkVoice:'Voice {l}',
+ errAsrStart:'recognition module didn’t start', errNoAudio:'the browser can’t open audio', errOpenAudio:'couldn’t open the audio file', errSafariOpus:'(Safari may not open .opus — try Chrome)' },
+ar:{ install:'التثبيت', instAndroid:'التثبيت على أندرويد', instIOS:'التثبيت على آيفون (iOS)', instAndroidSteps:'1. افتح الرابط في Chrome.\n2. اضغط ⋮ ← «تثبيت التطبيق» (أو «إضافة إلى الشاشة الرئيسية»).\n3. تظهر أيقونة Tarjuman على الشاشة الرئيسية.', instIOSSteps:'1. افتح الرابط في Safari.\n2. اضغط «مشاركة» (مربع بسهم للأعلى) ← «إضافة إلى الشاشة الرئيسية» ← «إضافة».\n3. تظهر أيقونة Tarjuman على الشاشة الرئيسية.', instDone:'التطبيق مثبّت بالفعل على هذا الجهاز.', copyLink:'نسخ الرابط', swapLangs:'تبديل اللغتين', menu:'القائمة', close:'إغلاق', history:'السجل', settings:'الإعدادات', histEmpty:'ستظهر ترجماتك هنا.', histClear:'مسح السجل', histCleared:'تم مسح السجل',
+ autoSpeak:'نطق الترجمة بعد الإملاء', speed:'سرعة الكلام', spN:'عادية', spS:'أبطأ قليلاً', spSS:'بطيئة',
+ vmVoices:'أصوات الرسائل الصوتية', ruVoice:'الروسية', enVoice:'الإنجليزية', male:'رجل', female:'امرأة', fmt:'صيغة الرسالة الصوتية', fOpus:'مثل واتساب (OGG)', fMp3:'MP3',
+ asr:'التعرّف على الرسائل الصوتية من ملف', aAcc:'دقيق (≈250 ميغابايت)', aFast:'سريع (≈80 ميغابايت)',
+ paste:'لصق', clear:'مسح', copy:'نسخ', share:'إرسال', speakBtn:'استماع', voiceMsg:'رسالة صوتية', fromFile:'ترجمة رسالة صوتية من ملف',
+ srcPh:'اكتب نصاً أو اضغط الميكروفون', resultPh:'الترجمة', translating:'جارٍ الترجمة…', trFail:'تعذّرت الترجمة. تحقّق من الإنترنت.',
+ listening:'● أستمع… {t}', recTap:'تم', copied:'تم النسخ', copyManual:'حدّد النص وانسخه يدوياً', pasteFail:'اضغط مطولاً على الحقل للصق',
+ micDenied:'لا يوجد إذن للميكروفون: الأيقونة بجانب العنوان ← الأذونات ← الميكروفون ← سماح.', micDeniedClaude:'الميكروفون محظور داخل Claude. افتح الرابط في Chrome أو Safari.',
+ noSpeech:'لم أسمع جيداً — حاول مرة أخرى.', srNet:'التعرّف على الكلام يحتاج إلى الإنترنت.', noMic:'لا يوجد ميكروفون أو أنه مشغول.', srLang:'المتصفح لا يتعرّف على هذه اللغة.', srErr:'خطأ في التعرّف: {e}', noSR:'هذا المتصفح لا يتعرّف على الكلام. افتحه في Chrome أو Safari.', micFail:'تعذّر تشغيل الميكروفون',
+ vmReady:'الرسالة الصوتية جاهزة', savedFile:'تم حفظ الملف — أرفقه في واتساب', noVoice:'لا يوجد صوت لهذه اللغة في الهاتف — جارٍ تجهيز صوتنا…',
+ opening:'جارٍ فتح الرسالة الصوتية…', asrLoad:'جارٍ تحميل التعرّف: {pct}% (مرة واحدة)', asrWork:'جارٍ التفريغ… {t}', asrNet:'تعذّر تحميل التعرّف. تحقّق من الإنترنت.', asrErr:'تعذّر التفريغ ({e})', asrNone:'لم يُتعرّف على كلام.', asrShort:'التسجيل فارغ أو قصير جداً.',
+ updated:'تم تحديث التطبيق إلى {v}', updAvail:'يتوفر التحديث {v}', update:'تحديث', ok:'حسناً', fixedTag:'من القاموس',
+ news:['كل شيء في شاشة واحدة','في القائمة: زرا «التثبيت على أندرويد» و«التثبيت على آيفون»','تُنطق الترجمة بالصوت من جديد','زر «رسالة صوتية» — رسالة جاهزة لواتساب','في القائمة: ترجمة رسالة صوتية من ملف، السجل والإعدادات'],
+ errDownload:'تعذّر التحميل', errLib:'تعذّر تحميل المكتبة', errPhon:'تعذّر تجهيز النص', errNoText:'لا يوجد نص', mb:'ميغابايت',
+ stPrep:'جارٍ تجهيز الصوت…', stLoadTk:'جارٍ تحميل التشكيل…', stTk:'جارٍ التشكيل…', stLoadPh:'جارٍ تحميل وحدة النطق…', stLoadVoice:'جارٍ تحميل الصوت ({l})…', stSynth:'جارٍ إنشاء الرسالة الصوتية…', pkPh:'وحدة النطق', pkTk:'التشكيل', pkVoice:'صوت {l}',
+ errAsrStart:'لم تبدأ وحدة التعرّف', errNoAudio:'المتصفح لا يفتح الصوت', errOpenAudio:'تعذّر فتح ملف الصوت', errSafariOpus:'(قد لا يفتح Safari صيغة ‎.opus — جرّب Chrome)' }
+};
+const UI_LANGS=['ru','en','ar'];
+let UI='ru';
+function t(k,v){ let s=(I18N[UI]&&I18N[UI][k]!=null)?I18N[UI][k]:(I18N.en[k]!=null?I18N.en[k]:k); if(typeof s==='string'&&v) s=s.replace(/\{(\w+)\}/g,(m,n)=>v[n]!=null?v[n]:''); return s; }
+function applyI18n(){
+  const h=document.documentElement; h.lang=UI; h.dir=UI==='ar'?'rtl':'ltr'; h.setAttribute('translate','no'); h.classList.add('notranslate');
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.placeholder=t(el.dataset.i18nPh));
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{ el.setAttribute('aria-label',t(el.dataset.i18nAria)); el.title=t(el.dataset.i18nAria); });
+  document.querySelectorAll('.uisw button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ui===UI));
+  document.querySelectorAll('option[data-voice]').forEach(o=>{ const [n,g]=o.dataset.voice.split('|'); o.textContent=n+' ('+t(g)+')'; });
+}
+
 /* ================= fixed Islamic greetings & formulas (machine translation often breaks them) ================= */
 const FIXED = {
  salam_full:{ar:'السلام عليكم ورحمة الله وبركاته', ru:'Ассаляму алейкум ва рахматуллахи ва баракятух', en:'Assalamu alaikum wa rahmatullahi wa barakatuh'},
@@ -357,51 +382,412 @@ function planFixed(text,from){
 }
 function convSep(s,to){ if(to==='ar') return s.replace(/,/g,'،').replace(/\?/g,'؟').replace(/;/g,'؛'); return s.replace(/،/g,',').replace(/؟/g,'?').replace(/؛/g,';'); }
 
-/* ================= interface languages ================= */
-const I18N = {
-ru:{ recording:'● Слушаю… {t}', recTap:'Нажмите ещё раз, когда закончите', micHint:'Нажмите кнопку своего языка и говорите — текст появится в поле и сразу переведётся. Нажмите ещё раз, чтобы закончить (или удерживайте и отпустите).', micDenied:'Нет доступа к микрофону. Нажмите на значок слева от адреса сайта → Разрешения → Микрофон → Разрешить.', micDeniedClaude:'Внутри Claude микрофон закрыт. Откройте ссылку на переводчик в Chrome или Safari.', noSpeech:'Не расслышал — попробуйте ещё раз.', srNet:'Для распознавания речи нужен интернет.', noMic:'Микрофон не найден или занят другим приложением.', srLang:'Этот браузер не распознаёт выбранный язык.', srErr:'Ошибка распознавания: {e}', noSR:'Этот браузер не распознаёт речь. Откройте переводчик в Chrome или Safari.', micFail:'Не удалось включить микрофон', chipOnline:'Онлайн-перевод', tabText:'Перевод', tabHist:'История', from:'С языка', to:'На язык', swapLangs:'Поменять языки местами',
- srcPh:'Напишите или вставьте текст…', paste:'Вставить', clear:'Очистить', copy:'Копировать', send:'Отправить',
- translating:'Перевожу…', resultPh:'Перевод появится здесь', trFail:'Не удалось перевести. Проверьте интернет.',
- histEmpty:'Здесь появятся ваши переводы. Нажмите на запись, чтобы снова открыть её.', histClear:'Очистить историю', histCleared:'История очищена',
- copied:'Скопировано', copyManual:'Выделите текст и скопируйте вручную', pasteFail:'Не удалось вставить — вставьте текст долгим нажатием',
- note:'Перевод текста RU ⇄ AR ⇄ EN. Язык текста определяется автоматически. Исламские приветствия и формулы переводятся по выверенному словарю. Сообщение из WhatsApp можно переслать сюда: зажмите его → «Поделиться» → Tarjuman.',
- fixedTag:'по словарю', chars:'{n} симв.' },
-en:{ recording:'● Listening… {t}', recTap:'Tap again when finished', micHint:'Tap your language button and speak — the text appears in the box and is translated right away. Tap again to finish (or hold and release).', micDenied:'No microphone access. Tap the icon left of the site address → Permissions → Microphone → Allow.', micDeniedClaude:'The microphone is blocked inside Claude. Open the translator link in Chrome or Safari.', noSpeech:'Didn’t catch that — try again.', srNet:'Speech recognition needs an internet connection.', noMic:'No microphone found, or another app is using it.', srLang:'This browser can’t recognize the selected language.', srErr:'Recognition error: {e}', noSR:'This browser can’t recognize speech. Open the translator in Chrome or Safari.', micFail:'Couldn’t turn on the microphone', chipOnline:'Online translation', tabText:'Translate', tabHist:'History', from:'From', to:'To', swapLangs:'Swap languages',
- srcPh:'Type or paste text…', paste:'Paste', clear:'Clear', copy:'Copy', send:'Send',
- translating:'Translating…', resultPh:'The translation will appear here', trFail:'Couldn’t translate. Check your internet.',
- histEmpty:'Your translations will appear here. Tap an entry to open it again.', histClear:'Clear history', histCleared:'History cleared',
- copied:'Copied', copyManual:'Select the text and copy it manually', pasteFail:'Couldn’t paste — long-press the box to paste',
- note:'Text translation RU ⇄ AR ⇄ EN. The source language is detected automatically. Islamic greetings and formulas are translated from a verified dictionary. You can share a WhatsApp message here: long-press it → Share → Tarjuman.',
- fixedTag:'from dictionary', chars:'{n} chars' },
-ar:{ recording:'● أستمع… {t}', recTap:'اضغط مرة أخرى عند الانتهاء', micHint:'اضغط زر لغتك وتحدث — يظهر النص في الحقل ويُترجم فوراً. اضغط مرة أخرى للإنهاء (أو اضغط مطولاً ثم اترك).', micDenied:'لا يوجد إذن للميكروفون. اضغط على الأيقونة بجانب عنوان الموقع ← الأذونات ← الميكروفون ← سماح.', micDeniedClaude:'الميكروفون محظور داخل Claude. افتح رابط المترجم في Chrome أو Safari.', noSpeech:'لم أسمع جيداً — حاول مرة أخرى.', srNet:'التعرّف على الكلام يحتاج إلى الإنترنت.', noMic:'لم يُعثر على ميكروفون أو أن تطبيقاً آخر يستخدمه.', srLang:'هذا المتصفح لا يتعرّف على اللغة المختارة.', srErr:'خطأ في التعرّف: {e}', noSR:'هذا المتصفح لا يتعرّف على الكلام. افتح المترجم في Chrome أو Safari.', micFail:'تعذّر تشغيل الميكروفون', chipOnline:'ترجمة عبر الإنترنت', tabText:'ترجمة', tabHist:'السجل', from:'من', to:'إلى', swapLangs:'تبديل اللغتين',
- srcPh:'اكتب النص أو الصقه…', paste:'لصق', clear:'مسح', copy:'نسخ', send:'إرسال',
- translating:'جارٍ الترجمة…', resultPh:'ستظهر الترجمة هنا', trFail:'تعذّرت الترجمة. تحقّق من الإنترنت.',
- histEmpty:'ستظهر ترجماتك هنا. اضغط على أي سطر لفتحه من جديد.', histClear:'مسح السجل', histCleared:'تم مسح السجل',
- copied:'تم النسخ', copyManual:'حدّد النص وانسخه يدوياً', pasteFail:'تعذّر اللصق — اضغط مطولاً على الحقل للصق',
- note:'ترجمة النصوص بين الروسية والعربية والإنجليزية. تُكتشف لغة النص تلقائياً، وتُترجم التحيات والأذكار الإسلامية من قاموس موثّق. يمكنك مشاركة رسالة من واتساب إلى هنا: اضغط عليها مطولاً ← مشاركة ← Tarjuman.',
- fixedTag:'من القاموس', chars:'{n} حرفاً' }
+const CDN = {
+  hf:'https://huggingface.co/diffusionstudio/piper-voices/resolve/main/',
+  ort:'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js',
+  ortWasm:'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/',
+  piperJs:'https://cdn.jsdelivr.net/npm/@diffusionstudio/vits-web@1.0.3/dist/piper-DeOu3H9E.js',
+  piperBin:'https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize',
+  tkJs:'https://cdn.jsdelivr.net/npm/libtashkeel-wasm@1.6.4/libtashkeel_wasm_bg.js',
+  tkWasm:'https://cdn.jsdelivr.net/npm/libtashkeel-wasm@1.6.4/libtashkeel_wasm_bg.wasm',
+  lame:'https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js'
 };
-const UI_LANGS=['ru','en','ar'];
-let UI='ru';
-function t(k,v){ let s=(I18N[UI]&&I18N[UI][k]!=null)?I18N[UI][k]:(I18N.en[k]!=null?I18N.en[k]:k); if(v) s=s.replace(/\{(\w+)\}/g,(m,n)=>v[n]!=null?v[n]:''); return s; }
-function applyI18n(){
-  const h=document.documentElement; h.lang=UI; h.dir=UI==='ar'?'rtl':'ltr'; h.setAttribute('translate','no'); h.classList.add('notranslate');
-  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
-  document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.placeholder=t(el.dataset.i18nPh));
-  document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));
-  document.querySelectorAll('.uisw button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ui===UI));
+const VOICE_PATH = {
+  ar:'ar/ar_JO/kareem/medium/ar_JO-kareem-medium.onnx',
+  ru_dmitri:'ru/ru_RU/dmitri/medium/ru_RU-dmitri-medium.onnx',
+  ru_denis:'ru/ru_RU/denis/medium/ru_RU-denis-medium.onnx',
+  ru_ruslan:'ru/ru_RU/ruslan/medium/ru_RU-ruslan-medium.onnx',
+  ru_irina:'ru/ru_RU/irina/medium/ru_RU-irina-medium.onnx',
+  en_ryan:'en/en_US/ryan/medium/en_US-ryan-medium.onnx',
+  en_lessac:'en/en_US/lessac/medium/en_US-lessac-medium.onnx',
+  en_alan:'en/en_GB/alan/medium/en_GB-alan-medium.onnx'
+};
+const voiceKey = lang => lang==='ar' ? 'ar' : lang==='ru' ? 'ru_'+state.ruvoice : 'en_'+state.envoice;
+
+const DB = (()=>{
+  let p=null;
+  function open(){ if(p) return p; p=new Promise((res,rej)=>{ try{ const r=indexedDB.open('tarjuman-voices',1); r.onupgradeneeded=()=>r.result.createObjectStore('f'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }); p.catch(()=>{}); return p; }
+  return {
+    async get(k){ try{ const db=await open(); return await new Promise(res=>{ const q=db.transaction('f').objectStore('f').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(undefined); }); }catch(e){ return undefined; } },
+    async put(k,v){ try{ const db=await open(); await new Promise(res=>{ const t=db.transaction('f','readwrite'); t.objectStore('f').put(v,k); t.oncomplete=res; t.onerror=res; t.onabort=res; }); }catch(e){} },
+    async has(k){ try{ const db=await open(); return await new Promise(res=>{ const q=db.transaction('f').objectStore('f').getKey(k); q.onsuccess=()=>res(q.result!==undefined); q.onerror=()=>res(false); }); }catch(e){ return false; } }
+  };
+})();
+const inflight=new Map();
+function fetchBuf(url,onProg){
+  if(inflight.has(url)){ const e=inflight.get(url); if(onProg) e.listeners.push(onProg); return e.p; }
+  const entry={listeners:onProg?[onProg]:[]};
+  entry.p=(async()=>{
+    const hit=await DB.get(url); if(hit) return hit;
+    const r=await fetch(url); if(!r.ok) throw new Error(t('errDownload')+' '+url.split('/').pop()+' ('+r.status+')');
+    const total=+(r.headers.get('Content-Length')||0); let buf;
+    if(r.body && r.body.getReader){
+      const rd=r.body.getReader(); const parts=[]; let got=0;
+      for(;;){ const {done,value}=await rd.read(); if(done) break; parts.push(value); got+=value.length; entry.listeners.forEach(f=>{ try{ f(got,total); }catch(e){} }); }
+      const all=new Uint8Array(got); let o=0; for(const q of parts){ all.set(q,o); o+=q.length; } buf=all.buffer;
+    } else buf=await r.arrayBuffer();
+    await DB.put(url,buf); return buf;
+  })().finally(()=>inflight.delete(url));
+  inflight.set(url,entry); return entry.p;
 }
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>{ s.remove(); rej(new Error(t('errLib')+' '+src.split('/').pop())); }; document.head.appendChild(s); }); }
+
+
+/*AR-BEGIN*/
+/* Arabic pronunciation layer: verified phrases + common-word fixes + pausal form (waqf), applied before speech */
+const AR_PHRASES = [
+ ['السلام عليكم ورحمة الله وبركاته','السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ'],
+ ['وعليكم السلام ورحمة الله وبركاته','وَعَلَيْكُمُ السَّلَامُ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ'],
+ ['ورحمة الله وبركاته','وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ'],
+ ['السلام عليكم ورحمة الله','السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ'],
+ ['وعليكم السلام','وَعَلَيْكُمُ السَّلَامُ'],
+ ['السلام عليكم','السَّلَامُ عَلَيْكُمْ'],
+ ['بسم الله الرحمن الرحيم','بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ'],
+ ['بسم الله','بِسْمِ اللَّهِ'],
+ ['والحمد لله','وَالْحَمْدُ لِلَّهِ'],
+ ['الحمد لله','الْحَمْدُ لِلَّهِ'],
+ ['إن شاء الله','إِنْ شَاءَ اللَّهُ'],
+ ['ما شاء الله','مَا شَاءَ اللَّهُ'],
+ ['جزاك الله خيرا','جَزَاكَ اللَّهُ خَيْرًا'],
+ ['جزاكم الله خيرا','جَزَاكُمُ اللَّهُ خَيْرًا'],
+ ['بارك الله فيك','بَارَكَ اللَّهُ فِيكَ'],
+ ['بارك الله فيكم','بَارَكَ اللَّهُ فِيكُمْ'],
+ ['سبحان الله','سُبْحَانَ اللَّهِ'],
+ ['الله أكبر','اللَّهُ أَكْبَرُ'],
+ ['أستغفر الله','أَسْتَغْفِرُ اللَّهَ'],
+ ['لا إله إلا الله','لَا إِلَهَ إِلَّا اللَّهُ'],
+ ['لا حول ولا قوة إلا بالله','لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ'],
+ ['صلى الله عليه وسلم','صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ'],
+ ['الله يعطيك العافية','اللَّهُ يُعْطِيكَ الْعَافِيَةَ'],
+ ['يعطيك العافية','يُعْطِيكَ الْعَافِيَةَ'],
+ ['الله يحفظك','اللَّهُ يَحْفَظُكَ'],
+ ['حياك الله','حَيَّاكَ اللَّهُ'],
+ ['في أمان الله','فِي أَمَانِ اللَّهِ'],
+ ['تقبل الله منا ومنكم','تَقَبَّلَ اللَّهُ مِنَّا وَمِنْكُمْ'],
+ ['تقبل الله','تَقَبَّلَ اللَّهُ'],
+ ['عيد مبارك','عِيدٌ مُبَارَكٌ'],
+ ['رمضان كريم','رَمَضَانُ كَرِيمٌ'],
+ ['رمضان مبارك','رَمَضَانُ مُبَارَكٌ'],
+ ['جمعة مباركة','جُمُعَةٌ مُبَارَكَةٌ'],
+ ['مع السلامة','مَعَ السَّلَامَةِ'],
+ ['صباح الخير','صَبَاحُ الْخَيْرِ'],
+ ['صباح النور','صَبَاحُ النُّورِ'],
+ ['مساء الخير','مَسَاءُ الْخَيْرِ'],
+ ['مساء النور','مَسَاءُ النُّورِ'],
+ ['أهلا وسهلا','أَهْلًا وَسَهْلًا'],
+ ['أهلا بك','أَهْلًا بِكَ'],
+ ['على الرحب والسعة','عَلَى الرَّحْبِ وَالسَّعَةِ'],
+ ['شكرا جزيلا','شُكْرًا جَزِيلًا'],
+ ['شكرا لك','شُكْرًا لَكَ'],
+ ['شكرا لكم','شُكْرًا لَكُمْ'],
+ ['كيف حالك','كَيْفَ حَالُكَ'],
+ ['كيف حالكم','كَيْفَ حَالُكُمْ'],
+ ['أنا بخير','أَنَا بِخَيْرٍ'],
+ ['من فضلك','مِنْ فَضْلِكَ'],
+ ['لو سمحت','لَوْ سَمَحْتَ'],
+ ['يا أخي','يَا أَخِي'],
+ ['يا أختي','يَا أُخْتِي']
+];
+const AR_WORDS = {
+ 'شكرا':'شُكْرًا','عفوا':'عَفْوًا','مرحبا':'مَرْحَبًا','وبركاته':'وَبَرَكَاتُهُ','بركاته':'بَرَكَاتُهُ',
+ 'جزاك':'جَزَاكَ','جزاكم':'جَزَاكُمْ','أين':'أَيْنَ','سأصل':'سَأَصِلُ','نصل':'نَصِلُ','أصل':'أَصِلُ','آمين':'آمِين','تشرفنا':'تَشَرَّفْنَا',
+ 'لله':'لِلَّهِ','بالله':'بِاللَّهِ','والله':'وَاللَّهِ'
+};
+const arStrip = w => w.replace(/[ً-ْٰـ]/g,'');
+const arNorm = w => arStrip(w).replace(/[إأآٱ]/g,'ا').replace(/ى/g,'ي');
+const AR_SEP = /(\s+|[.!?؟،,;:…"«»()\[\]\-–—]+)/;
+const isArWord = t => /[ء-ي]/.test(t);
+function arUserDict(){ const out={phr:[],w:{}}; String(state.ardict||'').split('\n').forEach(l=>{ const m=l.split('='); if(m.length<2) return; const k=m[0].trim(), v=m.slice(1).join('=').trim(); if(!k||!v) return; if(/\s/.test(k)) out.phr.push([k,v]); else out.w[arNorm(k)]=v; }); return out; }
+function arPhraseTable(user){
+  return [...user.phr, ...AR_PHRASES].map(([k,v])=>({k:arNorm(k).split(/\s+/), v})).sort((a,b)=>b.k.length-a.k.length);
+}
+function arMatchAt(parts,i,table){
+  for(const e of table){
+    let j=i, n=0, ok=true;
+    while(n<e.k.length){
+      if(j>=parts.length){ ok=false; break; }
+      const t=parts[j];
+      if(/^\s+$/.test(t)){ j++; continue; }
+      if(!isArWord(t) || arNorm(t)!==e.k[n]){ ok=false; break; }
+      n++; j++;
+    }
+    if(ok) return {end:j, text:e.v};
+  }
+  return null;
+}
+function arWordFix(tok,words){
+  const k=arNorm(tok); if(words[k]) return words[k];
+  for(const pre of [['و','وَ'],['ف','فَ']]){ if(k.startsWith(pre[0]) && k.length>2 && words[k.slice(1)]) return pre[1]+words[k.slice(1)]; }
+  return tok;
+}
+/* pausal form: Arabs drop the final short vowel/tanween before a pause (…barakātuh, not …barakātuhu/i) */
+function arWaqf(s){
+  s=s.replace(/([ء-ي])ً([اى])(?=[\s]*(?:[.!?؟،,;:…\n]|$))/g,'$1َ$2');
+  return s.replace(/([ء-ي])([ّ]?)[ً-ِ]([ّ]?)(?=[\s]*(?:[.!?؟،,;:…"»)\n]|$))/g,'$1$2$3');
+}
+function arPrepare(text,tk,hasH){
+  const user=arUserDict(), table=arPhraseTable(user), words={}; for(const k in AR_WORDS) words[arNorm(k)]=AR_WORDS[k]; Object.assign(words,user.w);
+  const parts=text.split(AR_SEP).filter(x=>x!=='');
+  const out=[]; let run=[];
+  const flush=()=>{ if(!run.length) return; const t=run.join(''); let r=t;
+    if(tk && !hasH(t) && isArWord(t)){ try{ const lead=t.match(/^\s*/)[0], trail=t.match(/\s*$/)[0]; r=lead+tk.do_tashkeel(t.trim())+trail; }catch(e){ r=t; } }
+    out.push(r.split(AR_SEP).map(x=>isArWord(x)?arWordFix(x,words):x).join('')); run=[]; };
+  for(let i=0;i<parts.length;){
+    if(isArWord(parts[i])){ const m=arMatchAt(parts,i,table); if(m){ flush(); out.push(m.text); i=m.end; continue; } }
+    run.push(parts[i]); i++;
+  }
+  flush();
+  return arWaqf(out.join(''));
+}
+/* Speech spelling for the eSpeak Arabic front-end (display text stays normal):
+   - shadda + vowel is expanded (C+sukun+C+vowel) — eSpeak otherwise drops the vowel (muħammd, sslaːm);
+   - connected speech: the article's alif is elided after a word; sun letters assimilate (…u s-salām, …u l-khayr);
+   - the name of Allah is spelled so the long ā is heard (bismi llāhi, Allāhu akbar). */
+const AR_SUN='تثدذرزسشصضطظلن';
+function arSpeech(s){
+  const parts=s.split(AR_SEP); let prev=false; const out=[];
+  for(const t of parts){
+    if(t===''){ continue; }
+    if(!isArWord(t)){ out.push(t); if(!/^\s+$/.test(t)) prev=false; continue; }
+    let w=t; const n=arNorm(w); const v=(w.match(/ه([ً-ِ]?)$/)||[])[1]||'';
+    const ALLAH={'الله': prev?'لْلَاه':'أَللَاه','والله':'وَلْلَاه','فالله':'فَلْلَاه','بالله':'بِلْلَاه','لله':'لِلْلَاه','تالله':'تَلْلَاه'};
+    if(ALLAH[n]){ out.push(ALLAH[n]+v); prev=true; continue; }
+    if(prev && arStrip(w)[0]==='ا' && n.startsWith('ال') && n.length>3){
+      const rest=w.replace(/^ا[ً-ْ]*ل[ً-ْ]*/,'');
+      if(rest){ w = AR_SUN.includes(rest[0]) ? rest : 'لْ'+rest; }
+    }
+    w=w.replace(/([ء-ي])([ً-ِ]?)ّ([ً-ِ]?)/g,(m,c,v1,v2)=>c+'ْ'+c+(v1||v2));
+    out.push(w); prev=true;
+  }
+  return out.join('');
+}
+/*AR-END*/
+
+const Engine = (()=>{
+  let ortP=null, lameP=null, tkP=null, phP=null; const sessions=new Map();
+  const once=(get,set,fn)=>{ if(!get()) set(fn().catch(e=>{ set(null); throw e; })); return get(); };
+  const ort=()=>once(()=>ortP,v=>ortP=v,async()=>{ if(!window.ort) await loadScript(CDN.ort); window.ort.env.wasm.wasmPaths=CDN.ortWasm; window.ort.env.wasm.numThreads=1; return window.ort; });
+  const lame=()=>once(()=>lameP,v=>lameP=v,async()=>{ if(!window.lamejs) await loadScript(CDN.lame); return window.lamejs; });
+  const tashkeel=(onProg)=>once(()=>tkP,v=>tkP=v,async()=>{ const bg=await import(CDN.tkJs); const buf=await fetchBuf(CDN.tkWasm,onProg); const {instance}=await WebAssembly.instantiate(buf,{'./libtashkeel_wasm_bg.js':bg}); bg.__wbg_set_wasm(instance.exports); return bg; });
+  const phFiles=(onProg)=>once(()=>phP,v=>phP=v,async()=>{ const [mod,wasm,data]=await Promise.all([import(CDN.piperJs), fetchBuf(CDN.piperBin+'.wasm'), fetchBuf(CDN.piperBin+'.data',onProg)]); return {mod,wasm,data}; });
+  async function phonemize(text,espeakVoice){
+    const {mod,wasm,data}=await phFiles();
+    return new Promise((res,rej)=>{
+      let done=false;
+      mod.createPiperPhonemize({
+        wasmBinary:wasm.slice(0), getPreloadedPackage:()=>data.slice(0),
+        print:l=>{ if(done) return; try{ const j=JSON.parse(l); if(j.phoneme_ids){ done=true; res(j.phoneme_ids); } }catch(e){} },
+        printErr:()=>{},
+        locateFile:f=>f.endsWith('.wasm')?CDN.piperBin+'.wasm':f.endsWith('.data')?CDN.piperBin+'.data':f
+      }).then(m=>{
+        try{ m.callMain(['-l',espeakVoice,'--input',JSON.stringify([{text}]),'--espeak_data','/espeak-ng-data']); }catch(e){ if(!done){ done=true; rej(new Error(t('errPhon'))); } return; }
+        setTimeout(()=>{ if(!done){ done=true; rej(new Error(t('errPhon'))); } },30000);
+      }).catch(rej);
+    });
+  }
+  function session(key,onProg){
+    if(sessions.has(key)){ const s=sessions.get(key); sessions.delete(key); sessions.set(key,s); return s; } // keep most recent last
+    const p=(async()=>{
+      const O=await ort();
+      const cfg=JSON.parse(new TextDecoder().decode(await fetchBuf(CDN.hf+VOICE_PATH[key]+'.json')));
+      const model=await fetchBuf(CDN.hf+VOICE_PATH[key],onProg);
+      const s=await O.InferenceSession.create(new Uint8Array(model));
+      return {s,cfg};
+    })().catch(e=>{ sessions.delete(key); throw e; });
+    sessions.set(key,p);
+    while(sessions.size>2){ const [k,old]=sessions.entries().next().value; sessions.delete(k); old.then(x=>{ try{ x.s.release&&x.s.release(); }catch(e){} }).catch(()=>{}); }
+    return p;
+  }
+  async function isReady(lang){
+    const k=voiceKey(lang);
+    const ok=await DB.has(CDN.hf+VOICE_PATH[k]) && await DB.has(CDN.piperBin+'.data');
+    return ok && (lang!=='ar' || await DB.has(CDN.tkWasm));
+  }
+  function hasHarakat(t){ const h=(t.match(/[ً-ْ]/g)||[]).length, l=(t.match(/[ء-ي]/g)||[]).length; return l>0 && h/l>0.35; }
+  function clean(t,lang){
+    t=t.replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu,' ').replace(/[*_#~`>|<]/g,' ').replace(/https?:\/\/\S+/g,' ').replace(/\s+/g,' ').trim();
+    if(lang==='ar') t=t.replace(/ـ/g,'');
+    return t;
+  }
+  function toInt16(f){ const o=new Int16Array(f.length); for(let i=0;i<f.length;i++){ let v=f[i]; v=v>1?1:v<-1?-1:v; o[i]=v<0?v*32768:v*32767; } return o; }
+  function wav(f,sr){
+    const i16=toInt16(f), b=new ArrayBuffer(44+i16.length*2), d=new DataView(b); const w=(o,s)=>{ for(let i=0;i<s.length;i++) d.setUint8(o+i,s.charCodeAt(i)); };
+    w(0,'RIFF'); d.setUint32(4,36+i16.length*2,true); w(8,'WAVE'); w(12,'fmt '); d.setUint32(16,16,true); d.setUint16(20,1,true); d.setUint16(22,1,true);
+    d.setUint32(24,sr,true); d.setUint32(28,sr*2,true); d.setUint16(32,2,true); d.setUint16(34,16,true); w(36,'data'); d.setUint32(40,i16.length*2,true);
+    new Int16Array(b,44).set(i16); return new Blob([b],{type:'audio/wav'});
+  }
+  async function mp3(f,sr){
+    const lj=await lame(); const i16=toInt16(f); const enc=new lj.Mp3Encoder(1,sr,64); const out=[];
+    for(let i=0;i<i16.length;i+=1152){ const c=enc.encodeBuffer(i16.subarray(i,i+1152)); if(c.length) out.push(new Uint8Array(c)); }
+    const e=enc.flush(); if(e.length) out.push(new Uint8Array(e));
+    return new Blob(out,{type:'audio/mpeg'});
+  }
+  /* --- OGG Opus (the format of WhatsApp voice notes) --- */
+  const CRC=(()=>{ const t=new Uint32Array(256); for(let i=0;i<256;i++){ let r=i<<24; for(let j=0;j<8;j++) r=(r&0x80000000)?((r<<1)^0x04c11db7):(r<<1); t[i]=r>>>0; } return t; })();
+  function oggPage(type,granule,serial,seq,packets){
+    const segs=[]; for(const p of packets){ let n=p.length; while(n>=255){ segs.push(255); n-=255; } segs.push(n); }
+    const len=packets.reduce((a,p)=>a+p.length,0), page=new Uint8Array(27+segs.length+len), d=new DataView(page.buffer);
+    page.set([79,103,103,83],0); page[4]=0; page[5]=type; d.setBigInt64(6,BigInt(granule),true); d.setUint32(14,serial,true); d.setUint32(18,seq,true);
+    page[26]=segs.length; page.set(segs,27); let o=27+segs.length; for(const p of packets){ page.set(p,o); o+=p.length; }
+    let c=0; for(let i=0;i<page.length;i++) c=((c<<8)^CRC[((c>>>24)^page[i])&255])>>>0; d.setUint32(22,c,true);
+    return page;
+  }
+  async function canOpus(){
+    if(!window.AudioEncoder || !window.OfflineAudioContext) return false;
+    try{ return (await AudioEncoder.isConfigSupported({codec:'opus',sampleRate:48000,numberOfChannels:1,bitrate:32000})).supported; }catch(e){ return false; }
+  }
+  async function opus(f,sr){
+    const n48=Math.ceil(f.length*48000/sr);
+    const ctx=new OfflineAudioContext(1,n48,48000); const ab=ctx.createBuffer(1,f.length,sr); ab.copyToChannel(f,0);
+    const src=ctx.createBufferSource(); src.buffer=ab; src.connect(ctx.destination); src.start();
+    const pcm=(await ctx.startRendering()).getChannelData(0);
+    const packets=[]; let head=null, err=null;
+    const enc=new AudioEncoder({ output:(chunk,meta)=>{ const b=new Uint8Array(chunk.byteLength); chunk.copyTo(b); packets.push({b,dur:chunk.duration}); if(meta&&meta.decoderConfig&&meta.decoderConfig.description) head=new Uint8Array(meta.decoderConfig.description); }, error:e=>err=e });
+    enc.configure({codec:'opus',sampleRate:48000,numberOfChannels:1,bitrate:32000});
+    for(let i=0;i<pcm.length;i+=4800){ const part=pcm.slice(i,i+4800); enc.encode(new AudioData({format:'f32',sampleRate:48000,numberOfFrames:part.length,numberOfChannels:1,timestamp:Math.round(i*1e6/48000),data:part})); }
+    await enc.flush(); enc.close(); if(err) throw err; if(!packets.length) throw new Error('opus');
+    if(!head || head.length<19 || String.fromCharCode(...head.slice(0,8))!=='OpusHead'){
+      head=new Uint8Array(19); const d=new DataView(head.buffer); head.set([79,112,117,115,72,101,97,100],0); head[8]=1; head[9]=1; d.setUint16(10,312,true); d.setUint32(12,48000,true);
+    }
+    const preSkip=new DataView(head.buffer,head.byteOffset).getUint16(10,true);
+    const vendor=new TextEncoder().encode('Tarjuman'); const tags=new Uint8Array(8+4+vendor.length+4); tags.set(new TextEncoder().encode('OpusTags'),0); new DataView(tags.buffer).setUint32(8,vendor.length,true); tags.set(vendor,12);
+    const serial=(Math.random()*0xffffffff)>>>0, pages=[oggPage(2,0,serial,0,[head]), oggPage(0,0,serial,1,[tags])];
+    let seq=2, gran=preSkip, batch=[], segCount=0; const finalGran=preSkip+pcm.length;
+    for(let i=0;i<packets.length;i++){
+      const p=packets[i], segs=Math.floor(p.b.length/255)+1;
+      if(segCount+segs>255){ pages.push(oggPage(0,gran,serial,seq++,batch)); batch=[]; segCount=0; }
+      batch.push(p.b); segCount+=segs; gran+=Math.round((p.dur||20000)*48000/1e6);
+      if(i===packets.length-1) pages.push(oggPage(4,Math.min(gran,finalGran),serial,seq++,batch));
+      else if(batch.length>=50){ pages.push(oggPage(0,gran,serial,seq++,batch)); batch=[]; segCount=0; }
+    }
+    return new Blob(pages,{type:'audio/ogg; codecs=opus'});
+  }
+  function peaks(f,n=40){ const out=[], step=Math.max(1,Math.floor(f.length/n)); let mx=0; for(let i=0;i<n;i++){ let s=0; for(let j=i*step;j<Math.min(f.length,(i+1)*step);j++) s+=f[j]*f[j]; const v=Math.sqrt(s/step); out.push(v); if(v>mx) mx=v; } return out.map(v=>mx?Math.max(.12,v/mx):.12); }
+
+  async function synth(text,lang,onStep){
+    text=clean(text,lang); if(!text) throw new Error(t('errNoText'));
+    const prog=label=>(got,total)=>onStep&&onStep(label+(total?' '+Math.round(got*100/total)+'%':' '+(got/1048576).toFixed(0)+' '+t('mb')));
+    onStep&&onStep(t('stPrep'));
+    if(lang==='ar'){
+      let tk=null;
+      if(!hasHarakat(text)){ tk=await tashkeel(prog(t('stLoadTk'))); onStep&&onStep(t('stTk')); }
+      text=arPrepare(text,tk,hasHarakat);
+    }
+    const spokenText=text; if(lang==='ar') text=arSpeech(text);
+    await phFiles(prog(t('stLoadPh')));
+    const {s,cfg}=await session(voiceKey(lang),prog(t('stLoadVoice',{l:L[lang].short})));
+    onStep&&onStep(t('stSynth'));
+    const ids=await phonemize(text,(cfg.espeak&&cfg.espeak.voice)||lang);
+    const O=await ort(); const inf=cfg.inference||{};
+    const feeds={
+      input:new O.Tensor('int64',BigInt64Array.from(ids.map(BigInt)),[1,ids.length]),
+      input_lengths:new O.Tensor('int64',BigInt64Array.from([BigInt(ids.length)]),[1]),
+      scales:new O.Tensor('float32',Float32Array.from([inf.noise_scale??0.667,(inf.length_scale??1)*parseFloat(state.speed||'1'),inf.noise_w??0.8]),[3])
+    };
+    if(cfg.speaker_id_map && Object.keys(cfg.speaker_id_map).length) feeds.sid=new O.Tensor('int64',BigInt64Array.from([0n]),[1]);
+    const r=await s.run(feeds); const pcm=(r.output||r[Object.keys(r)[0]]).data;
+    const sr=(cfg.audio&&cfg.audio.sample_rate)||22050;
+    const padN=Math.round(sr*0.15); const f=new Float32Array(pcm.length+padN*2); f.set(pcm,padN);
+    let blob=null, kind='';
+    if(state.fmt==='opus' && await canOpus()){ try{ blob=await opus(f,sr); kind='opus'; }catch(e){ blob=null; } }
+    if(!blob){ try{ blob=await mp3(f,sr); kind='mp3'; }catch(e){ blob=wav(f,sr); kind='wav'; } }
+    return {blob,kind,url:URL.createObjectURL(blob),seconds:f.length/sr,peaks:peaks(f),lang,spoken:spokenText};
+  }
+  async function preload(langs,onStep){
+    const prog=label=>(got,total)=>onStep&&onStep(label,total?got/total:0);
+    await ort();
+    await phFiles(prog(t('pkPh')));
+    if(langs.includes('ar')) await tashkeel(prog(t('pkTk')));
+    for(const l of langs) await session(voiceKey(l),prog(t('pkVoice',{l:L[l].short})));
+    try{ await lame(); }catch(e){}
+  }
+  return {synth,preload,isReady,canOpus};
+})();
+
+
+const TF_URL='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6/dist/transformers.min.js';
+const ASR_MODELS={ accurate:{id:'onnx-community/whisper-small', mb:250}, fast:{id:'onnx-community/whisper-base', mb:80} };
+const ASR = (()=>{
+  const SRC = `
+let asr=null, cur=null;
+self.onmessage = async (e) => {
+  const m = e.data;
+  try {
+    if (!asr || cur !== m.model) {
+      const T = await import('${TF_URL}');
+      T.env.allowLocalModels = false;
+      const files = {};
+      asr = await T.pipeline('automatic-speech-recognition', m.model, {
+        dtype: { encoder_model: 'q8', decoder_model_merged: 'q8' }, device: 'wasm',
+        progress_callback: (x) => {
+          if (x.status === 'progress' && x.total) {
+            files[x.file] = [x.loaded || 0, x.total];
+            let a = 0, b = 0; for (const k in files) { a += files[k][0]; b += files[k][1]; }
+            self.postMessage({ type: 'progress', id: m.id, frac: b ? a / b : 0 });
+          }
+        }
+      });
+      cur = m.model;
+    }
+    if (m.type === 'load') { self.postMessage({ type: 'done', id: m.id }); return; }
+    self.postMessage({ type: 'working', id: m.id });
+    const out = await asr(m.pcm, { language: m.lang || null, task: 'transcribe', chunk_length_s: 30, stride_length_s: 5 });
+    self.postMessage({ type: 'done', id: m.id, text: (out && out.text ? out.text : '').trim() });
+  } catch (err) {
+    self.postMessage({ type: 'error', id: m.id, message: String((err && err.message) || err) });
+  }
+};`;
+  let worker=null, seq=0; const jobs=new Map();
+  function getWorker(){
+    if(worker) return worker;
+    const url=URL.createObjectURL(new Blob([SRC],{type:'text/javascript'}));
+    worker=new Worker(url,{type:'module'});
+    worker.onmessage=e=>{ const m=e.data, j=jobs.get(m.id); if(!j) return;
+      if(m.type==='progress') j.onProg&&j.onProg('load',m.frac);
+      else if(m.type==='working') j.onProg&&j.onProg('work');
+      else if(m.type==='done'){ jobs.delete(m.id); j.res(m.text||''); }
+      else if(m.type==='error'){ jobs.delete(m.id); j.rej(new Error(m.message)); }
+    };
+    worker.onerror=e=>{ const err=new Error(t('errAsrStart')+(e&&e.message?': '+e.message:'')); jobs.forEach(j=>j.rej(err)); jobs.clear(); try{worker.terminate();}catch(_){} worker=null; };
+    return worker;
+  }
+  function call(msg,onProg,transfer){ return new Promise((res,rej)=>{ const id=++seq; jobs.set(id,{res,rej,onProg}); getWorker().postMessage(Object.assign({id},msg),transfer||[]); }); }
+  // jobs run one after another
+  let chain=Promise.resolve();
+  function queue(fn){ const p=chain.then(fn,fn); chain=p.catch(()=>{}); return p; }
+  return {
+    model:()=>ASR_MODELS[state.asr]||ASR_MODELS.accurate,
+    load(onProg){ return queue(()=>call({type:'load',model:this.model().id},onProg)); },
+    transcribe(pcm,lang,onProg){ return queue(()=>call({type:'run',model:this.model().id,pcm,lang},onProg,[pcm.buffer])); },
+    async isReady(){ try{ if(!window.caches) return false; const c=await caches.open('transformers-cache'); const base='https://huggingface.co/'+this.model().id+'/resolve/main/onnx/'; return !!(await c.match(base+'encoder_model_quantized.onnx')) && !!(await c.match(base+'decoder_model_merged_quantized.onnx')); }catch(e){ return false; } }
+  };
+})();
+
+async function decodeAudio(blob){
+  const buf=await blob.arrayBuffer();
+  const AC=window.AudioContext||window.webkitAudioContext; if(!AC) throw new Error(t('errNoAudio'));
+  const ac=new AC(); let ab;
+  try{ ab=await new Promise((res,rej)=>{ const p=ac.decodeAudioData(buf.slice(0),res,rej); if(p&&p.then) p.then(res,rej); }); }
+  catch(e){ throw new Error(t('errOpenAudio')+(/iPhone|iPad|Mac/.test(navigator.userAgent)?' '+t('errSafariOpus'):'')); }
+  finally{ try{ ac.close(); }catch(e){} }
+  const n=Math.max(1,Math.ceil(ab.duration*16000)); const off=new OfflineAudioContext(1,n,16000);
+  const s=off.createBufferSource(); s.buffer=ab; s.connect(off.destination); s.start();
+  const r=await off.startRendering(); return {pcm:r.getChannelData(0), seconds:ab.duration};
+}
+function wavePeaks(f,n=40){ const out=[], step=Math.max(1,Math.floor(f.length/n)); let mx=0; for(let i=0;i<n;i++){ let s=0; for(let j=i*step;j<Math.min(f.length,(i+1)*step);j++) s+=f[j]*f[j]; const v=Math.sqrt(s/step); out.push(v); if(v>mx) mx=v; } return out.map(v=>mx?Math.max(.12,v/mx):.12); }
+
 
 const $=s=>document.querySelector(s);
 const L={ ru:{full:'Russian',short:'RU',sr:'ru-RU',speak:'Говорю по-русски'}, ar:{full:'Arabic',short:'AR',sr:'ar-SA',speak:'أتكلم بالعربية'}, en:{full:'English',short:'EN',sr:'en-US',speak:'I speak English'} };
 const LANGS=['ru','ar','en'];
+const IN_CLAUDE=!!(window.claude&&window.claude.use) || /(^|\.)claude\.(ai|site)$|claudeusercontent/.test(location.hostname);
 
 /* ================= settings ================= */
-const state={ ui:'', me:'ru', them:'ar', from:'ru', to:'ar' };
+const state={ ui:'', me:'ru', them:'ar', from:'ru', to:'ar', autoSpeak:true, speed:'1', ruvoice:'dmitri', envoice:'ryan', fmt:'opus', ardict:'', asr:'accurate' };
 let hadPrefs=false;
 try{ const raw=localStorage.getItem('tarjuman.prefs.v3'); if(raw){ hadPrefs=true; const p=JSON.parse(raw); for(const k in state) if(p[k]!=null) state[k]=p[k]; } }catch(e){}
 function browserLang(){ const ls=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'en']).map(x=>String(x).toLowerCase()); for(const l of ls){ const c=l.slice(0,2); if(UI_LANGS.includes(c)) return c; } return 'en'; }
-if(!UI_LANGS.includes(state.ui)) state.ui = hadPrefs&&UI_LANGS.includes(state.me) ? state.me : browserLang();
+if(!UI_LANGS.includes(state.ui)) state.ui=hadPrefs&&UI_LANGS.includes(state.me)?state.me:browserLang();
 if(!hadPrefs){ state.me=state.ui; state.them=state.ui==='ar'?'ru':'ar'; state.from=state.me; state.to=state.them; }
 if(!LANGS.includes(state.me)) state.me='ru';
 if(!LANGS.includes(state.them)||state.them===state.me) state.them=state.me==='ar'?'ru':'ar';
@@ -412,68 +798,44 @@ function savePrefs(){ try{ const raw=localStorage.getItem('tarjuman.prefs.v3'); 
 
 /* ================= helpers ================= */
 let toastT;
-function toast(m){ const el=$('#toast'); el.textContent=m; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true,2600); }
-function detect(s){
-  const c={ru:(s.match(/[Ѐ-ӿ]/g)||[]).length, ar:(s.match(/[؀-ۿ]/g)||[]).length, en:(s.match(/[A-Za-z]/g)||[]).length};
-  const best=LANGS.reduce((a,b)=>c[b]>c[a]?b:a,'ru'); return c[best]?best:null;
-}
-async function copyText(x){
-  try{ await navigator.clipboard.writeText(x); toast(t('copied')); }
-  catch(e){ const ta=document.createElement('textarea'); ta.value=x; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast(t('copied')); }catch(_){ toast(t('copyManual')); } ta.remove(); }
-}
+function toast(m,ms){ const el=$('#toast'); el.textContent=m; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true,ms||2800); }
+function setStatus(x){ $('#status').textContent=x||''; }
+function detect(s){ const c={ru:(s.match(/[Ѐ-ӿ]/g)||[]).length, ar:(s.match(/[؀-ۿ]/g)||[]).length, en:(s.match(/[A-Za-z]/g)||[]).length}; const b=LANGS.reduce((a,x)=>c[x]>c[a]?x:a,'ru'); return c[b]?b:null; }
+async function copyText(x){ try{ await navigator.clipboard.writeText(x); toast(t('copied')); }catch(e){ const ta=document.createElement('textarea'); ta.value=x; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast(t('copied')); }catch(_){ toast(t('copyManual')); } ta.remove(); } }
 const pad=n=>String(n).padStart(2,'0');
-let engineName='';
-function setEngine(n){ engineName=n||engineName; const el=$('#engine'); el.innerHTML='<i></i>'; el.append(engineName||t('chipOnline')); }
+const mmss=s=>{ s=Math.max(0,Math.floor(s)); return Math.floor(s/60)+':'+pad(s%60); };
+function stamp(d=new Date()){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds()); }
 
 /* ================= translation ================= */
 let sampleFn=null; const cache=new Map();
-(async()=>{ try{ if(window.claude&&window.claude.use){ const s=await window.claude.use('sample'); if(s){ sampleFn=s; setEngine('Claude AI'); } } }catch(e){} })();
+(async()=>{ try{ if(window.claude&&window.claude.use){ const s=await window.claude.use('sample'); if(s) sampleFn=s; } }catch(e){} })();
 async function viaClaude(text,from,to,signal){
-  const r=await sampleFn(`You are a professional ${L[from].full}–${L[to].full} translator for everyday messages.
-Translate the text below from ${L[from].full} to ${L[to].full}. Write natural, correct ${L[to].full}${to==='ar'?' (clear Modern Standard Arabic, polite tone)':''}.
-Islamic greetings and formulas must use their standard fixed forms, never a word-by-word rendering.
-Keep meaning, tone, names, numbers and line breaks. Output ONLY the translation.
-
-Text:
-<<<
-${text}
->>>`,{modelTier:'quick',signal});
+  const r=await sampleFn(`Translate the text below from ${L[from].full} to ${L[to].full}. Write natural, correct ${L[to].full}${to==='ar'?' (clear Modern Standard Arabic, polite tone)':''}. Islamic greetings and formulas must use their standard fixed forms. Keep meaning, names, numbers and line breaks. Output ONLY the translation.\n\n<<<\n${text}\n>>>`,{modelTier:'quick',signal});
   return r.text.trim();
 }
-async function viaGoogle(text,from,to,signal){
-  const r=await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl='+from+'&tl='+to+'&q='+encodeURIComponent(text),{signal});
-  if(!r.ok) throw new Error('google'); const j=await r.json();
-  return (j[0]||[]).map(x=>x&&x[0]).filter(Boolean).join('').trim();
-}
-async function viaMyMemory(text,from,to,signal){
-  const r=await fetch('https://api.mymemory.translated.net/get?langpair='+from+'|'+to+'&q='+encodeURIComponent(text.slice(0,500)),{signal});
-  const j=await r.json(); if(String(j.responseStatus)!=='200') throw new Error('mm'); return (j.responseData.translatedText||'').trim();
-}
+async function viaGoogle(text,from,to,signal){ const r=await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl='+from+'&tl='+to+'&q='+encodeURIComponent(text),{signal}); if(!r.ok) throw new Error('google'); const j=await r.json(); return (j[0]||[]).map(x=>x&&x[0]).filter(Boolean).join('').trim(); }
+async function viaMyMemory(text,from,to,signal){ const r=await fetch('https://api.mymemory.translated.net/get?langpair='+from+'|'+to+'&q='+encodeURIComponent(text.slice(0,500)),{signal}); const j=await r.json(); if(String(j.responseStatus)!=='200') throw new Error('mm'); return (j.responseData.translatedText||'').trim(); }
 async function translateRaw(text,from,to,signal){
-  const key=from+to+'|'+text; if(cache.has(key)) return cache.get(key);
-  let out='';
+  const key=from+to+'|'+text; if(cache.has(key)) return cache.get(key); let out='';
   if(sampleFn){ try{ out=await viaClaude(text,from,to,signal); }catch(e){ if(e&&e.code==='cancelled') throw e; if(e&&e.code==='not_granted') sampleFn=null; } }
-  if(!out){ try{ out=await viaGoogle(text,from,to,signal); if(!sampleFn) setEngine('Google'); }catch(e){ if(e.name==='AbortError') throw e; } }
-  if(!out){ try{ out=await viaMyMemory(text,from,to,signal); setEngine('MyMemory'); }catch(e){ if(e.name==='AbortError') throw e; } }
-  if(!out) throw new Error(t('trFail'));
-  cache.set(key,out); return out;
+  if(!out){ try{ out=await viaGoogle(text,from,to,signal); }catch(e){ if(e.name==='AbortError') throw e; } }
+  if(!out){ try{ out=await viaMyMemory(text,from,to,signal); }catch(e){ if(e.name==='AbortError') throw e; } }
+  if(!out) throw new Error(t('trFail')); cache.set(key,out); return out;
 }
-/* paragraphs are translated separately so line breaks survive; greetings/formulas come from the dictionary */
 async function translate(text,from,to,signal){
   text=text.trim(); if(!text) return {out:'',fixed:false}; if(from===to) return {out:text,fixed:false};
   const paras=text.split(/(\n+)/); let fixedAny=false;
   const parts=await Promise.all(paras.map(async p=>{
-    if(!p.trim()) return p;
-    const plan=planFixed(p,from);
+    if(!p.trim()) return p; const plan=planFixed(p,from);
     if(!plan) return translateRaw(p.trim(),from,to,signal);
     fixedAny=true;
-    const xs=await Promise.all(plan.map(x=> x.fixed ? FIXED[x.fixed][to] : x.text!=null ? (x.text.trim()? translateRaw(x.text.trim(),from,to,signal) : x.text) : convSep(x.sep,to)));
+    const xs=await Promise.all(plan.map(x=>x.fixed?FIXED[x.fixed][to]:x.text!=null?(x.text.trim()?translateRaw(x.text.trim(),from,to,signal):x.text):convSep(x.sep,to)));
     return xs.join('').replace(/[ \t]+/g,' ').replace(/\s+([،,.!?؟])/g,'$1').trim();
   }));
-  return {out:parts.join('').trim(), fixed:fixedAny};
+  return {out:parts.join('').trim(),fixed:fixedAny};
 }
 
-/* ================= history ================= */
+/* ================= history (in the menu) ================= */
 const HK='tarjuman.history.v1';
 function getHist(){ try{ return JSON.parse(localStorage.getItem(HK)||'[]'); }catch(e){ return []; } }
 function addHist(from,to,src,dst){ const h=getHist(); if(h[0]&&h[0].src===src&&h[0].dst===dst) return; h.unshift({from,to,src,dst,t:Date.now()}); try{ localStorage.setItem(HK,JSON.stringify(h.slice(0,200))); }catch(e){} }
@@ -481,120 +843,120 @@ function renderHist(){
   const box=$('#hist'); box.innerHTML=''; const h=getHist();
   if(!h.length){ const e=document.createElement('div'); e.className='empty'; e.textContent=t('histEmpty'); box.appendChild(e); return; }
   const loc=UI==='ar'?'ar-SA-u-nu-latn':UI==='en'?'en-GB':'ru-RU';
-  h.forEach(it=>{
+  h.slice(0,60).forEach(it=>{
     const b=document.createElement('button'); b.className='hi'; const d=new Date(it.t);
     b.innerHTML='<span class="w" dir="ltr"></span><span class="s" dir="auto"></span><span class="d" dir="auto"></span>';
     b.querySelector('.w').textContent=((L[it.from]||L.ru).short)+' → '+((L[it.to]||L.ar).short)+' · '+d.toLocaleDateString(loc)+' '+pad(d.getHours())+':'+pad(d.getMinutes());
-    const s=b.querySelector('.s'), dd=b.querySelector('.d'); s.textContent=it.src; dd.textContent=it.dst;
-    if(it.from==='ar') s.classList.add('is-ar'); if(it.to==='ar') dd.classList.add('is-ar');
-    b.onclick=()=>{ if(!L[it.from]||!L[it.to]) return; setDir(it.from,it.to); src.value=it.src; showResult(it.dst,false); updateCount(); $('#t-text').click(); };
+    b.querySelector('.s').textContent=it.src; b.querySelector('.d').textContent=it.dst;
+    b.onclick=()=>{ if(!L[it.from]||!L[it.to]) return; setDir(it.from,it.to); src.value=it.src; showResult(it.dst,false); closeSheet(); };
     box.appendChild(b);
   });
 }
 $('#hist-clear').onclick=()=>{ try{ localStorage.removeItem(HK); }catch(e){} renderHist(); toast(t('histCleared')); };
-
-/* ================= tabs ================= */
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
-  ['text','hist'].forEach(n=>$('#p-'+n).hidden=n!==b.dataset.tab);
-  if(b.dataset.tab==='hist') renderHist();
-});
 
 /* ================= translator ================= */
 const src=$('#src'), dst=$('#dst');
 function applyDir(){
   $('#from').value=state.from; $('#to').value=state.to;
   src.classList.toggle('is-ar',state.from==='ar'); dst.classList.toggle('is-ar',state.to==='ar');
-  $('#outpane').className='pane out l-'+state.to;
+  $('#outcard').className='card out l-'+state.to;
   if(dst.classList.contains('muted')) dst.textContent=t('resultPh');
-  if(typeof applyMics==='function' && document.querySelector('#mic-a')) try{ applyMics(); }catch(e){}
+  applyMics();
 }
-function setDir(from,to){ if(from===to) to=from===state.me?state.them:(LANGS.find(l=>l!==from)); state.from=from; state.to=to; savePrefs(); applyDir(); }
-$('#from').onchange=e=>{ const f=e.target.value; setDir(f, state.to===f?state.from:state.to); runText(true); };
-$('#to').onchange=e=>{ const x=e.target.value; setDir(state.from===x?state.to:state.from, x); runText(true); };
-$('#swap').onclick=()=>{ const out=!dst.classList.contains('muted')&&dst.textContent; setDir(state.to,state.from); if(out){ src.value=out; updateCount(); } runText(true); };
-function showResult(text,fixed){
-  dst.classList.remove('muted'); dst.textContent=text; $('#fixedtag').hidden=!fixed;
-  $('#copy').disabled=false; $('#send').disabled=false;
-}
-function clearResult(){ dst.textContent=t('resultPh'); dst.classList.add('muted'); $('#fixedtag').hidden=true; $('#copy').disabled=true; $('#send').disabled=true; }
-function updateCount(){ const n=src.value.length; $('#count').textContent=n?t('chars',{n}):''; }
+function setDir(from,to){ if(from===to) to=from===state.me?state.them:LANGS.find(l=>l!==from); state.from=from; state.to=to; savePrefs(); applyDir(); }
+$('#from').onchange=e=>{ const f=e.target.value; setDir(f,state.to===f?state.from:state.to); runText(true); };
+$('#to').onchange=e=>{ const x=e.target.value; setDir(state.from===x?state.to:state.from,x); runText(true); };
+$('#swap').onclick=()=>{ const out=!dst.classList.contains('muted')&&dst.textContent; setDir(state.to,state.from); if(out) src.value=out; runText(true); };
+let lastResult={text:'',lang:'ar'};
+function setResultButtons(on){ ['#speak','#copy','#share','#vmsg'].forEach(id=>$(id).disabled=!on); }
+function showResult(text,fixed){ dst.classList.remove('muted'); dst.textContent=text; $('#fixedtag').hidden=!fixed; lastResult={text,lang:state.to}; setResultButtons(true); }
+function clearResult(){ dst.textContent=t('resultPh'); dst.classList.add('muted'); $('#fixedtag').hidden=true; lastResult={text:'',lang:state.to}; setResultButtons(false); }
 let ctrl=null, debT=null, histT=null, gen=0;
-async function runText(now){
+async function runText(now,speakAfter){
   clearTimeout(debT);
   if(!now){ debT=setTimeout(()=>runText(true),450); return; }
   const text=src.value.trim(); if(ctrl) ctrl.abort(); ctrl=new AbortController(); const g=++gen; clearTimeout(histT);
-  if(!text){ clearResult(); $('#status').textContent=''; return; }
-  $('#status').textContent=t('translating');
+  stopAllSound();
+  if(!text){ clearResult(); return; }
+  dst.classList.add('muted'); dst.textContent=t('translating'); setResultButtons(false);
   try{
     const {out,fixed}=await translate(text,state.from,state.to,ctrl.signal); if(g!==gen) return;
-    showResult(out,fixed); $('#status').textContent='';
-    const f=state.from,x=state.to; histT=setTimeout(()=>addHist(f,x,text,out),1800);
-  }catch(e){ if(e&&(e.code==='cancelled'||e.name==='AbortError')) return; if(g===gen) $('#status').textContent=e.message||t('trFail'); }
+    showResult(out,fixed);
+    const f=state.from,x=state.to; histT=setTimeout(()=>addHist(f,x,text,out),1500);
+    if(speakAfter&&state.autoSpeak) speakText(out,x);
+  }catch(e){ if(e&&(e.code==='cancelled'||e.name==='AbortError')) return; if(g===gen){ dst.classList.add('muted'); dst.textContent=e.message||t('trFail'); } }
 }
-src.addEventListener('input',()=>{
-  updateCount();
-  const d=detect(src.value);
-  if(d && d!==state.from){ if(d===state.to) setDir(d,state.from); else setDir(d, d===state.me?state.them:state.me); }
-  runText(false);
-});
+src.addEventListener('input',()=>{ const d=detect(src.value); if(d&&d!==state.from){ if(d===state.to) setDir(d,state.from); else setDir(d,d===state.me?state.them:state.me); } runText(false); });
 src.addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); runText(true); } });
-$('#clear').onclick=()=>{ src.value=''; updateCount(); runText(true); src.focus(); };
+$('#clear').onclick=()=>{ src.value=''; runText(true); src.focus(); };
 $('#paste').onclick=async()=>{ try{ const x=await navigator.clipboard.readText(); if(x){ src.value=x; src.dispatchEvent(new Event('input')); runText(true); } }catch(e){ toast(t('pasteFail')); src.focus(); } };
-$('#copy').onclick=()=>{ if(!dst.classList.contains('muted')) copyText(dst.textContent); };
-$('#send').onclick=async()=>{ if(dst.classList.contains('muted')) return; const x=dst.textContent; try{ if(navigator.share){ await navigator.share({text:x}); return; } }catch(e){ if(e.name==='AbortError') return; } copyText(x); };
+$('#copy').onclick=()=>{ if(lastResult.text) copyText(lastResult.text); };
+$('#share').onclick=async()=>{ const x=lastResult.text; if(!x) return; try{ if(navigator.share){ await navigator.share({text:x}); return; } }catch(e){ if(e.name==='AbortError') return; } copyText(x); };
 
-
-/* ================= dictation: speak, get text, translate text (no voice output) ================= */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const IS_ANDROID = /Android/i.test(navigator.userAgent);
-const IN_CLAUDE = !!(window.claude && window.claude.use);
-function srError(c){
-  if(c==='not-allowed'||c==='service-not-allowed') return IN_CLAUDE ? t('micDeniedClaude') : t('micDenied');
-  if(c==='no-speech') return t('noSpeech'); if(c==='network') return t('srNet'); if(c==='audio-capture') return t('noMic');
-  if(c==='language-not-supported') return t('srLang'); return t('srErr',{e:c});
+/* ================= speaking the translation (phone voice; own voice if the phone has none) ================= */
+let currentAudio=null;
+function stopAllSound(){ try{ window.speechSynthesis&&speechSynthesis.cancel(); }catch(e){} if(currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio=null; } }
+function deviceVoice(lang){ if(!window.speechSynthesis) return null; const vs=speechSynthesis.getVoices()||[]; const want=L[lang].sr.toLowerCase(); return vs.find(v=>v.lang.replace('_','-').toLowerCase()===want)||vs.find(v=>v.lang.toLowerCase().startsWith(lang))||null; }
+if(window.speechSynthesis) try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){}
+async function speakText(text,lang){
+  if(!text) return; stopAllSound();
+  const v=deviceVoice(lang);
+  if(v){ const u=new SpeechSynthesisUtterance(text); u.lang=L[lang].sr; try{ u.voice=v; }catch(e){} u.rate=1/parseFloat(state.speed||'1'); speechSynthesis.speak(u); return; }
+  if(IN_CLAUDE) return;
+  toast(t('noVoice'),2000);
+  try{ const r=await Engine.synth(text,lang,m=>setStatus(m)); setStatus(''); const a=new Audio(r.url); currentAudio=a; a.play().catch(()=>{}); }
+  catch(e){ setStatus(''); toast(e.message||'error'); }
 }
+$('#speak').onclick=()=>speakText(lastResult.text,lastResult.lang);
+
+/* ================= voice message file for WhatsApp (voices load only when used) ================= */
+function fileFor(v,ext){ const type=v.kind==='opus'?'audio/ogg':v.kind==='mp3'?'audio/mpeg':'audio/wav'; return new File([v.blob],'Tarjuman_'+L[v.lang].short+'_'+stamp()+'.'+ext,{type}); }
+function downloadVoice(v){ const f=fileFor(v,v.kind==='opus'?'ogg':v.kind); const a=document.createElement('a'); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000); }
+let vmBusy=false;
+$('#vmsg').onclick=async()=>{
+  if(vmBusy||!lastResult.text) return; vmBusy=true; $('#vmsg').classList.add('busy');
+  const {text,lang}=lastResult;
+  try{
+    const v=await Engine.synth(text,lang,m=>setStatus(m)); setStatus('');
+    const exts=v.kind==='opus'?['opus','ogg']:[v.kind]; let shared=false;
+    try{ if(navigator.canShare){ for(const ext of exts){ const f=fileFor(v,ext); if(navigator.canShare({files:[f]})){ await navigator.share({files:[f]}); shared=true; break; } } } }catch(e){ if(e.name==='AbortError') shared=true; }
+    if(!shared){ downloadVoice(v); toast(t('savedFile')); } else toast(t('vmReady'));
+  }catch(e){ setStatus(''); toast(e.message||'error',4000); }
+  vmBusy=false; $('#vmsg').classList.remove('busy');
+};
+
+/* ================= dictation: speak → text → translation ================= */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const IS_ANDROID=/Android/i.test(navigator.userAgent);
+function srError(c){ if(c==='not-allowed'||c==='service-not-allowed') return IN_CLAUDE?t('micDeniedClaude'):t('micDenied'); if(c==='no-speech') return t('noSpeech'); if(c==='network') return t('srNet'); if(c==='audio-capture') return t('noMic'); if(c==='language-not-supported') return t('srLang'); return t('srErr',{e:c}); }
 function createListener(lang,h){
   if(!SR){ toast(t('noSR')); return null; }
   let finalText='', stopped=false, r=null, restarts=0, fatal=null, netErrs=0, lastNet=false;
   const join=(a,b)=>a&&b?a+' '+b:(a||b||'');
   function start(){
-    r=new SR(); r.lang=L[lang].sr; r.interimResults=true; r.continuous=!IS_ANDROID; r.maxAlternatives=1;
-    let segFinal='';
-    r.onresult=e=>{ let interim=''; segFinal=''; for(let i=0;i<e.results.length;i++){ const x=e.results[i][0].transcript; if(e.results[i].isFinal) segFinal+=(segFinal?' ':'')+x.trim(); else interim+=x; } h.interim&&h.interim(join(finalText,join(segFinal,interim.trim()))); };
-    r.onerror=e=>{ if(e.error==='network'&&netErrs<3){ netErrs++; lastNet=true; return; } if(['not-allowed','service-not-allowed','audio-capture','language-not-supported','network'].includes(e.error)){ fatal=e.error; toast(srError(e.error)); } };
-    r.onend=()=>{ finalText=join(finalText,segFinal);
-      if(!stopped&&!fatal&&restarts<30){ restarts++; const w=lastNet?400:0; lastNet=false; setTimeout(()=>{ if(stopped){ h.end(finalText.trim(),fatal); return; } try{ start(); }catch(e){ h.end(finalText.trim(),fatal); } },w); return; }
-      h.end(finalText.trim(),fatal); };
+    r=new SR(); r.lang=L[lang].sr; r.interimResults=true; r.continuous=!IS_ANDROID; r.maxAlternatives=1; let seg='';
+    r.onresult=e=>{ let interim=''; seg=''; for(let i=0;i<e.results.length;i++){ const x=e.results[i][0].transcript; if(e.results[i].isFinal) seg+=(seg?' ':'')+x.trim(); else interim+=x; } h.interim&&h.interim(join(finalText,join(seg,interim.trim()))); };
+    r.onerror=e=>{ if(e.error==='network'&&netErrs<3){ netErrs++; lastNet=true; return; } if(['not-allowed','service-not-allowed','audio-capture','language-not-supported','network'].includes(e.error)){ fatal=e.error; toast(srError(e.error),4000); } };
+    r.onend=()=>{ finalText=join(finalText,seg); if(!stopped&&!fatal&&restarts<30){ restarts++; const w=lastNet?400:0; lastNet=false; setTimeout(()=>{ if(stopped){ h.end(finalText.trim()); return; } try{ start(); }catch(e){ h.end(finalText.trim()); } },w); return; } h.end(finalText.trim()); };
     r.start();
   }
   try{ start(); }catch(e){ toast(t('micFail')); return null; }
   return { stop(){ stopped=true; try{ r.stop(); }catch(e){} } };
 }
-function pairOrder(){ const a=state.from, b=state.to; return (b===state.me) ? [b,a] : [a,b]; }
-function applyMics(){
-  const [a,b]=pairOrder();
-  [['#mic-a',a],['#mic-b',b]].forEach(([id,lang])=>{
-    const el=$(id), on=!!(rec&&rec.btn===el); el.dataset.lang=lang; el.className='micbtn l-'+lang+(on?' on':'');
-    const lbl=el.querySelector('.lbl'); lbl.textContent=on?t('recTap'):L[lang].speak; lbl.classList.toggle('ar-t',lang==='ar'&&!on);
-  });
-}
+function pairOrder(){ const a=state.from,b=state.to; return b===state.me?[b,a]:[a,b]; }
 let rec=null;
+function applyMics(){
+  if(!$('#mic-a')) return; const [a,b]=pairOrder();
+  [['#mic-a',a],['#mic-b',b]].forEach(([id,lang])=>{ const el=$(id), on=!!(rec&&rec.btn===el); el.dataset.lang=lang; el.className='micbtn l-'+lang+(on?' on':''); const lbl=el.querySelector('.lbl'); lbl.textContent=on?t('recTap'):L[lang].speak; lbl.classList.toggle('ar-t',lang==='ar'&&!on); });
+}
 function startRec(btn){
   const lang=btn.dataset.lang, other=lang===state.from?state.to:state.from;
-  setDir(lang,other);
-  const base=''; src.value=''; updateCount(); clearResult();
-  const t0=Date.now(); const st=$('#status');
-  const tick=setInterval(()=>{ st.textContent=t('recording',{t:Math.floor((Date.now()-t0)/1000)+'s'}); },300);
-  st.textContent=t('recording',{t:'0s'});
+  setDir(lang,other); stopAllSound(); src.value=''; clearResult();
+  const t0=Date.now(); const tick=setInterval(()=>setStatus(t('listening',{t:mmss((Date.now()-t0)/1000)})),300); setStatus(t('listening',{t:'0:00'}));
   const session={btn};
-  const lis=createListener(lang,{
-    interim:x=>{ src.value=base+x; updateCount(); },
-    end:(x)=>{ clearInterval(tick); if(rec===session){ rec=null; applyMics(); } st.textContent=''; if(x){ src.value=base+x; updateCount(); runText(true); } }
-  });
-  if(!lis){ clearInterval(tick); st.textContent=''; return; }
-  session.lis=lis; rec=session; applyMics();
-  if(navigator.vibrate) try{ navigator.vibrate(25); }catch(e){}
+  const lis=createListener(lang,{ interim:x=>{ src.value=x; }, end:x=>{ clearInterval(tick); setStatus(''); if(rec===session){ rec=null; applyMics(); } if(x){ src.value=x; runText(true,true); } } });
+  if(!lis){ clearInterval(tick); setStatus(''); return; }
+  session.lis=lis; rec=session; applyMics(); if(navigator.vibrate) try{ navigator.vibrate(25); }catch(e){}
 }
 function stopRec(){ if(rec) rec.lis.stop(); }
 ['#mic-a','#mic-b'].forEach(id=>{
@@ -606,36 +968,97 @@ function stopRec(){ if(rec) rec.lis.stop(); }
   b.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(rec&&rec.btn===b) stopRec(); else { if(rec) stopRec(); startRec(b); } } });
 });
 
-/* ================= interface language = the user's main language ================= */
+/* ================= voice message from a file → text → translation ================= */
+async function translateVoiceFile(blob){
+  if(IN_CLAUDE){ toast(t('micDeniedClaude')); return; }
+  closeSheet(); setStatus(t('opening'));
+  let audio; try{ audio=await decodeAudio(blob); }catch(e){ setStatus(''); toast(e.message,4000); return; }
+  if(audio.seconds<0.3){ setStatus(''); toast(t('asrShort')); return; }
+  const t0=Date.now(); let tick=null;
+  try{
+    const text=await ASR.transcribe(audio.pcm.slice(0), state.them, (phase,frac)=>{
+      if(phase==='load') setStatus(t('asrLoad',{pct:Math.round((frac||0)*100)}));
+      else if(phase==='work'){ clearInterval(tick); tick=setInterval(()=>setStatus(t('asrWork',{t:mmss((Date.now()-t0)/1000)})),400); }
+    });
+    clearInterval(tick); setStatus('');
+    const clean=(text||'').replace(/\[(?:music|музыка|silence|BLANK_AUDIO)[^\]]*\]/gi,'').trim();
+    if(!clean){ toast(t('asrNone')); return; }
+    const d=detect(clean)||state.them; setDir(d,d===state.me?state.them:state.me); src.value=clean; runText(true);
+  }catch(e){ clearInterval(tick); setStatus(''); toast(/locate file|fetch|network|404|403/i.test(e.message||'')?t('asrNet'):t('asrErr',{e:e.message||'error'}),5000); }
+}
+$('#file-btn').onclick=()=>$('#file-in').click();
+$('#file-in').onchange=e=>{ const f=e.target.files[0]; e.target.value=''; if(f) translateVoiceFile(f); };
+
+/* ================= menu sheet ================= */
+function openSheet(){ renderHist(); $('#sheet').hidden=false; $('#menu-btn').setAttribute('aria-expanded','true'); }
+function closeSheet(){ $('#sheet').hidden=true; $('#menu-btn').setAttribute('aria-expanded','false'); }
+$('#menu-btn').onclick=()=>$('#sheet').hidden?openSheet():closeSheet();
+$('#sheet-close').onclick=closeSheet;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
+const bindSel=(id,key)=>{ const el=$('#'+id); el.value=state[key]; el.onchange=()=>{ state[key]=el.value; savePrefs(); }; };
+['speed','ruvoice','envoice','fmt','asr'].forEach(k=>bindSel(k,k));
+{ const c=$('#autoSpeak'); c.checked=!!state.autoSpeak; c.onchange=()=>{ state.autoSpeak=c.checked; savePrefs(); }; }
+
+/* ================= install buttons (Android / iOS) ================= */
+const STANDALONE=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+let installEvt=null, instShown='';
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); installEvt=e; });
+window.addEventListener('appinstalled',()=>{ installEvt=null; showSteps('done'); });
+function showSteps(kind){ instShown=kind; const box=$('#inst-steps'); box.hidden=false; $('#inst-text').textContent= kind==='done'?t('instDone'): kind==='ios'?t('instIOSSteps'):t('instAndroidSteps'); box.querySelector('.instlink').hidden=kind==='done'; }
+$('#inst-android').onclick=async()=>{
+  if(STANDALONE){ showSteps('done'); return; }
+  if(installEvt){ try{ installEvt.prompt(); const r=await installEvt.userChoice; installEvt=null; if(r&&r.outcome==='accepted'){ showSteps('done'); return; } }catch(e){} }
+  showSteps('android');
+};
+$('#inst-ios').onclick=()=>{ showSteps(STANDALONE&&/iPhone|iPad/.test(navigator.userAgent)?'done':'ios'); };
+$('#copy-link').onclick=()=>copyText('https://a7grey-collab.github.io/tarjuman/');
+
+/* ================= interface language = main language ================= */
 function setUI(lang,fromUser){
-  if(!UI_LANGS.includes(lang)) return;
-  UI=lang; state.ui=lang;
+  if(!UI_LANGS.includes(lang)) return; UI=lang; state.ui=lang;
   if(fromUser){ const prev=state.me; state.me=lang; if(state.them===lang) state.them=prev!==lang?prev:(lang==='ar'?'ru':'ar'); state.from=state.me; state.to=state.them; }
-  savePrefs(); applyI18n(); setEngine(); applyDir(); updateCount();
-  if(!$('#p-hist').hidden) renderHist();
-  if(fromUser && src.value.trim()){ const d=detect(src.value); if(d) setDir(d, d===state.me?state.them:state.me); runText(true); }
+  savePrefs(); applyI18n(); applyDir(); if(!$('#sheet').hidden) renderHist(); renderNotice(); if(instShown) showSteps(instShown);
+  if(fromUser&&src.value.trim()){ const d=detect(src.value); if(d) setDir(d,d===state.me?state.them:state.me); runText(true); }
 }
 document.querySelectorAll('.uisw button').forEach(b=>b.onclick=()=>setUI(b.dataset.ui,true));
 
-/* ================= text shared from WhatsApp (Share → Tarjuman) ================= */
-function pickUpSharedText(){
-  const q=new URLSearchParams(location.search);
-  const x=[q.get('title'),q.get('text'),q.get('t')].filter(Boolean).join('\n').trim();
-  if(q.has('shared')||q.has('text')||q.has('title')) history.replaceState(null,'',location.pathname);
-  if(!x) return;
-  src.value=x; updateCount();
-  const d=detect(x); if(d) setDir(d, d===state.me?state.them:state.me);
-  runText(true);
+/* ================= update notices ================= */
+let notice=null; // {kind:'updated'|'available', v}
+function renderNotice(){
+  const box=$('#notice'); if(!notice){ box.hidden=true; $('#nback').hidden=true; return; }
+  box.hidden=false; const modal=notice.kind==='updated'; box.classList.toggle('modal',modal); $('#nback').hidden=!modal;
+  $('#notice-txt').textContent = notice.kind==='updated' ? t('updated',{v:notice.v}) : t('updAvail',{v:notice.v});
+  const list=$('#notice-list'); list.innerHTML='';
+  if(notice.kind==='updated'){ (t('news')||[]).forEach(x=>{ const li=document.createElement('li'); li.textContent=x; list.appendChild(li); }); }
+  list.hidden=notice.kind!=='updated';
+  $('#notice-btn').hidden=notice.kind!=='available'; $('#notice-ok').hidden=notice.kind!=='updated';
 }
-if(!(window.claude&&window.claude.use) && (location.protocol==='https:'||location.hostname==='localhost') && 'serviceWorker' in navigator){
+$('#notice-ok').onclick=()=>{ notice=null; renderNotice(); };
+$('#nback').onclick=()=>{ notice=null; renderNotice(); };
+$('#notice-btn').onclick=()=>{ location.reload(); };
+(function(){ let seen=null; try{ seen=localStorage.getItem('tarjuman.seenVersion'); localStorage.setItem('tarjuman.seenVersion',APP_VERSION); }catch(e){}
+  if(seen && seen!==APP_VERSION) notice={kind:'updated',v:APP_VERSION}; })();
+async function checkUpdate(){
+  if(IN_CLAUDE||!/^https?:$/.test(location.protocol)) return;
+  try{ const r=await fetch('version.json?ts='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();
+    if(j&&j.version&&j.version!==APP_VERSION&&(!notice||notice.kind!=='available')){ notice={kind:'available',v:j.version}; renderNotice(); } }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) checkUpdate(); });
+setInterval(checkUpdate,15*60*1000);
+
+/* ================= text shared from WhatsApp ================= */
+function pickUpSharedText(){
+  const q=new URLSearchParams(location.search); const x=[q.get('title'),q.get('text')].filter(Boolean).join('\n').trim();
+  if(q.has('shared')||q.has('text')||q.has('title')||q.has('v')) history.replaceState(null,'',location.pathname);
+  if(!x) return; src.value=x; const d=detect(x); if(d) setDir(d,d===state.me?state.them:state.me); runText(true);
+}
+if(!IN_CLAUDE&&(location.protocol==='https:'||location.hostname==='localhost')&&'serviceWorker' in navigator){
   if(!document.querySelector('link[rel=manifest]')){ const l=document.createElement('link'); l.rel='manifest'; l.href='manifest.webmanifest'; document.head.appendChild(l); }
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{ try{ r.update(); }catch(e){} }).catch(()=>{});
 }
 
 /* ================= start ================= */
-applyI18n(); setEngine(); applyDir(); clearResult(); updateCount();
-pickUpSharedText();
-if(!src.value) src.focus({preventScroll:true});
+applyI18n(); applyDir(); clearResult(); renderNotice(); pickUpSharedText(); checkUpdate();
 
 </script>
 </body>
