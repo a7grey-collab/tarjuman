@@ -57,7 +57,8 @@ button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px sol
 #src{flex:1; min-height:0; width:100%; resize:none; border:0; background:transparent; color:var(--ink); padding:12px 14px 4px; font:18px/1.45 var(--f-ui)}
 #src::placeholder{color:var(--muted)}
 #src.is-ar{font-family:var(--f-ar); font-size:20px}
-.result{flex:1; min-height:0; overflow:auto; padding:12px 14px 4px; font-size:19px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere}
+.dstbox{flex:1; min-height:0; overflow:auto; padding:10px 12px 4px 14px}
+.result{font-size:19px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere}
 .result.is-ar{font-family:var(--f-ar); font-size:21px; line-height:1.7}
 .result.muted{color:var(--muted); font-size:16px}
 .result.muted.is-ar{direction:inherit; text-align:start; font-family:var(--f-ui)}
@@ -151,6 +152,19 @@ button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px sol
 @media (prefers-reduced-motion:reduce){.vbar.making .vwave i{animation:none}}
 [dir="rtl"] .vsend svg{transform:scaleX(-1)}
 
+/* v15: text tools top-right of the translation, voice tools in the voice bar */
+.ttools{float:right; display:flex; gap:4px; margin:0 0 4px 8px}
+.dstbox.empty .ttools{display:none}
+.icon.sm{width:32px; height:32px; background:transparent; border-color:rgba(127,127,127,.3)}
+.icon.sm svg{width:17px; height:17px}
+.vsave{flex:none; width:30px; height:30px; border-radius:50%; border:0; display:grid; place-items:center; padding:0; background:transparent; color:var(--muted)}
+.vsave svg{width:19px; height:19px}
+.vsave:disabled{opacity:.4}
+.vsend.ok{background:var(--acc,var(--ink)); color:var(--on-accent)}
+.vsave.ok{color:var(--acc,var(--ink))}
+.vsend svg{width:16px; height:16px}
+.card.out .tools{padding-top:4px}
+
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Amiri:wght@700&display=swap">
 </head>
@@ -191,16 +205,15 @@ button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px sol
   </div>
 
   <div class="card out l-ar" id="outcard">
-    <div class="result muted" id="dst" dir="auto"></div>
+    <div class="dstbox empty" id="dstbox" dir="auto"><span class="ttools"><button class="icon sm" id="copy" data-i18n-aria="copy" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg></button><button class="icon sm" id="share" data-i18n-aria="shareText" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16a3 3 0 0 0-2.4 1.2l-6.7-3.4a3 3 0 0 0 0-1.6l6.7-3.4A3 3 0 1 0 15 7c0 .3 0 .5.1.8L8.4 11.2a3 3 0 1 0 0 3.6l6.7 3.4A3 3 0 1 0 18 16z"/></svg></button></span><span class="result muted" id="dst"></span></div>
     <div class="tools">
       <div class="vbar" id="vbar">
         <button class="vplay" id="vplay" data-i18n-aria="speakBtn" disabled><svg class="ic-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><svg class="ic-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg></button>
         <div class="vwave" id="vwave"></div>
         <span class="vdur" id="vdur"></span>
+        <button class="vsave" id="vsave" data-i18n-aria="saveVoice" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4h2v9.2l3.6-3.6L18 11l-6 6-6-6 1.4-1.4 3.6 3.6zM5 19h14v2H5z"/></svg></button>
         <button class="vsend" id="vsend" data-i18n-aria="sendVoice" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21 23 12 2 3v7l15 2-15 2z"/></svg></button>
       </div>
-      <button class="icon" id="copy" data-i18n-aria="copy" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg></button>
-      <button class="icon" id="share" data-i18n-aria="shareText" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16a3 3 0 0 0-2.4 1.2l-6.7-3.4a3 3 0 0 0 0-1.6l6.7-3.4A3 3 0 1 0 15 7c0 .3 0 .5.1.8L8.4 11.2a3 3 0 1 0 0 3.6l6.7 3.4A3 3 0 1 0 18 16z"/></svg></button>
     </div>
   </div>
 
@@ -210,7 +223,7 @@ button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px sol
     <button class="micbtn" id="mic-a" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span></button>
     <button class="micbtn" id="mic-b" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V22h2v-3.1A7 7 0 0 0 19 12h-2z"/></svg><span class="lbl"></span></button>
   </div>
-  <div class="sign" dir="ltr">Developer Alex Grey <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a> · v14</div>
+  <div class="sign" dir="ltr">Developer Alex Grey <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a> · v15</div>
 </div>
 
 <div class="sheet notranslate" id="sheet" translate="no" hidden>
@@ -236,16 +249,16 @@ button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px sol
     <h3 data-i18n="history"></h3>
     <div class="hist" id="hist"></div>
     <button class="btn" id="hist-clear" data-i18n="histClear"></button>
-    <footer dir="ltr">Developer Alex Grey <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a> · v14</footer>
+    <footer dir="ltr">Developer Alex Grey <a href="https://t.me/a7grey" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 3.6 2.9 10.8c-1 .4-1 1.7 0 2l4.6 1.5 1.8 5.6c.3.9 1.4 1.1 2 .5l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3-15.2c.2-1-.8-1.8-1.7-1.4zM9.7 14.2l8.4-7.3-6.8 8.6-.3 3-1.3-4.3z"/></svg>@a7grey</a> · v15</footer>
   </div>
 </div>
 <div class="toast notranslate" translate="no" id="toast" hidden></div>
 
 <script>
 /* ================= interface languages ================= */
-const APP_VERSION='v14';
+const APP_VERSION='v15';
 const I18N={
-ru:{ ibAndroid:'Установить на Android', ibIOS:'Установить на iOS', sendVoice:'Отправить голосовое', shareText:'Отправить текст', vMaking:'Создаю голосовое…', vTapAgain:'Голосовое готово — нажмите ➤ ещё раз', shareGot:'Получаю голосовое из WhatsApp…', shareNoFile:'WhatsApp передал только подпись без файла — так делает Chrome старше версии 154. Обновите Chrome в Play Маркете (или установите Chrome Beta) и переустановите приложение. Пока можно: Меню → «Перевести голосовое из файла».', install:'Установка', instAndroid:'Установить на Android', instIOS:'Установить на iPhone (iOS)', instAndroidSteps:'1. Откройте ссылку в Chrome.\n2. Нажмите ⋮ → «Установить приложение» (или «Добавить на главный экран»).\n3. Значок Tarjuman появится на рабочем экране.', instIOSSteps:'1. Откройте ссылку в Safari.\n2. Нажмите «Поделиться» (квадрат со стрелкой вверх) → «На экран „Домой“» → «Добавить».\n3. Значок Tarjuman появится на рабочем экране.', instDone:'Приложение уже установлено на этом устройстве.', copyLink:'Скопировать ссылку', swapLangs:'Поменять языки', menu:'Меню', close:'Закрыть', history:'История', settings:'Настройки', histEmpty:'Здесь появятся ваши переводы.', histClear:'Очистить историю', histCleared:'История очищена',
+ru:{ saveVoice:'Сохранить голосовое', vWait:'Готовлю голосовое…', ibAndroid:'Установить на Android', ibIOS:'Установить на iOS', sendVoice:'Отправить голосовое', shareText:'Отправить текст', vMaking:'Создаю голосовое…', vTapAgain:'Голосовое готово — нажмите ➤ ещё раз', shareGot:'Получаю голосовое из WhatsApp…', shareNoFile:'WhatsApp передал только подпись без файла — так делает Chrome старше версии 154. Обновите Chrome в Play Маркете (или установите Chrome Beta) и переустановите приложение. Пока можно: Меню → «Перевести голосовое из файла».', install:'Установка', instAndroid:'Установить на Android', instIOS:'Установить на iPhone (iOS)', instAndroidSteps:'1. Откройте ссылку в Chrome.\n2. Нажмите ⋮ → «Установить приложение» (или «Добавить на главный экран»).\n3. Значок Tarjuman появится на рабочем экране.', instIOSSteps:'1. Откройте ссылку в Safari.\n2. Нажмите «Поделиться» (квадрат со стрелкой вверх) → «На экран „Домой“» → «Добавить».\n3. Значок Tarjuman появится на рабочем экране.', instDone:'Приложение уже установлено на этом устройстве.', copyLink:'Скопировать ссылку', swapLangs:'Поменять языки', menu:'Меню', close:'Закрыть', history:'История', settings:'Настройки', histEmpty:'Здесь появятся ваши переводы.', histClear:'Очистить историю', histCleared:'История очищена',
  autoSpeak:'Озвучивать перевод после наговаривания', speed:'Скорость речи', spN:'Обычная', spS:'Чуть медленнее', spSS:'Медленно',
  vmVoices:'Голоса для голосовых сообщений', ruVoice:'Русский', enVoice:'Английский', male:'муж.', female:'жен.', fmt:'Формат голосового', fOpus:'Как в WhatsApp (OGG)', fMp3:'MP3',
  asr:'Распознавание голосовых из файла', aAcc:'Точное (≈250 МБ)', aFast:'Быстрое (≈80 МБ)',
@@ -257,11 +270,11 @@ ru:{ ibAndroid:'Установить на Android', ibIOS:'Установить 
  vmReady:'Голосовое готово', savedFile:'Файл сохранён — прикрепите его в WhatsApp', noVoice:'На телефоне нет голоса для этого языка — готовлю свой…',
  opening:'Открываю голосовое…', asrLoad:'Загружаю распознавание: {pct}% (один раз)', asrWork:'Расшифровываю… {t}', asrNet:'Не удалось скачать распознавание. Проверьте интернет.', asrErr:'Не удалось расшифровать ({e})', asrNone:'Речь не распознана.', asrShort:'Запись пустая или слишком короткая.',
  updated:'Приложение обновлено до {v}', updAvail:'Доступно обновление {v}', update:'Обновить', ok:'Понятно', fixedTag:'по словарю',
- news:['Голосовое снова появляется само — тонкой строкой с кнопкой «Отправить»','Голосовые из WhatsApp: «Поделиться» → Tarjuman','Кнопки «Установить на Android / iOS» на главном экране'],
+ news:['Звучит только один голос; повторное нажатие ▶ останавливает','Голосовым и текстом можно делиться отдельно: у текста свои «Копировать/Поделиться» вверху, у голосового — «Сохранить» и «Отправить»','Созданные голосовые запоминаются и не создаются заново','Последний перевод сохраняется после выхода'],
  errDownload:'не удалось скачать', errLib:'не загрузилась библиотека', errPhon:'не удалось подготовить текст', errNoText:'нет текста', mb:'МБ',
  stPrep:'Готовлю голос…', stLoadTk:'Загружаю огласовки…', stTk:'Расставляю огласовки…', stLoadPh:'Загружаю речевой модуль…', stLoadVoice:'Загружаю голос ({l})…', stSynth:'Создаю голосовое…', pkPh:'Речевой модуль', pkTk:'Огласовки', pkVoice:'Голос {l}',
  errAsrStart:'модуль распознавания не запустился', errNoAudio:'браузер не открывает аудио', errOpenAudio:'не удалось открыть аудиофайл', errSafariOpus:'(Safari может не открывать .opus — попробуйте Chrome)' },
-en:{ ibAndroid:'Install on Android', ibIOS:'Install on iOS', sendVoice:'Send voice message', shareText:'Send text', vMaking:'Creating the voice message…', vTapAgain:'Voice message ready — tap ➤ again', shareGot:'Receiving the voice message from WhatsApp…', shareNoFile:'WhatsApp passed only a caption without the file — Chrome older than 154 does this. Update Chrome in the Play Store (or install Chrome Beta) and reinstall the app. Meanwhile: Menu → “Translate a voice message from a file”.', install:'Install', instAndroid:'Install on Android', instIOS:'Install on iPhone (iOS)', instAndroidSteps:'1. Open the link in Chrome.\n2. Tap ⋮ → “Install app” (or “Add to Home screen”).\n3. The Tarjuman icon appears on your home screen.', instIOSSteps:'1. Open the link in Safari.\n2. Tap Share (square with an up arrow) → “Add to Home Screen” → “Add”.\n3. The Tarjuman icon appears on your home screen.', instDone:'The app is already installed on this device.', copyLink:'Copy link', swapLangs:'Swap languages', menu:'Menu', close:'Close', history:'History', settings:'Settings', histEmpty:'Your translations will appear here.', histClear:'Clear history', histCleared:'History cleared',
+en:{ saveVoice:'Save voice message', vWait:'Preparing the voice message…', ibAndroid:'Install on Android', ibIOS:'Install on iOS', sendVoice:'Send voice message', shareText:'Send text', vMaking:'Creating the voice message…', vTapAgain:'Voice message ready — tap ➤ again', shareGot:'Receiving the voice message from WhatsApp…', shareNoFile:'WhatsApp passed only a caption without the file — Chrome older than 154 does this. Update Chrome in the Play Store (or install Chrome Beta) and reinstall the app. Meanwhile: Menu → “Translate a voice message from a file”.', install:'Install', instAndroid:'Install on Android', instIOS:'Install on iPhone (iOS)', instAndroidSteps:'1. Open the link in Chrome.\n2. Tap ⋮ → “Install app” (or “Add to Home screen”).\n3. The Tarjuman icon appears on your home screen.', instIOSSteps:'1. Open the link in Safari.\n2. Tap Share (square with an up arrow) → “Add to Home Screen” → “Add”.\n3. The Tarjuman icon appears on your home screen.', instDone:'The app is already installed on this device.', copyLink:'Copy link', swapLangs:'Swap languages', menu:'Menu', close:'Close', history:'History', settings:'Settings', histEmpty:'Your translations will appear here.', histClear:'Clear history', histCleared:'History cleared',
  autoSpeak:'Read the translation aloud after dictation', speed:'Speech speed', spN:'Normal', spS:'A bit slower', spSS:'Slow',
  vmVoices:'Voices for voice messages', ruVoice:'Russian', enVoice:'English', male:'male', female:'female', fmt:'Voice message format', fOpus:'Like WhatsApp (OGG)', fMp3:'MP3',
  asr:'Recognizing voice messages from files', aAcc:'Accurate (≈250 MB)', aFast:'Fast (≈80 MB)',
@@ -273,11 +286,11 @@ en:{ ibAndroid:'Install on Android', ibIOS:'Install on iOS', sendVoice:'Send voi
  vmReady:'Voice message ready', savedFile:'File saved — attach it in WhatsApp', noVoice:'No phone voice for this language — preparing our own…',
  opening:'Opening the voice message…', asrLoad:'Downloading recognition: {pct}% (once)', asrWork:'Transcribing… {t}', asrNet:'Couldn’t download recognition. Check your internet.', asrErr:'Couldn’t transcribe ({e})', asrNone:'No speech recognized.', asrShort:'The recording is empty or too short.',
  updated:'App updated to {v}', updAvail:'Update {v} available', update:'Update', ok:'Got it', fixedTag:'from dictionary',
- news:['The voice message appears by itself again — a thin bar with a Send button','Voice messages from WhatsApp: Share → Tarjuman','“Install on Android / iOS” buttons on the main screen'],
+ news:['Only one voice plays; tap ▶ again to stop','Share the voice and the text separately: text has its own Copy/Share at the top, the voice has Save and Send','Voice messages are remembered and not recreated','The last translation is kept after you leave'],
  errDownload:'couldn’t download', errLib:'library failed to load', errPhon:'couldn’t prepare the text', errNoText:'no text', mb:'MB',
  stPrep:'Preparing the voice…', stLoadTk:'Downloading diacritics…', stTk:'Adding diacritics…', stLoadPh:'Downloading the speech module…', stLoadVoice:'Downloading voice ({l})…', stSynth:'Creating the voice message…', pkPh:'Speech module', pkTk:'Diacritics', pkVoice:'Voice {l}',
  errAsrStart:'recognition module didn’t start', errNoAudio:'the browser can’t open audio', errOpenAudio:'couldn’t open the audio file', errSafariOpus:'(Safari may not open .opus — try Chrome)' },
-ar:{ ibAndroid:'التثبيت على أندرويد', ibIOS:'التثبيت على iOS', sendVoice:'إرسال الرسالة الصوتية', shareText:'إرسال النص', vMaking:'جارٍ إنشاء الرسالة الصوتية…', vTapAgain:'الرسالة الصوتية جاهزة — اضغط ➤ مرة أخرى', shareGot:'جارٍ استلام الرسالة الصوتية من واتساب…', shareNoFile:'مرّر واتساب التعليق فقط دون الملف — يفعل ذلك Chrome الأقدم من الإصدار 154. حدّث Chrome من متجر Play (أو ثبّت Chrome Beta) وأعد تثبيت التطبيق. حالياً: القائمة ← «ترجمة رسالة صوتية من ملف».', install:'التثبيت', instAndroid:'التثبيت على أندرويد', instIOS:'التثبيت على آيفون (iOS)', instAndroidSteps:'1. افتح الرابط في Chrome.\n2. اضغط ⋮ ← «تثبيت التطبيق» (أو «إضافة إلى الشاشة الرئيسية»).\n3. تظهر أيقونة Tarjuman على الشاشة الرئيسية.', instIOSSteps:'1. افتح الرابط في Safari.\n2. اضغط «مشاركة» (مربع بسهم للأعلى) ← «إضافة إلى الشاشة الرئيسية» ← «إضافة».\n3. تظهر أيقونة Tarjuman على الشاشة الرئيسية.', instDone:'التطبيق مثبّت بالفعل على هذا الجهاز.', copyLink:'نسخ الرابط', swapLangs:'تبديل اللغتين', menu:'القائمة', close:'إغلاق', history:'السجل', settings:'الإعدادات', histEmpty:'ستظهر ترجماتك هنا.', histClear:'مسح السجل', histCleared:'تم مسح السجل',
+ar:{ saveVoice:'حفظ الرسالة الصوتية', vWait:'جارٍ تجهيز الرسالة الصوتية…', ibAndroid:'التثبيت على أندرويد', ibIOS:'التثبيت على iOS', sendVoice:'إرسال الرسالة الصوتية', shareText:'إرسال النص', vMaking:'جارٍ إنشاء الرسالة الصوتية…', vTapAgain:'الرسالة الصوتية جاهزة — اضغط ➤ مرة أخرى', shareGot:'جارٍ استلام الرسالة الصوتية من واتساب…', shareNoFile:'مرّر واتساب التعليق فقط دون الملف — يفعل ذلك Chrome الأقدم من الإصدار 154. حدّث Chrome من متجر Play (أو ثبّت Chrome Beta) وأعد تثبيت التطبيق. حالياً: القائمة ← «ترجمة رسالة صوتية من ملف».', install:'التثبيت', instAndroid:'التثبيت على أندرويد', instIOS:'التثبيت على آيفون (iOS)', instAndroidSteps:'1. افتح الرابط في Chrome.\n2. اضغط ⋮ ← «تثبيت التطبيق» (أو «إضافة إلى الشاشة الرئيسية»).\n3. تظهر أيقونة Tarjuman على الشاشة الرئيسية.', instIOSSteps:'1. افتح الرابط في Safari.\n2. اضغط «مشاركة» (مربع بسهم للأعلى) ← «إضافة إلى الشاشة الرئيسية» ← «إضافة».\n3. تظهر أيقونة Tarjuman على الشاشة الرئيسية.', instDone:'التطبيق مثبّت بالفعل على هذا الجهاز.', copyLink:'نسخ الرابط', swapLangs:'تبديل اللغتين', menu:'القائمة', close:'إغلاق', history:'السجل', settings:'الإعدادات', histEmpty:'ستظهر ترجماتك هنا.', histClear:'مسح السجل', histCleared:'تم مسح السجل',
  autoSpeak:'نطق الترجمة بعد الإملاء', speed:'سرعة الكلام', spN:'عادية', spS:'أبطأ قليلاً', spSS:'بطيئة',
  vmVoices:'أصوات الرسائل الصوتية', ruVoice:'الروسية', enVoice:'الإنجليزية', male:'رجل', female:'امرأة', fmt:'صيغة الرسالة الصوتية', fOpus:'مثل واتساب (OGG)', fMp3:'MP3',
  asr:'التعرّف على الرسائل الصوتية من ملف', aAcc:'دقيق (≈250 ميغابايت)', aFast:'سريع (≈80 ميغابايت)',
@@ -289,7 +302,7 @@ ar:{ ibAndroid:'التثبيت على أندرويد', ibIOS:'التثبيت ع�
  vmReady:'الرسالة الصوتية جاهزة', savedFile:'تم حفظ الملف — أرفقه في واتساب', noVoice:'لا يوجد صوت لهذه اللغة في الهاتف — جارٍ تجهيز صوتنا…',
  opening:'جارٍ فتح الرسالة الصوتية…', asrLoad:'جارٍ تحميل التعرّف: {pct}% (مرة واحدة)', asrWork:'جارٍ التفريغ… {t}', asrNet:'تعذّر تحميل التعرّف. تحقّق من الإنترنت.', asrErr:'تعذّر التفريغ ({e})', asrNone:'لم يُتعرّف على كلام.', asrShort:'التسجيل فارغ أو قصير جداً.',
  updated:'تم تحديث التطبيق إلى {v}', updAvail:'يتوفر التحديث {v}', update:'تحديث', ok:'حسناً', fixedTag:'من القاموس',
- news:['تظهر الرسالة الصوتية تلقائياً من جديد — شريط رفيع مع زر «إرسال»','الرسائل الصوتية من واتساب: مشاركة ← Tarjuman','زرا «التثبيت على أندرويد / iOS» في الشاشة الرئيسية'],
+ news:['يُسمع صوت واحد فقط؛ اضغط ▶ مرة أخرى للإيقاف','مشاركة الصوت والنص كلٌّ على حدة: للنص «نسخ/مشاركة» في الأعلى، وللرسالة الصوتية «حفظ» و«إرسال»','تُحفظ الرسائل الصوتية المُنشأة ولا تُعاد','تُحفظ آخر ترجمة بعد الخروج'],
  errDownload:'تعذّر التحميل', errLib:'تعذّر تحميل المكتبة', errPhon:'تعذّر تجهيز النص', errNoText:'لا يوجد نص', mb:'ميغابايت',
  stPrep:'جارٍ تجهيز الصوت…', stLoadTk:'جارٍ تحميل التشكيل…', stTk:'جارٍ التشكيل…', stLoadPh:'جارٍ تحميل وحدة النطق…', stLoadVoice:'جارٍ تحميل الصوت ({l})…', stSynth:'جارٍ إنشاء الرسالة الصوتية…', pkPh:'وحدة النطق', pkTk:'التشكيل', pkVoice:'صوت {l}',
  errAsrStart:'لم تبدأ وحدة التعرّف', errNoAudio:'المتصفح لا يفتح الصوت', errOpenAudio:'تعذّر فتح ملف الصوت', errSafariOpus:'(قد لا يفتح Safari صيغة ‎.opus — جرّب Chrome)' }
@@ -448,6 +461,7 @@ const DB = (()=>{
   return {
     async get(k){ try{ const db=await open(); return await new Promise(res=>{ const q=db.transaction('f').objectStore('f').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(undefined); }); }catch(e){ return undefined; } },
     async put(k,v){ try{ const db=await open(); await new Promise(res=>{ const t=db.transaction('f','readwrite'); t.objectStore('f').put(v,k); t.oncomplete=res; t.onerror=res; t.onabort=res; }); }catch(e){} },
+    async del(k){ try{ const db=await open(); await new Promise(res=>{ const t=db.transaction('f','readwrite'); t.objectStore('f').delete(k); t.oncomplete=res; t.onerror=res; t.onabort=res; }); }catch(e){} },
     async has(k){ try{ const db=await open(); return await new Promise(res=>{ const q=db.transaction('f').objectStore('f').getKey(k); q.onsuccess=()=>res(q.result!==undefined); q.onerror=()=>res(false); }); }catch(e){ return false; } }
   };
 })();
@@ -906,8 +920,8 @@ $('#from').onchange=e=>{ const f=e.target.value; setDir(f,state.to===f?state.fro
 $('#to').onchange=e=>{ const x=e.target.value; setDir(state.from===x?state.to:state.from,x); runText(true); };
 $('#swap').onclick=()=>{ const out=!dst.classList.contains('muted')&&dst.textContent; setDir(state.to,state.from); if(out) src.value=out; runText(true); };
 let lastResult={text:'',lang:'ar'};
-function setResultButtons(on){ ['#vplay','#vsend','#copy','#share'].forEach(id=>$(id).disabled=!on); }
-function showResult(text,fixed){ dst.classList.remove('muted'); dst.textContent=text; lastResult={text,lang:state.to}; setResultButtons(true); voiceReset(); autoVoice(); }
+function setResultButtons(on){ ['#vplay','#vsend','#vsave','#copy','#share'].forEach(id=>$(id).disabled=!on); $('#dstbox').classList.toggle('empty',!on); }
+function showResult(text,fixed){ dst.classList.remove('muted'); dst.textContent=text; lastResult={text,lang:state.to}; setResultButtons(true); voiceReset(); autoVoice(); try{ localStorage.setItem('tarjuman.last',JSON.stringify({from:state.from,to:state.to,src:src.value,dst:text})); }catch(e){} }
 function clearResult(){ dst.textContent=t('resultPh'); dst.classList.add('muted'); lastResult={text:'',lang:state.to}; setResultButtons(false); voiceReset(); }
 let ctrl=null, debT=null, histT=null, gen=0;
 async function runText(now,speakAfter){
@@ -915,13 +929,13 @@ async function runText(now,speakAfter){
   if(!now){ debT=setTimeout(()=>runText(true),450); return; }
   const text=src.value.trim(); if(ctrl) ctrl.abort(); ctrl=new AbortController(); const g=++gen; clearTimeout(histT);
   stopAllSound();
-  if(!text){ clearResult(); return; }
+  if(!text){ clearResult(); try{ localStorage.removeItem('tarjuman.last'); }catch(e){} return; }
   dst.classList.add('muted'); dst.textContent=t('translating'); setResultButtons(false);
   try{
     const {out,fixed}=await translate(text,state.from,state.to,ctrl.signal); if(g!==gen) return;
     showResult(out,fixed);
     const f=state.from,x=state.to; histT=setTimeout(()=>addHist(f,x,text,out),1500);
-    if(speakAfter&&state.autoSpeak) speakText(out,x);
+    if(speakAfter&&state.autoSpeak) playResult();
   }catch(e){ if(e&&(e.code==='cancelled'||e.name==='AbortError')) return; if(g===gen){ dst.classList.add('muted'); dst.textContent=e.message||t('trFail'); } }
 }
 src.addEventListener('input',()=>{ const d=detect(src.value); if(d&&d!==state.from){ if(d===state.to) setDir(d,state.from); else setDir(d,d===state.me?state.them:state.me); } runText(false); });
@@ -931,78 +945,110 @@ $('#paste').onclick=async()=>{ try{ const x=await navigator.clipboard.readText()
 $('#copy').onclick=()=>{ if(lastResult.text) copyText(lastResult.text); };
 $('#share').onclick=async()=>{ const x=lastResult.text; if(!x) return; try{ if(navigator.share){ await navigator.share({text:x}); return; } }catch(e){ if(e.name==='AbortError') return; } copyText(x); };
 
-/* ================= speaking the translation (phone voice; own voice if the phone has none) ================= */
-let currentAudio=null;
-function stopAllSound(){ if(typeof voiceStop==='function'&&vAudio){ voiceStop(); renderVoice(); } try{ window.speechSynthesis&&speechSynthesis.cancel(); }catch(e){} if(currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio=null; } }
-function deviceVoice(lang){ if(!window.speechSynthesis) return null; const vs=speechSynthesis.getVoices()||[]; const want=L[lang].sr.toLowerCase(); return vs.find(v=>v.lang.replace('_','-').toLowerCase()===want)||vs.find(v=>v.lang.toLowerCase().startsWith(lang))||null; }
-if(window.speechSynthesis) try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){}
-async function speakText(text,lang){
-  if(!text) return; stopAllSound();
-  const v=deviceVoice(lang);
-  if(v){ const u=new SpeechSynthesisUtterance(text); u.lang=L[lang].sr; try{ u.voice=v; }catch(e){} u.rate=1/parseFloat(state.speed||'1'); speechSynthesis.speak(u); return; }
-  if(IN_CLAUDE) return;
-  toast(t('noVoice'),2000);
-  try{ const r=await Engine.synth(text,lang,m=>setStatus(m)); setStatus(''); const a=new Audio(r.url); currentAudio=a; a.play().catch(()=>{}); }
-  catch(e){ setStatus(''); toast(e.message||'error'); }
-}
-
-
-/* ================= thin voice message inside the result (WhatsApp style) ================= */
-function fileFor(v,ext){ const type=v.kind==='opus'?'audio/ogg':v.kind==='mp3'?'audio/mpeg':'audio/wav'; return new File([v.blob],'Tarjuman_'+L[v.lang].short+'_'+stamp()+'.'+ext,{type}); }
-function downloadVoice(v){ const f=fileFor(v,v.kind==='opus'?'ogg':v.kind); const a=document.createElement('a'); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000); }
+/* ================= ONE player for everything: phone voice, voice message, waiting ================= */
 const VBARS=28, vwave=$('#vwave');
 for(let i=0;i<VBARS;i++){ const b=document.createElement('i'); vwave.appendChild(b); }
 const VIDLE=Array.from({length:VBARS},(_,i)=>.25+.2*Math.abs(Math.sin(i*1.7)));
-let voice={key:'',st:'none',v:null,p:null}, vAudio=null, vRaf=0;
+let player={kind:''}, vRaf=0;               // kind: '' | 'wait' | 'tts' | 'note'
+let voice={key:'',st:'none',v:null,p:null};  // st: none | making | ready
 const vKey=()=>lastResult.lang+'|'+lastResult.text;
+function stopAllSound(){
+  cancelAnimationFrame(vRaf);
+  if(player.a){ try{ player.a.pause(); player.a.currentTime=0; }catch(e){} }
+  try{ window.speechSynthesis&&speechSynthesis.cancel(); }catch(e){}
+  player={kind:''}; if(vwave.children.length) renderVoice();
+}
+function deviceVoice(lang){ if(!window.speechSynthesis) return null; const vs=speechSynthesis.getVoices()||[]; const want=L[lang].sr.toLowerCase(); return vs.find(v=>v.lang.replace('_','-').toLowerCase()===want)||vs.find(v=>v.lang.toLowerCase().startsWith(lang))||null; }
+if(window.speechSynthesis) try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){}
+function speakDevice(text,lang){
+  const v=deviceVoice(lang); if(!v||!text) return false;
+  stopAllSound();
+  const u=new SpeechSynthesisUtterance(text); u.lang=L[lang].sr; try{ u.voice=v; }catch(e){} u.rate=1/parseFloat(state.speed||'1');
+  const done=()=>{ if(player.u===u){ player={kind:''}; renderVoice(); } };
+  u.onend=done; u.onerror=done; player={kind:'tts',u}; renderVoice();
+  setTimeout(()=>{ if(player.u===u) try{ speechSynthesis.speak(u); }catch(e){ done(); } },120); // pause after cancel: Android otherwise plays two voices
+  return true;
+}
+function playNote(v){
+  stopAllSound(); const a=new Audio(v.url); player={kind:'note',a}; renderVoice();
+  const step=()=>{ if(player.a!==a) return; drawWave(v.peaks,a.duration?a.currentTime/a.duration:0); $('#vdur').textContent=mmss(a.currentTime||0); vRaf=requestAnimationFrame(step); };
+  a.onended=()=>{ if(player.a===a){ player={kind:''}; cancelAnimationFrame(vRaf); renderVoice(); } };
+  a.play().then(step).catch(()=>{ if(player.a===a){ player={kind:''}; renderVoice(); } });
+}
 function drawWave(peaks,prog){ const bars=vwave.children; for(let i=0;i<VBARS;i++){ const pk=peaks?peaks[Math.floor(i*peaks.length/VBARS)]:VIDLE[i]; bars[i].style.height=Math.round(Math.max(.15,pk)*100)+'%'; bars[i].classList.toggle('on',prog>0&&i/VBARS<prog); } }
 function renderVoice(){
-  const bar=$('#vbar'); bar.classList.toggle('ready',voice.st==='ready'); bar.classList.toggle('making',voice.st==='making');
-  $('#vdur').textContent= voice.st==='ready'?mmss(voice.v.seconds): voice.st==='making'?'…':'';
-  if(!vAudio) drawWave(voice.st==='ready'?voice.v.peaks:null,0);
+  const bar=$('#vbar'), ready=voice.st==='ready'&&voice.key===vKey();
+  bar.classList.toggle('ready',ready); bar.classList.toggle('making',voice.st==='making'||player.kind==='wait');
+  bar.classList.toggle('playing',!!player.kind);
+  $('#vsend').classList.toggle('ok',ready); $('#vsave').classList.toggle('ok',ready);
+  if(player.kind!=='note'){ $('#vdur').textContent= ready?mmss(voice.v.seconds): voice.st==='making'?'…':''; drawWave(ready?voice.v.peaks:null,0); }
 }
-function voiceStop(){ if(vAudio){ try{ vAudio.pause(); }catch(e){} vAudio=null; } cancelAnimationFrame(vRaf); $('#vbar').classList.remove('playing'); }
-function voiceReset(){ voiceStop(); voice={key:'',st:'none',v:null,p:null}; renderVoice(); }
+function voiceReset(){ stopAllSound(); voice={key:'',st:'none',v:null,p:null}; renderVoice(); }
+
+/* voice messages are remembered (IndexedDB), so the same translation is never voiced twice */
+const NK='tarjuman.notes';
+const noteKey=(lang,text)=>'note|'+voiceKey(lang)+'|'+state.speed+'|'+state.fmt+'|'+lang+'|'+text;
+async function noteGet(k){ const r=await DB.get(k); if(!r||!r.blob) return null; return {...r,url:URL.createObjectURL(r.blob)}; }
+async function notePut(k,v){
+  await DB.put(k,{blob:v.blob,kind:v.kind,seconds:v.seconds,peaks:v.peaks,lang:v.lang});
+  let list=[]; try{ list=JSON.parse(localStorage.getItem(NK)||'[]'); }catch(e){}
+  list=list.filter(x=>x!==k); list.unshift(k); const old=list.splice(40);
+  try{ localStorage.setItem(NK,JSON.stringify(list)); }catch(e){} old.forEach(x=>DB.del(x));
+}
 function makeVoice(){
   const key=vKey(); if(!lastResult.text||IN_CLAUDE) return Promise.reject(new Error(t('noVoice')));
   if(voice.key===key&&voice.p) return voice.p;
-  const {text,lang}=lastResult;
+  const {text,lang}=lastResult, nk=noteKey(lang,text);
   voice={key,st:'making',v:null,p:null}; renderVoice();
-  const p=Engine.synth(text,lang,m=>{ if(voice.key===key) setStatus(m); }).then(v=>{ if(voice.key===key){ voice.st='ready'; voice.v=v; setStatus(''); renderVoice(); } return v; },
-    e=>{ if(voice.key===key){ voice={key:'',st:'none',v:null,p:null}; setStatus(''); renderVoice(); } throw e; });
+  const p=(async()=>{
+    let v=await noteGet(nk), fresh=false;
+    if(!v){ v=await Engine.synth(text,lang,m=>{ if(voice.key===key) setStatus(m); }); fresh=true; }
+    if(fresh) notePut(nk,v);
+    if(voice.key===key){ voice.st='ready'; voice.v=v; setStatus(''); renderVoice(); }
+    return v;
+  })().catch(e=>{ if(voice.key===key){ voice={key:'',st:'none',v:null,p:null}; setStatus(''); renderVoice(); } throw e; });
   voice.p=p; return p;
 }
 async function autoVoice(){
-  if(IN_CLAUDE||!lastResult.text) return; const key=vKey();
-  let ok=false; try{ ok=await Engine.isReady(lastResult.lang); }catch(e){}
+  if(IN_CLAUDE||!lastResult.text) return; const key=vKey(), {text,lang}=lastResult;
+  let ok=await DB.has(noteKey(lang,text));
+  if(!ok){ try{ ok=await Engine.isReady(lang); }catch(e){} }
   const c=navigator.connection; if(!ok && c && (c.saveData||c.type==='cellular')) return;
   if(key!==vKey()) return;
   setTimeout(()=>{ if(key===vKey()&&!rec) makeVoice().catch(()=>{}); },ok?0:300);
 }
-function playVoice(v){
-  stopAllSound(); const a=new Audio(v.url); vAudio=a; $('#vbar').classList.add('playing');
-  const step=()=>{ if(vAudio!==a) return; drawWave(v.peaks,a.duration?a.currentTime/a.duration:0); $('#vdur').textContent=mmss(a.currentTime||0); vRaf=requestAnimationFrame(step); };
-  a.onended=()=>{ if(vAudio===a){ voiceStop(); renderVoice(); } };
-  a.play().then(step).catch(()=>{ voiceStop(); renderVoice(); });
+/* ▶: play the voice message; tap again = stop. Only one sound at a time. */
+async function playResult(){
+  const key=vKey(); if(!lastResult.text) return;
+  if(voice.key===key&&voice.st==='ready'){ playNote(voice.v); return; }
+  stopAllSound(); const tok={}; player={kind:'wait',tok}; renderVoice();
+  let fast=false;
+  if(!IN_CLAUDE){ try{ fast=(await DB.has(noteKey(lastResult.lang,lastResult.text)))||(await Engine.isReady(lastResult.lang)); }catch(e){} }
+  if(player.tok!==tok||key!==vKey()) return;
+  if(!fast){ player={kind:''}; if(speakDevice(lastResult.text,lastResult.lang)) return; if(IN_CLAUDE){ toast(t('noVoice')); renderVoice(); return; } player={kind:'wait',tok}; toast(t('vWait'),2500); }
+  try{ const v=await makeVoice(); if(player.tok===tok&&key===vKey()) playNote(v); }
+  catch(e){ if(player.tok===tok){ player={kind:''}; renderVoice(); if(!speakDevice(lastResult.text,lastResult.lang)) toast(e.message||'error',4000); } }
 }
-$('#vplay').onclick=()=>{
-  if(vAudio){ voiceStop(); renderVoice(); return; }
-  if(voice.st==='ready'&&voice.key===vKey()){ playVoice(voice.v); return; }
-  speakText(lastResult.text,lastResult.lang);
-};
+$('#vplay').onclick=()=>{ if(player.kind){ stopAllSound(); return; } playResult(); };
+
+/* voice message: Send (share the audio file) and Save — separate from the text */
+function fileFor(v,ext){ const type=v.kind==='opus'?'audio/ogg':v.kind==='mp3'?'audio/mpeg':'audio/wav'; return new File([v.blob],'Tarjuman_'+L[v.lang].short+'_'+stamp()+'.'+ext,{type}); }
+function downloadVoice(v){ const f=fileFor(v,v.kind==='opus'?'ogg':v.kind); const a=document.createElement('a'); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000); }
 async function shareVoice(v){
-  const exts=v.kind==='opus'?['opus','ogg']:[v.kind];
+  const exts=v.kind==='opus'?['ogg','opus']:[v.kind];
   try{ if(navigator.canShare){ for(const ext of exts){ const f=fileFor(v,ext); if(navigator.canShare({files:[f]})){ await navigator.share({files:[f]}); return; } } } }
   catch(e){ if(e.name==='AbortError') return; if(e.name==='NotAllowedError'){ toast(t('vTapAgain')); return; } }
   downloadVoice(v); toast(t('savedFile'));
 }
-$('#vsend').onclick=async()=>{
+async function voiceAction(fn){
   if(!lastResult.text) return;
-  if(voice.st==='ready'&&voice.key===vKey()){ shareVoice(voice.v); return; }
+  if(voice.st==='ready'&&voice.key===vKey()){ fn(voice.v); return; }
   if(IN_CLAUDE){ toast(t('noVoice')); return; }
   toast(t('vMaking'));
   try{ await makeVoice(); toast(t('vTapAgain'),3000); }catch(e){ toast(e.message||'error',4000); }
-};
+}
+$('#vsend').onclick=()=>voiceAction(shareVoice);
+$('#vsave').onclick=()=>voiceAction(v=>{ downloadVoice(v); toast(t('savedFile')); });
 
 /* ================= dictation: speak → text → translation ================= */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -1147,6 +1193,11 @@ async function chromeMajor(){
   try{ if(navigator.userAgentData&&navigator.userAgentData.getHighEntropyValues){ const h=await navigator.userAgentData.getHighEntropyValues(['fullVersionList']); const c=(h.fullVersionList||[]).find(x=>/Google Chrome|Chromium/.test(x.brand)); if(c) return parseInt(c.version)||0; } }catch(e){}
   const m=navigator.userAgent.match(/Chrome\/(\d+)/); return m?parseInt(m[1]):0;
 }
+function restoreLast(){
+  let l=null; try{ l=JSON.parse(localStorage.getItem('tarjuman.last')||'null'); }catch(e){}
+  if(!l||!l.src||!l.dst||!LANGS.includes(l.from)||!LANGS.includes(l.to)) return;
+  src.value=l.src; setDir(l.from,l.to); showResult(l.dst);
+}
 async function pickUpShared(){
   const q=new URLSearchParams(location.search);
   const sharedPost=q.has('shared')&&q.has('n'), nFiles=parseInt(q.get('n')||'0')||0;
@@ -1160,7 +1211,7 @@ async function pickUpShared(){
     if(looksVoice&&IS_ANDROID&&(await chromeMajor())<=153){ toast(t('shareNoFile'),9000); return; }
     if(looksVoice&&!x){ toast(t('shareNoFile'),9000); return; }
   }
-  if(!x) return; src.value=x; const d=detect(x); if(d) setDir(d,d===state.me?state.them:state.me); runText(true);
+  if(!x){ restoreLast(); return; } src.value=x; const d=detect(x); if(d) setDir(d,d===state.me?state.them:state.me); runText(true);
 }
 if(!IN_CLAUDE&&(location.protocol==='https:'||location.hostname==='localhost')&&'serviceWorker' in navigator){
   if(!document.querySelector('link[rel=manifest]')){ const l=document.createElement('link'); l.rel='manifest'; l.href='manifest.webmanifest'; document.head.appendChild(l); }
