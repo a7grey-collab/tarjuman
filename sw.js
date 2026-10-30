@@ -1,18 +1,32 @@
-/* Tarjuman service worker v5 (text edition): always load the newest app version; WhatsApp text share. Developer Alex Grey · https://t.me/a7grey */
+/* Tarjuman service worker v6: receives voice messages and text shared from WhatsApp (Web Share Target); always loads the newest app version. Developer Alex Grey · https://t.me/a7grey */
+const SHARE_CACHE = 'tarjuman-share';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method === 'POST' && url.pathname.endsWith('/share-target')) {
     e.respondWith((async () => {
-      let text = '';
-      try { const form = await e.request.formData(); for (const [, v] of form.entries()) if (typeof v === 'string' && v) text += (text ? '\n' : '') + v; } catch (x) {}
-      const q = new URLSearchParams({ shared: '1' }); if (text) q.set('text', text.slice(0, 4000));
+      const stamp = Date.now();
+      let n = 0, text = '', err = '';
+      try {
+        const form = await e.request.formData();
+        const cache = await caches.open(SHARE_CACHE);
+        for (const [, v] of form.entries()) {
+          if (v && typeof v !== 'string') {
+            if (!v.size) continue;
+            await cache.put(new URL('shared/' + stamp + '-' + n, self.registration.scope).href,
+              new Response(v, { headers: { 'content-type': v.type || 'audio/ogg', 'x-name': encodeURIComponent(v.name || 'voice') } }));
+            n++;
+          } else if (v) { text += (text ? '\n' : '') + v; }
+        }
+      } catch (x) { err = String((x && x.message) || x).slice(0, 120); }
+      const q = new URLSearchParams({ shared: String(stamp), n: String(n) });
+      if (text) q.set('t', text.slice(0, 4000));
+      if (err) q.set('e', err);
       return Response.redirect(new URL('./?' + q.toString(), self.registration.scope).href, 303);
     })());
     return;
   }
-  // pages: always fresh from the network (no stale cached version), cache only as offline fallback
   if (e.request.mode === 'navigate' && url.origin === location.origin) {
     e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(() => fetch(e.request)));
   }

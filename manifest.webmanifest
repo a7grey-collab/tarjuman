@@ -27,11 +27,35 @@
     }
   ],
   "share_target": {
-    "action": "./",
-    "method": "GET",
+    "action": "./share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
     "params": {
       "title": "title",
-      "text": "text"
+      "text": "text",
+      "files": [
+        {
+          "name": "audio",
+          "accept": [
+            "*/*",
+            "audio/*",
+            "application/ogg",
+            "application/octet-stream",
+            "video/*",
+            ".opus",
+            ".ogg",
+            ".oga",
+            ".m4a",
+            ".mp3",
+            ".aac",
+            ".amr",
+            ".wav",
+            ".webm",
+            ".3gp",
+            ".mp4"
+          ]
+        }
+      ]
     }
   }
 }
